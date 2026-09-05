@@ -1,0 +1,98 @@
+{
+  "character": "SolarWarden",
+  "updated_at": "2026-09-04 18:18:48",
+  "source": "dnf_combat_stats",
+  "region": {
+    "x": 960,
+    "y": 457,
+    "width": 630,
+    "height": 587
+  },
+  "hover": {
+    "x": 71,
+    "y": 128,
+    "dy": 43,
+    "count": 8,
+    "dwell_s": 0.5
+  },
+  "skills": [
+    {
+      "slot": 1,
+      "command": "t",
+      "hold_frames": 120,
+      "hotbar": true,
+      "cooldown_s": 270,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 2,
+      "command": "w",
+      "hotbar": true,
+      "hold_frames": 40,
+      "cooldown_s": 33.7,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 3,
+      "command": "f",
+      "hold_frames": 40,
+      "hotbar": true,
+      "cooldown_s": 44.9,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 4,
+      "command": "right+space",
+      "hold_frames": 5,
+      "cooldown_s": 37.4,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 5,
+      "command": "down right+z",
+      "hotbar": true,
+      "hold_frames": 7,
+      "cooldown_s": 26.2,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 6,
+      "command": "d",
+      "hold_frames": 60,
+      "hotbar": true,
+      "cooldown_s": 26.2,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 7,
+      "command": "r",
+      "hotbar": true,
+      "cooldown_s": 18.7,
+      "hold_frames": 40,
+      "combo": false,
+      "multi": true,
+      "multi_n": 2
+    },
+    {
+      "slot": 8,
+      "command": "space",
+      "cooldown_s": 12.7,
+      "hold_frames": 60,
+      "combo": true,
+      "multi": false,
+      "multi_n": 2
+    }
+  ]
+}

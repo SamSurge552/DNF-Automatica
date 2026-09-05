@@ -1,0 +1,20 @@
+{
+  "character": "SolarWarden",
+  "region": {
+    "x": 960,
+    "y": 457,
+    "width": 630,
+    "height": 587
+  },
+  "hover": {
+    "x": 71,
+    "y": 128,
+    "dy": 43,
+    "count": 8,
+    "dwell_s": 0.5
+  },
+  "ocr": {
+    "marker": "操作指令",
+    "cd_marker": "冷却时间"
+  }
+}

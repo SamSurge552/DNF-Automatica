@@ -1,0 +1,10 @@
+# 采集整段截图目录不上
+/images/
+
+# FSM测试：jsonl / 参数可上，图片不上
+FSM_TEST/**/*.png
+FSM_TEST/**/*.jpg
+FSM_TEST/**/*.jpeg
+FSM_TEST/**/*.webp
+FSM_TEST/**/*.bmp
+FSM_TEST/**/png/

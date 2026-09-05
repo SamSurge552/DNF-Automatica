@@ -1,0 +1,71 @@
+{
+  "keys": [
+    "alt_l",
+    "c",
+    "delete",
+    "down",
+    "left",
+    "right",
+    "s",
+    "space",
+    "up",
+    "x",
+    "z"
+  ],
+  "n_rows": 173,
+  "train_sessions": [
+    "20260831_135953",
+    "20260831_135605"
+  ],
+  "val_sessions": [
+    "20260831_135547"
+  ],
+  "device": "cpu",
+  "k_range": [
+    -2,
+    2
+  ],
+  "best_k": 2,
+  "best_val_r2": -4.63,
+  "interval_s": 0.05,
+  "delta_s_est": 0.1,
+  "flat": false,
+  "read": "曲线平坦或 R² 接近 0：对齐可能错，或特征几乎没有信息量。",
+  "curve": [
+    {
+      "val_mse": 0.173609,
+      "val_r2": -4.7761,
+      "n_train": 124,
+      "n_val": 43,
+      "k": -2
+    },
+    {
+      "val_mse": 0.213362,
+      "val_r2": -5.8136,
+      "n_train": 126,
+      "n_val": 44,
+      "k": -1
+    },
+    {
+      "val_mse": 0.20983,
+      "val_r2": -5.4536,
+      "n_train": 128,
+      "n_val": 45,
+      "k": 0
+    },
+    {
+      "val_mse": 0.209848,
+      "val_r2": -5.3178,
+      "n_train": 126,
+      "n_val": 44,
+      "k": 1
+    },
+    {
+      "val_mse": 0.191124,
+      "val_r2": -4.63,
+      "n_train": 124,
+      "n_val": 43,
+      "k": 2
+    }
+  ]
+}

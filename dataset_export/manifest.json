@@ -1,0 +1,182 @@
+{
+  "align": "TRAIN_ALIGN.md",
+  "y": "per-key held_frac; missing key = 0",
+  "player_fill": "export-time forward-fill only; player_hold=1 means inertia",
+  "first_frame": "dropped (no left endpoint / no fabricated dt)",
+  "dup_frames": "export-only: drop consecutive identical features; recordings keep them for FSM",
+  "stamp_bias": "use disk t_ns as-is (dxcam capture wall median ~8ms; old Grab ~41ms)",
+  "keys": [
+    "alt_l",
+    "c",
+    "delete",
+    "down",
+    "left",
+    "right",
+    "s",
+    "space",
+    "up",
+    "x",
+    "z"
+  ],
+  "n_samples": 173,
+  "n_sessions_kept": 3,
+  "n_sessions_skipped": 1,
+  "dup_skipped": 2,
+  "sessions_kept": [
+    {
+      "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260831_135547_SolarWarden",
+      "dungeon": "深渊：最终调律者",
+      "character": "SolarWarden",
+      "started_at": "20260831_135547",
+      "raw_frames": 46,
+      "raw_keys": 82,
+      "dup_skipped": 0,
+      "skipped": null,
+      "samples": 45,
+      "player_null_raw": 0,
+      "player_hold_samples": 0,
+      "key_press_raw": 67,
+      "key_repeat_ignored": 51,
+      "keys_held_at_start": [],
+      "keys_seen": [
+        "alt_l",
+        "c",
+        "delete",
+        "right",
+        "s",
+        "space",
+        "x"
+      ],
+      "duration_s": 14.032
+    },
+    {
+      "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260831_135605_SolarWarden",
+      "dungeon": "深渊：最终调律者",
+      "character": "SolarWarden",
+      "started_at": "20260831_135605",
+      "raw_frames": 83,
+      "raw_keys": 124,
+      "dup_skipped": 0,
+      "skipped": null,
+      "samples": 82,
+      "player_null_raw": 2,
+      "player_hold_samples": 2,
+      "key_press_raw": 91,
+      "key_repeat_ignored": 58,
+      "keys_held_at_start": [],
+      "keys_seen": [
+        "alt_l",
+        "c",
+        "down",
+        "left",
+        "right",
+        "space",
+        "up",
+        "x",
+        "z"
+      ],
+      "duration_s": 25.788
+    },
+    {
+      "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260831_135953_SolarWarden",
+      "dungeon": "深渊：最终调律者",
+      "character": "SolarWarden",
+      "started_at": "20260831_135953",
+      "raw_frames": 48,
+      "raw_keys": 54,
+      "dup_skipped": 1,
+      "skipped": null,
+      "samples": 46,
+      "player_null_raw": 14,
+      "player_hold_samples": 12,
+      "key_press_raw": 44,
+      "key_repeat_ignored": 34,
+      "keys_held_at_start": [],
+      "keys_seen": [
+        "alt_l",
+        "right",
+        "space",
+        "z"
+      ],
+      "duration_s": 15.122
+    }
+  ],
+  "sessions_skipped": [
+    {
+      "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260831_135540_SolarWarden",
+      "dungeon": "深渊：最终调律者",
+      "character": "SolarWarden",
+      "started_at": "20260831_135540",
+      "raw_frames": 11,
+      "raw_keys": 4,
+      "dup_skipped": 1,
+      "skipped": "too_short duration=3.13s frames=10 dup_skipped=1",
+      "samples": 0,
+      "player_null_raw": 2,
+      "player_hold_samples": 0,
+      "key_press_raw": 2,
+      "key_repeat_ignored": 0,
+      "keys_held_at_start": [],
+      "keys_seen": [],
+      "duration_s": 3.135
+    }
+  ],
+  "key_stats": {
+    "alt_l": {
+      "frames_held_gt0": 3,
+      "sum_held_frac": 1.084,
+      "mean_held_frac": 0.0063
+    },
+    "c": {
+      "frames_held_gt0": 2,
+      "sum_held_frac": 0.887,
+      "mean_held_frac": 0.0051
+    },
+    "delete": {
+      "frames_held_gt0": 1,
+      "sum_held_frac": 0.306,
+      "mean_held_frac": 0.0018
+    },
+    "down": {
+      "frames_held_gt0": 5,
+      "sum_held_frac": 1.981,
+      "mean_held_frac": 0.0115
+    },
+    "left": {
+      "frames_held_gt0": 10,
+      "sum_held_frac": 5.972,
+      "mean_held_frac": 0.0345
+    },
+    "right": {
+      "frames_held_gt0": 52,
+      "sum_held_frac": 41.569,
+      "mean_held_frac": 0.2403
+    },
+    "s": {
+      "frames_held_gt0": 1,
+      "sum_held_frac": 0.542,
+      "mean_held_frac": 0.0031
+    },
+    "space": {
+      "frames_held_gt0": 10,
+      "sum_held_frac": 4.439,
+      "mean_held_frac": 0.0257
+    },
+    "up": {
+      "frames_held_gt0": 3,
+      "sum_held_frac": 1.131,
+      "mean_held_frac": 0.0065
+    },
+    "x": {
+      "frames_held_gt0": 2,
+      "sum_held_frac": 0.443,
+      "mean_held_frac": 0.0026
+    },
+    "z": {
+      "frames_held_gt0": 7,
+      "sum_held_frac": 2.094,
+      "mean_held_frac": 0.0121
+    }
+  },
+  "player_hold_rate": 0.0809
+}

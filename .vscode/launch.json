@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "启动控制面板",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/gui_module.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}

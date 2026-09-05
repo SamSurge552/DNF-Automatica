@@ -1,0 +1,37 @@
+{
+  "fsm_replay": {
+    "w": 1618,
+    "h": 1038,
+    "x": 49,
+    "y": 188,
+    "zoomed": false
+  },
+  "main": {
+    "w": 695,
+    "h": 1077,
+    "x": 109,
+    "y": 259,
+    "zoomed": false
+  },
+  "fsm_extract": {
+    "w": 939,
+    "h": 865,
+    "x": 616,
+    "y": 388,
+    "zoomed": false
+  },
+  "record_keys": {
+    "w": 320,
+    "h": 420,
+    "x": 455,
+    "y": 407,
+    "zoomed": false
+  },
+  "skill_bind": {
+    "w": 1100,
+    "h": 820,
+    "x": 104,
+    "y": 104,
+    "zoomed": false
+  }
+}
