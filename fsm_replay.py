@@ -1,4 +1,4 @@
-"""回放 recordings/*/frames.jsonl：站在模型视角看结构化标签（不是游戏像素）。
+"""回放 recordings/ 与 FSM_TEST/ 的 frames.jsonl：站在模型视角看结构化标签（不是游戏像素）。
 
 图标是抽象符号（player/mon/loot/gate/boss + 数量 + 各类中心点），
 对应 YOLO 写入 jsonl 的字段。不读 PNG、不读 dataset_export/。
@@ -30,8 +30,13 @@ from fsm_core import (
     mon_corr_from_dict,
     mon_off_from_corr,
     DEFAULT_TOWN_S,
-    town_n_frames,
+    send_keys_label,
+    json_ms,
+    json_s_from_frames,
+    parse_hold_ms,
+    HOLD_MS_KEY,
 )
+from fsm_execute import mash_n_for_slot
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
 from skill_feature_extract import (
@@ -84,16 +89,16 @@ CLASS_CN = {
 }
 DIRS = ("left", "right", "up", "down")
 RUN_PRESS_GT = 3
-LOOT_HOLD_DEFAULT = 5
+LOOT_HOLD_DEFAULT = 250
 DEFAULT_PM = 10
 DEFAULT_PC = 5
 DEFAULT_PT = 3
-HOLD_FRAMES_KEY = "hold_frames"
+HOLD_FRAMES_KEY = HOLD_MS_KEY
 COMBO_KEY = "combo"
 MULTI_KEY = "multi"
 MULTI_N_KEY = "multi_n"
 MASH_KEY = "mash"
-SKILL_HOLD_DEFAULT = 5
+SKILL_HOLD_DEFAULT = 250
 PLAYFIELD_W = 800
 PLAYFIELD_H = 450
 FLOW_H = 78
@@ -101,14 +106,14 @@ COUNT_PANEL_W = 400
 STATUS_VALUE_H = 52
 HELP_PARAMS = (
     "M/L/G：连续同值才改判定。BOSS 暂与 MON 共用 M。\n"
-    "回城秒：连续无地下城关键词达该秒数即回城（按段 interval 换成 TN 帧）。回放 jsonl 无 OCR 时默认已进图。\n"
+    "回城秒：连续无地下城关键词达该秒数即回城（核心直接用秒，不换帧）。回放 jsonl 无 OCR 时默认已进图。\n"
     "S%：开打出现时 MON 群相似。\n"
     "F%：杀 MON 效率低于该百分比记假释放（不进序列 / 范围 / CD）。\n"
     "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。数量 > PC 一键拾取，否则挨个捡。\n"
-    "卡住：连续 X 帧逻辑状态不变则状态改为卡住，上下左右各 HOLD Y 帧（不是前进）。\n"
-    "GX/GY：相对当前门，距离大于该像素才继续接近。AX/AY：两轴停后再按过门方向走的帧数。XXX：快捷栏全 CD 时按住普攻 X 的帧数。\n"
+    "卡住：同一流程状态连续 X 秒则改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。\n"
+    "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
     "点按 ms：发键层技能/左Alt 按下保持的毫秒，组合键步骤间隔相同。与主面板共用 json。\n"
-    "连按 COUNT / 间隔 ms：键位表勾了【连按】的技能，执行层打 COUNT 次点按，两次之间停间隔 ms。\n"
+    "连按 COUNT / 间隔 ms：执行层参数（不进核心）。红字由回放按槽是否勾连按 + COUNT 拼出来。\n"
     "MON/BOSS 补正：上下左右滑块，角色要往哪边站就把 YOLO 的 MON/BOSS 坐标往哪边挪（上=Y 减，左=X 减）。只影响 FSM，不改 jsonl。\n"
     "改完立刻写入共用 json，回放当场重算；FSM测试点开始（或测试中再改）会读这份，不必另同步。"
 )
@@ -122,7 +127,7 @@ HELP_SKILLS = (
 )
 HELP_EXTRACT = (
     "按下快捷栏技能（含 SPACE）即提取，不要求开打。\n"
-    "持续帧结束杀 MON 数 > E → 群，否则为单。\n"
+    "持续结束后杀 MON 数 > E → 群，否则为单。\n"
     "杀 MON 效率 < F% → 假释放（不进序列 / 范围 / CD）。\n"
     "怪物分布按按下那一帧现算，不沿用 FSM 当时的状态。\n"
     "地图【CD重置】：提取发现短于 CD 的间隔后写入；运行时击败 BOSS +1 才清 CD。"
@@ -150,6 +155,18 @@ def list_sessions(*roots: Path) -> list[Path]:
         for p in root.rglob("frames.jsonl"):
             found.append(p.parent)
     return sorted(found, key=lambda x: x.name, reverse=True)
+
+
+def session_kind(session: Path) -> str:
+    """采集 recordings → rec；FSM测试 FSM_TEST → fsm。"""
+    try:
+        fsm = FSM_TEST_DIR.resolve()
+        cur = session.resolve()
+        if cur == fsm or fsm in cur.parents:
+            return "fsm"
+    except OSError:
+        pass
+    return "rec"
 
 
 def class_xys(fr: dict, name: str) -> list[list[float]]:
@@ -180,26 +197,25 @@ def compute_draft_track(
     m: int,
     l: int,
     g: int,
-    x: int = 30,
+    x_s: float = 1.5,
     gx: int = 50,
     gy: int = 10,
-    ax: int = 5,
-    ay: int = 5,
-    y: int = 5,
+    ax_ms: int = 250,
+    ay_ms: int = 250,
+    y_ms: int = 250,
     s: int = 20,
     pm: int = 10,
     pc: int = 5,
     pt: int = 3,
-    xxx: int = 20,
+    xxx_ms: int = 1000,
+    th_ms: int = 50,
     fight_plan=(),
     hotbar=(),
     dist_table=(),
     map_reset: bool = False,
     mon_off_x: int = 0,
     mon_off_y: int = 0,
-    mash_count: int = 3,
-    mash_gap_ms: int = 50,
-    tn: int = 600,
+    tn_s: float = DEFAULT_TOWN_S,
 ) -> list[dict]:
     """回放宿主入口；t_ns 用 jsonl 原值。判定在 fsm_core.step。"""
     return run_track(
@@ -208,26 +224,25 @@ def compute_draft_track(
             m=m,
             l=l,
             g=g,
-            x=x,
+            x_s=float(x_s),
             gx=gx,
             gy=gy,
-            ax=ax,
-            ay=ay,
-            y=y,
+            ax_ms=ax_ms,
+            ay_ms=ay_ms,
+            y_ms=y_ms,
             s=s,
             pm=pm,
             pc=pc,
             pt=pt,
-            xxx=xxx,
+            xxx_ms=xxx_ms,
+            th_ms=th_ms,
             fight_plan=tuple(fight_plan or ()),
             hotbar=tuple(hotbar or ()),
             dist_table=tuple(dist_table or ()),
             map_reset=bool(map_reset),
             mon_off_x=int(mon_off_x),
             mon_off_y=int(mon_off_y),
-            mash_count=int(mash_count),
-            mash_gap_ms=int(mash_gap_ms),
-            tn=int(tn),
+            tn_s=float(tn_s),
         ),
     )
 
@@ -302,20 +317,21 @@ def basic_attack_active(edges: list[dict], held: list[str] | None) -> bool:
     )
 
 
-def loot_hold_track(frames: list[dict], keys: list[dict], dur: int) -> list[bool]:
-    """本帧沿出现 alt press 后，连续 dur 帧判定为捡物（含按下那一帧）。再按 alt 会重计。"""
+def loot_hold_track(frames: list[dict], keys: list[dict], dur_ms: int) -> list[bool]:
+    """本帧沿出现 alt press 后，持续 dur_ms 毫秒判定为捡物（含按下那一帧）。再按 alt 会重计。"""
     n = len(frames)
-    dur = max(1, int(dur))
+    dur_ms = max(1, int(dur_ms))
     if n == 0:
         return []
-    last = -10**9
+    last_t = None
     out = [False] * n
     for i, fr in enumerate(frames):
-        t_prev = int(frames[i - 1]["t_ns"]) if i > 0 else int(fr["t_ns"]) - 1
-        edges = events_in_range(keys, t_prev, int(fr["t_ns"]))
+        t = int(fr["t_ns"])
+        t_prev = int(frames[i - 1]["t_ns"]) if i > 0 else t - 1
+        edges = events_in_range(keys, t_prev, t)
         if any(ev.get("type") == "press" and _is_alt_key(str(ev.get("key") or "")) for ev in edges):
-            last = i
-        out[i] = (i - last) < dur
+            last_t = t
+        out[i] = last_t is not None and (t - last_t) / 1e6 < dur_ms
     return out
 
 
@@ -335,16 +351,17 @@ def character_of_session(session: Path, meta: dict) -> str:
 
 
 def dungeon_of_session(session: Path, meta: dict) -> str:
-    """meta.dungeon 优先；采集占位名则退回 recordings 下的地下城目录。"""
+    """meta.dungeon 优先；占位名则退回 recordings 或 FSM_TEST 下的地下城目录。"""
     d = str((meta or {}).get("dungeon") or "").strip()
-    if d and d not in ("采集", "未知"):
+    if d and d not in ("采集", "未知", "FSM测试"):
         return d
-    try:
-        rel = session.resolve().relative_to(RECORDINGS.resolve())
-        if rel.parts:
-            return rel.parts[0]
-    except ValueError:
-        pass
+    for root in (RECORDINGS, FSM_TEST_DIR):
+        try:
+            rel = session.resolve().relative_to(root.resolve())
+            if rel.parts:
+                return rel.parts[0]
+        except ValueError:
+            continue
     return d or "未知"
 
 
@@ -362,19 +379,11 @@ def load_skill_binds(character: str) -> dict | None:
 
 
 def parse_hold_frames(item, default: int | None = None) -> int | None:
-    if not isinstance(item, dict):
-        return default
-    raw = item.get(HOLD_FRAMES_KEY, item.get("frames"))
-    if raw is None:
-        return default
-    try:
-        return max(1, int(raw))
-    except (TypeError, ValueError):
-        return default
+    return parse_hold_ms(item, default)
 
 
 def write_hold_frames(character: str, slot_durs: dict[int, int]) -> bool:
-    """把回放里调的持续帧写进键位表，其它字段原样保留。"""
+    """把回放里调的持续 ms 写进键位表，其它字段原样保留。"""
     return write_skill_table(character, slot_durs=slot_durs, combo_slots=None, multi_n=None)
 
 
@@ -437,8 +446,9 @@ def write_skill_table(
             continue
         if slot_durs and slot in slot_durs:
             n = max(1, int(slot_durs[slot]))
-            if item.get(HOLD_FRAMES_KEY) != n:
-                item[HOLD_FRAMES_KEY] = n
+            if item.get(HOLD_MS_KEY) != n:
+                item[HOLD_MS_KEY] = n
+                item.pop("hold_frames", None)
                 changed = True
         if want_combo is not None:
             on = slot in want_combo
@@ -522,7 +532,7 @@ def skill_hold_track(
     hotbar: list[dict],
     slot_dur: dict[int, int],
 ) -> list[tuple[int, str] | None]:
-    """本帧沿 press 快捷栏单键后，按该技能持续帧显示。再按别的技能会打断。"""
+    """本帧沿 press 快捷栏单键后，按该技能持续毫秒显示。再按别的技能会打断。"""
     n = len(frames)
     if n == 0:
         return []
@@ -532,13 +542,14 @@ def skill_hold_track(
         if not k:
             continue
         by_key.setdefault(k, []).append(sk)
-    last_i = -10**9
+    last_t = None
     last: tuple[int, str] | None = None
     last_dur = SKILL_HOLD_DEFAULT
     out: list[tuple[int, str] | None] = [None] * n
     for i, fr in enumerate(frames):
-        t_prev = int(frames[i - 1]["t_ns"]) if i > 0 else int(fr["t_ns"]) - 1
-        edges = events_in_range(keys, t_prev, int(fr["t_ns"]))
+        t = int(fr["t_ns"])
+        t_prev = int(frames[i - 1]["t_ns"]) if i > 0 else t - 1
+        edges = events_in_range(keys, t_prev, t)
         hit = None
         for ev in edges:
             if ev.get("type") != "press":
@@ -548,11 +559,11 @@ def skill_hold_track(
             if cands:
                 hit = cands[0]
         if hit:
-            last_i = i
+            last_t = t
             key = hotbar_single_key(hit) or ""
             last = (int(hit["slot"]), key)
             last_dur = max(1, int(slot_dur.get(int(hit["slot"]), SKILL_HOLD_DEFAULT)))
-        if last is not None and (i - last_i) < last_dur:
+        if last is not None and last_t is not None and (t - last_t) / 1e6 < last_dur:
             out[i] = last
         else:
             last = None
@@ -635,7 +646,17 @@ class FsmReplayApp(tk.Tk):
 
         top = ttk.Frame(self, padding=8)
         top.pack(fill=tk.X)
-        ttk.Label(top, text="录像").pack(side=tk.LEFT)
+        ttk.Label(top, text="来源").pack(side=tk.LEFT)
+        self.source_var = tk.StringVar(value="全部")
+        self.source_combo = ttk.Combobox(
+            top,
+            textvariable=self.source_var,
+            values=("全部", "采集", "FSM测试"),
+            state="readonly",
+            width=8,
+        )
+        self.source_combo.pack(side=tk.LEFT, padx=(4, 0))
+        ttk.Label(top, text="录像").pack(side=tk.LEFT, padx=(8, 0))
         self.session_var = tk.StringVar()
         self.session_combo = ttk.Combobox(top, textvariable=self.session_var, state="readonly", width=70)
         self.session_combo.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=6)
@@ -655,17 +676,18 @@ class FsmReplayApp(tk.Tk):
         self.m_var = tk.StringVar(value="5")
         self.l_var = tk.StringVar(value="5")
         self.g_var = tk.StringVar(value="5")
-        self.x_var = tk.StringVar(value="30")
+        self.x_var = tk.StringVar(value="1.5")
         self.gx_var = tk.StringVar(value="50")
         self.gy_var = tk.StringVar(value="10")
-        self.ax_var = tk.StringVar(value="5")
-        self.ay_var = tk.StringVar(value="5")
-        self.y_var = tk.StringVar(value="5")
+        self.ax_var = tk.StringVar(value="250")
+        self.ay_var = tk.StringVar(value="250")
+        self.y_var = tk.StringVar(value="250")
         self.s_var = tk.StringVar(value="20")
-        self.xxx_var = tk.StringVar(value="20")
+        self.xxx_var = tk.StringVar(value="1000")
         self.tap_ms_var = tk.StringVar(value="50")
         self.mash_count_var = tk.StringVar(value="3")
         self.mash_gap_var = tk.StringVar(value="50")
+        self.th_var = tk.StringVar(value="50")
         self.pm_var = tk.StringVar(value=str(DEFAULT_PM))
         self.pc_var = tk.StringVar(value=str(DEFAULT_PC))
         self.pt_var = tk.StringVar(value=str(DEFAULT_PT))
@@ -682,6 +704,8 @@ class FsmReplayApp(tk.Tk):
         self.f_var = tk.StringVar(value=str(DEFAULT_F))
         self._extract_busy = False
         self._feature_cache = None
+        self._last_session_path: Path | None = None
+        self._session_paths: dict[str, Path] = {}
         self._combo_vars: dict[int, tk.BooleanVar] = {}
         self._combo_ui_guard = False
         self._mash_vars: dict[int, tk.BooleanVar] = {}
@@ -691,6 +715,7 @@ class FsmReplayApp(tk.Tk):
         self._multi_spins: dict[int, ttk.Spinbox] = {}
         self._multi_ui_guard = False
         self._load_ui_settings()
+        self.source_combo.bind("<<ComboboxSelected>>", lambda e: self._on_source())
 
         params = ttk.LabelFrame(count_wrap, text="参数", padding=8)
         params.pack(side=tk.BOTTOM, fill=tk.X, pady=(8, 0))
@@ -705,28 +730,28 @@ class FsmReplayApp(tk.Tk):
         self._help_btn(r_mlg, "参数说明", HELP_PARAMS).pack(side=tk.RIGHT)
         r_x = ttk.Frame(params)
         r_x.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_x, text="卡住 X帧").pack(side=tk.LEFT)
-        self._spin(r_x, self.x_var, to=500).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_x, text="恢复 Y").pack(side=tk.LEFT)
-        self._spin(r_x, self.y_var, to=120).pack(side=tk.LEFT, padx=(2, 0))
+        ttk.Label(r_x, text="卡住 X秒").pack(side=tk.LEFT)
+        self._spin(r_x, self.x_var, to=120, frm=0.05, width=5).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_x, text="恢复 Y ms").pack(side=tk.LEFT)
+        self._spin(r_x, self.y_var, to=20000, frm=1, width=6).pack(side=tk.LEFT, padx=(2, 0))
         r_gate = ttk.Frame(params)
         r_gate.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_gate, text="GX").pack(side=tk.LEFT)
         self._spin(r_gate, self.gx_var, frm=0, to=400).pack(side=tk.LEFT, padx=(2, 6))
         ttk.Label(r_gate, text="GY").pack(side=tk.LEFT)
         self._spin(r_gate, self.gy_var, frm=0, to=400).pack(side=tk.LEFT, padx=(2, 6))
-        ttk.Label(r_gate, text="AX").pack(side=tk.LEFT)
-        self._spin(r_gate, self.ax_var, frm=0, to=120).pack(side=tk.LEFT, padx=(2, 6))
-        ttk.Label(r_gate, text="AY").pack(side=tk.LEFT)
-        self._spin(r_gate, self.ay_var, frm=0, to=120).pack(side=tk.LEFT, padx=(2, 0))
+        ttk.Label(r_gate, text="AX ms").pack(side=tk.LEFT)
+        self._spin(r_gate, self.ax_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 6))
+        ttk.Label(r_gate, text="AY ms").pack(side=tk.LEFT)
+        self._spin(r_gate, self.ay_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         r_sf = ttk.Frame(params)
         r_sf.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_sf, text="相似 S%").pack(side=tk.LEFT)
         self._spin(r_sf, self.s_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_sf, text="假释放 F%").pack(side=tk.LEFT)
         self._spin(r_sf, self.f_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_sf, text="普攻 XXX").pack(side=tk.LEFT)
-        self._spin(r_sf, self.xxx_var, frm=1, to=120).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_sf, text="普攻 XXX ms").pack(side=tk.LEFT)
+        self._spin(r_sf, self.xxx_var, frm=1, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_sf, text="点按 ms").pack(side=tk.LEFT)
         self._spin(r_sf, self.tap_ms_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 0))
         r_mash = ttk.Frame(params)
@@ -734,7 +759,9 @@ class FsmReplayApp(tk.Tk):
         ttk.Label(r_mash, text="连按 COUNT").pack(side=tk.LEFT)
         self._spin(r_mash, self.mash_count_var, frm=1, to=15).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_mash, text="间隔 ms").pack(side=tk.LEFT)
-        self._spin(r_mash, self.mash_gap_var, frm=10, to=300).pack(side=tk.LEFT, padx=(2, 0))
+        self._spin(r_mash, self.mash_gap_var, frm=10, to=300).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_mash, text="移动间隔 ms").pack(side=tk.LEFT)
+        self._spin(r_mash, self.th_var, frm=0, to=300).pack(side=tk.LEFT, padx=(2, 0))
         r_loot_fsm = ttk.Frame(params)
         r_loot_fsm.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_loot_fsm, text="掉落动 PM").pack(side=tk.LEFT)
@@ -751,8 +778,8 @@ class FsmReplayApp(tk.Tk):
         self._spin(r_run, self.run_press_var, frm=0, to=30).pack(side=tk.LEFT, padx=(2, 0))
         r_loot = ttk.Frame(params)
         r_loot.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_loot, text="捡物持续帧").pack(side=tk.LEFT)
-        self._spin(r_loot, self.loot_hold_var, to=120).pack(side=tk.LEFT, padx=(2, 0))
+        ttk.Label(r_loot, text="捡物持续 ms").pack(side=tk.LEFT)
+        self._spin(r_loot, self.loot_hold_var, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         r_corr = ttk.Frame(params)
         r_corr.pack(fill=tk.X, pady=(6, 0))
         ttk.Label(r_corr, text="MON/BOSS补正").pack(side=tk.LEFT)
@@ -940,9 +967,12 @@ class FsmReplayApp(tk.Tk):
         self._refresh_rollback_btn()
         self.protocol("WM_DELETE_WINDOW", self._on_close)
         self.after_idle(self._fit_window)
+        opened = False
         if start_session:
-            self._select_path(start_session)
-        elif self.session_combo["values"]:
+            opened = self._select_path(Path(start_session))
+        if not opened and self._last_session_path:
+            opened = self._select_path(self._last_session_path)
+        if not opened and self.session_combo["values"]:
             self.session_combo.current(0)
             self._open_selected()
 
@@ -967,8 +997,8 @@ class FsmReplayApp(tk.Tk):
             command=lambda: messagebox.showinfo(title, body, parent=self),
         )
 
-    def _spin(self, parent, var: tk.StringVar, to: int = 60, frm: int = 1) -> ttk.Spinbox:
-        sp = ttk.Spinbox(parent, from_=frm, to=to, width=4, textvariable=var, command=self._on_fsm_opts)
+    def _spin(self, parent, var: tk.StringVar, to: int = 60, frm: int = 1, width: int = 4) -> ttk.Spinbox:
+        sp = ttk.Spinbox(parent, from_=frm, to=to, width=width, textvariable=var, command=self._on_fsm_opts, increment=0.05 if isinstance(frm, float) or (isinstance(to, float)) else 1)
         var.trace_add("write", lambda *_: self._on_fsm_opts())
         return sp
 
@@ -978,36 +1008,40 @@ class FsmReplayApp(tk.Tk):
             "m": self._spin_n(self.m_var, 5),
             "l": self._spin_n(self.l_var, 5),
             "g": self._spin_n(self.g_var, 5),
-            "x": self._spin_n(self.x_var, 30),
+            "x_s": self._spin_f(self.x_var, 1.5, lo=0.05),
             "gx": self._spin_n(self.gx_var, 50, lo=0),
             "gy": self._spin_n(self.gy_var, 10, lo=0),
-            "ax": self._spin_n(self.ax_var, 5, lo=0),
-            "ay": self._spin_n(self.ay_var, 5, lo=0),
-            "y": self._spin_n(self.y_var, 5),
+            "ax_ms": self._spin_n(self.ax_var, 250, lo=0),
+            "ay_ms": self._spin_n(self.ay_var, 250, lo=0),
+            "y_ms": self._spin_n(self.y_var, 250),
             "s": self._spin_n(self.s_var, 20, lo=0),
             "pm": self._spin_n(self.pm_var, DEFAULT_PM, lo=0),
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
-            "xxx": self._spin_n(self.xxx_var, 20),
+            "xxx_ms": self._spin_n(self.xxx_var, 1000),
+            "th_ms": self._spin_n(self.th_var, 50, lo=0),
             "fight_plan": self._fight_plan(),
             "hotbar": hotbar_from_binds(self._bind_skills),
             "dist_table": dist_table_from_features(self._feature_cache),
             "map_reset": has_map_reset(self._feature_cache),
             "mon_off_x": ox,
             "mon_off_y": oy,
-            "mash_count": self._spin_n(self.mash_count_var, 3),
-            "mash_gap_ms": self._spin_n(self.mash_gap_var, 50, lo=10),
-            "tn": self._town_n(),
+            "tn_s": self._spin_f(self.town_s_var, float(DEFAULT_TOWN_S), lo=0.05),
         }
 
-    def _town_n(self) -> int:
-        dt = 0.05
-        meta = (getattr(self, "data", None) or {}).get("meta") or {}
-        try:
-            dt = float(meta.get("interval") or dt)
-        except (TypeError, ValueError):
-            dt = 0.05
-        return town_n_frames(self._spin_n(self.town_s_var, int(DEFAULT_TOWN_S)), dt)
+    def _send_text(self, dr: dict) -> str:
+        mash_n = mash_n_for_slot(
+            dr.get("skill_slot"),
+            self._mash_slots_from_ui(),
+            self._spin_n(self.mash_count_var, 3),
+        )
+        return send_keys_label(
+            dr.get("action"),
+            tuple(dr.get("move_dirs") or ()),
+            dr.get("move_dir"),
+            dr.get("skill_key"),
+            mash_n=mash_n,
+        )
 
     def _corr_tuple(self) -> tuple[int, int, int, int]:
         def n(var: tk.IntVar) -> int:
@@ -1066,6 +1100,13 @@ class FsmReplayApp(tk.Tk):
             return max(lo, int(str(var.get()).strip() or default))
         except ValueError:
             return default
+
+    @staticmethod
+    def _spin_f(var: tk.StringVar, default: float, lo: float = 0.05) -> float:
+        try:
+            return max(lo, float(str(var.get()).strip() or default))
+        except ValueError:
+            return float(default)
 
     def _fit_window(self):
         self.update_idletasks()
@@ -1173,32 +1214,101 @@ class FsmReplayApp(tk.Tk):
         return w, h
 
     def _session_label(self, p: Path) -> str:
-        rel = str(p.relative_to(ROOT)) if p.is_relative_to(ROOT) else str(p)
+        tag = "[FSM测试]" if session_kind(p) == "fsm" else "[采集]"
+        try:
+            root = FSM_TEST_DIR if session_kind(p) == "fsm" else RECORDINGS
+            rel = str(p.resolve().relative_to(root.resolve())).replace("\\", "/")
+        except ValueError:
+            rel = str(p.relative_to(ROOT) if p.is_relative_to(ROOT) else p).replace("\\", "/")
         keys_p = p / "keys.jsonl"
         n = 0
         if keys_p.is_file():
             with keys_p.open("r", encoding="utf-8") as f:
                 n = sum(1 for line in f if line.strip())
-        return f"{rel}  [keys={n}]"
+        return f"{tag} {rel}  [keys={n}]"
+
+    def _session_roots(self) -> tuple[Path, ...]:
+        src = (self.source_var.get() or "全部").strip()
+        if src == "采集":
+            return (RECORDINGS,)
+        if src == "FSM测试":
+            return (FSM_TEST_DIR,)
+        return (RECORDINGS, FSM_TEST_DIR)
+
+    def _on_source(self):
+        keep = self.data["session"] if self.data else None
+        self._refresh_sessions()
+        if keep and any(p.resolve() == keep.resolve() for p in self._session_paths.values()):
+            self._select_path(keep)
+            return
+        if self.session_combo["values"]:
+            self.session_combo.current(0)
+            self._open_selected()
+            return
+        self._clear_session()
+        self._save_ui_settings()
 
     def _refresh_sessions(self):
-        sessions = list_sessions(RECORDINGS, FSM_TEST_DIR)
+        keep = None
+        if self.data:
+            keep = self.data["session"]
+        elif self.session_var.get().strip():
+            keep = self._session_paths.get(self.session_var.get().strip())
+        sessions = list_sessions(*self._session_roots())
         labels = [self._session_label(p) for p in sessions]
         self._session_paths = {lab: p for lab, p in zip(labels, sessions)}
         self.session_combo["values"] = labels
+        if keep:
+            for lab, p in self._session_paths.items():
+                if p.resolve() == keep.resolve():
+                    self.session_var.set(lab)
+                    return
+        if labels:
+            if not self.session_var.get().strip():
+                self.session_combo.current(0)
+        else:
+            self.session_var.set("")
 
-    def _select_path(self, path: Path):
+    def _select_path(self, path: Path) -> bool:
         path = path.resolve()
+        if not path.exists():
+            return False
+        src = (self.source_var.get() or "全部").strip()
+        kind = session_kind(path)
+        if src == "采集" and kind == "fsm":
+            self.source_var.set("全部")
+            self._refresh_sessions()
+        elif src == "FSM测试" and kind == "rec":
+            self.source_var.set("全部")
+            self._refresh_sessions()
         for lab, p in self._session_paths.items():
             if p.resolve() == path:
                 self.session_var.set(lab)
                 self._open_selected()
-                return
+                return True
         self._session_paths[str(path)] = path
-        vals = list(self.session_combo["values"]) + [str(path)]
+        lab = self._session_label(path)
+        vals = list(self.session_combo["values"]) + [lab]
+        self._session_paths[lab] = path
         self.session_combo["values"] = vals
-        self.session_var.set(str(path))
+        self.session_var.set(lab)
         self._open_selected()
+        return True
+
+    def _clear_session(self):
+        self.playing = False
+        self.play_btn.config(text="播放")
+        self.data = None
+        self.idx = 0
+        self.scale.config(to=1)
+        self.frame_var.set("0 / 0")
+        src = (self.source_var.get() or "全部").strip()
+        if src == "FSM测试":
+            self.info_var.set("没有 FSM_TEST 段。FSM测试写盘后点刷新；目录还不存在时这里是空的。")
+        elif src == "采集":
+            self.info_var.set("没有采集段（recordings/*/frames.jsonl）。")
+        else:
+            self.info_var.set("没有可回放的段。")
 
     def _open_selected(self):
         lab = self.session_var.get().strip()
@@ -1208,6 +1318,7 @@ class FsmReplayApp(tk.Tk):
         self.playing = False
         self.play_btn.config(text="播放")
         self.data = load_session(path)
+        self._last_session_path = path
         n = max(len(self.data["frames"]) - 1, 1)
         self.scale.config(to=n)
         self.idx = 0
@@ -1264,23 +1375,18 @@ class FsmReplayApp(tk.Tk):
             ("m", self.m_var, 5, 1),
             ("l", self.l_var, 5, 1),
             ("g", self.g_var, 5, 1),
-            ("x", self.x_var, 30, 1),
             ("gx", self.gx_var, 50, 0),
             ("gy", self.gy_var, 10, 0),
-            ("ax", self.ax_var, 5, 0),
-            ("ay", self.ay_var, 5, 0),
-            ("xxx", self.xxx_var, 20, 1),
             ("tap_ms", self.tap_ms_var, 50, 1),
             ("mash_count", self.mash_count_var, 3, 1),
             ("mash_gap_ms", self.mash_gap_var, 50, 10),
-            ("y", self.y_var, 5, 1),
+            ("th_ms", self.th_var, 50, 0),
             ("s", self.s_var, 20, 0),
             ("pm", self.pm_var, DEFAULT_PM, 0),
             ("pc", self.pc_var, DEFAULT_PC, 0),
             ("pt", self.pt_var, DEFAULT_PT, 1),
             ("town_s", self.town_s_var, int(DEFAULT_TOWN_S), 1),
             ("run_press", self.run_press_var, RUN_PRESS_GT, 0),
-            ("loot_hold", self.loot_hold_var, LOOT_HOLD_DEFAULT, 1),
             ("e", self.e_var, 3, 0),
             ("f", self.f_var, DEFAULT_F, 0),
         ):
@@ -1289,12 +1395,24 @@ class FsmReplayApp(tk.Tk):
                     var.set(str(max(lo, int(data[key]))))
                 except (TypeError, ValueError):
                     var.set(str(default))
-        if "ax" not in data and "a" in data:
+        if "th_ms" not in data:
             try:
-                self.ax_var.set(str(max(0, int(data["a"]))))
-                self.ay_var.set(str(max(0, int(data["a"]))))
+                self.th_var.set(str(max(0, int(str(self.mash_gap_var.get() or 50)))))
+            except (TypeError, ValueError):
+                self.th_var.set("50")
+        self.x_var.set(str(json_s_from_frames(data, "x_s", "x", 30)))
+        self.ax_var.set(str(json_ms(data, "ax_ms", "ax", 5)))
+        self.ay_var.set(str(json_ms(data, "ay_ms", "ay", 5)))
+        if "ax_ms" not in data and "ax" not in data and "a" in data:
+            try:
+                n = max(0, int(data["a"])) * 50
+                self.ax_var.set(str(n))
+                self.ay_var.set(str(n))
             except (TypeError, ValueError):
                 pass
+        self.xxx_var.set(str(json_ms(data, "xxx_ms", "xxx", 20, lo=1)))
+        self.y_var.set(str(json_ms(data, "y_ms", "y", 5, lo=1)))
+        self.loot_hold_var.set(str(json_ms(data, "loot_hold_ms", "loot_hold", 5, lo=1)))
         if "pm" not in data and "lm" in data:
             try:
                 self.pm_var.set(str(max(0, int(data["lm"]))))
@@ -1309,6 +1427,16 @@ class FsmReplayApp(tk.Tk):
             self.fill_var.set(bool(data["fill"]))
         if "relative" in data:
             self.rel_var.set(bool(data["relative"]))
+        src = str(data.get("session_source") or "").strip()
+        if src in ("全部", "采集", "FSM测试"):
+            self.source_var.set(src)
+        last = str(data.get("last_session") or "").strip()
+        if last:
+            p = Path(last)
+            if not p.is_absolute():
+                p = ROOT / p
+            if p.exists():
+                self._last_session_path = p
         cu, cd, cl, cr = mon_corr_from_dict(data)
         self._corr_lock = True
         self.corr_u.set(cu)
@@ -1317,7 +1445,11 @@ class FsmReplayApp(tk.Tk):
         self.corr_r.set(cr)
         self._corr_lock = False
         self._corr_prev = (cu, cd, cl, cr)
-        sh = data.get("skill_hold")
+        sh = data.get("skill_hold_ms")
+        legacy = False
+        if not isinstance(sh, dict):
+            sh = data.get("skill_hold")
+            legacy = True
         if isinstance(sh, dict):
             saved: dict[str, dict[str, int]] = {}
             for ch, slots in sh.items():
@@ -1326,9 +1458,12 @@ class FsmReplayApp(tk.Tk):
                 one = {}
                 for sk, sv in slots.items():
                     try:
-                        one[str(sk)] = max(1, int(sv))
+                        n = max(1, int(sv))
                     except (TypeError, ValueError):
                         continue
+                    if legacy:
+                        n *= 50
+                    one[str(sk)] = n
                 saved[str(ch)] = one
             self._skill_hold_saved = saved
 
@@ -1340,28 +1475,35 @@ class FsmReplayApp(tk.Tk):
             "m": self._spin_n(self.m_var, 5),
             "l": self._spin_n(self.l_var, 5),
             "g": self._spin_n(self.g_var, 5),
-            "x": self._spin_n(self.x_var, 30),
+            "x_s": self._spin_f(self.x_var, 1.5, lo=0.05),
             "gx": self._spin_n(self.gx_var, 50, lo=0),
             "gy": self._spin_n(self.gy_var, 10, lo=0),
-            "ax": self._spin_n(self.ax_var, 5, lo=0),
-            "ay": self._spin_n(self.ay_var, 5, lo=0),
-            "xxx": self._spin_n(self.xxx_var, 20),
+            "ax_ms": self._spin_n(self.ax_var, 250, lo=0),
+            "ay_ms": self._spin_n(self.ay_var, 250, lo=0),
+            "xxx_ms": self._spin_n(self.xxx_var, 1000),
             "tap_ms": self._spin_n(self.tap_ms_var, 50),
             "mash_count": self._spin_n(self.mash_count_var, 3),
             "mash_gap_ms": self._spin_n(self.mash_gap_var, 50, lo=10),
-            "y": self._spin_n(self.y_var, 5),
+            "th_ms": self._spin_n(self.th_var, 50, lo=0),
+            "y_ms": self._spin_n(self.y_var, 250),
             "s": self._spin_n(self.s_var, 20, lo=0),
             "pm": self._spin_n(self.pm_var, DEFAULT_PM, lo=0),
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
-            "town_s": self._spin_n(self.town_s_var, int(DEFAULT_TOWN_S)),
+            "town_s": self._spin_f(self.town_s_var, float(DEFAULT_TOWN_S), lo=0.05),
             "run_press": self._spin_n(self.run_press_var, RUN_PRESS_GT, lo=0),
-            "loot_hold": self._spin_n(self.loot_hold_var, LOOT_HOLD_DEFAULT),
+            "loot_hold_ms": self._spin_n(self.loot_hold_var, LOOT_HOLD_DEFAULT),
             "e": self._spin_n(self.e_var, 3, lo=0),
             "f": self._spin_n(self.f_var, DEFAULT_F, lo=0),
             "fill": bool(self.fill_var.get()),
             "relative": bool(self.rel_var.get()),
-            "skill_hold": self._skill_hold_saved,
+            "skill_hold_ms": self._skill_hold_saved,
+            "session_source": (self.source_var.get() or "全部").strip() or "全部",
+            "last_session": (
+                self._session_rel(self.data["session"])
+                if self.data
+                else (self._session_rel(self._last_session_path) if self._last_session_path else "")
+            ),
         }
         u, dwn, left, right = self._corr_tuple()
         data["mon_corr_u"] = u
@@ -1444,7 +1586,7 @@ class FsmReplayApp(tk.Tk):
         if self.data:
             self._rebuild_draft()
             self._show()
-        messagebox.showinfo("技能表", f"已写入 {bind_file(char).name}（持续帧 + 连续释放 + 多次释放 + 连按）。", parent=self)
+        messagebox.showinfo("技能表", f"已写入 {bind_file(char).name}（持续 ms + 连续释放 + 多次释放 + 连按）。", parent=self)
 
     def _sync_combo_to_features(self, save: bool = False):
         slots = self._combo_slots_from_ui()
@@ -1559,7 +1701,7 @@ class FsmReplayApp(tk.Tk):
                 ttk.Label(row, text=f"{mark}{slot} {cmd}", width=12, anchor=tk.W).pack(side=tk.LEFT)
                 prev = saved.get(str(slot), SKILL_HOLD_DEFAULT)
                 var = tk.StringVar(value=str(prev))
-                self._spin(row, var, to=120).pack(side=tk.LEFT, padx=(2, 4))
+                self._spin(row, var, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 4))
                 self._skill_hold_vars[slot] = var
                 cvar = tk.BooleanVar(value=slot in marked)
                 self._combo_vars[slot] = cvar
@@ -1743,7 +1885,7 @@ class FsmReplayApp(tk.Tk):
 
         draft_rows = d.get("draft") or []
         dr = draft_rows[i] if i < len(draft_rows) else None
-        x_lim = self._spin_n(self.x_var, 30)
+        x_lim = self._spin_f(self.x_var, 1.5, lo=0.05)
         run_on = False
         move_on = False
         edges: list[dict] = []
@@ -1793,15 +1935,15 @@ class FsmReplayApp(tk.Tk):
             flag_s = " ".join(sorted((f.value for f in flags), key=lambda s: s))
             self.state_var.set(f"FSM状态: {label}" + (f"  | {flag_s}" if flag_s else ""))
             self.intent_var.set(str(dr.get("intent_label") or ""))
-            self.send_var.set(str(dr.get("send_label") or ""))
+            self.send_var.set(self._send_text(dr))
             warm = "  【预热】" if FsmFlag.WARMUP in flags else ""
             self.trigger_var.set(f"触发: {dr['why']}{warm}")
             self.trigger2_var.set(
                 f"怪物分布={dr.get('dist_key') or '—'}【{('BOSS' if dr.get('dist_kind')=='boss' else '小怪' if dr.get('dist_kind')=='mob' else dr.get('dist_kind') or '—')}】  "
                 f"已过房间={dr.get('gate_crosses', 0)}  击败BOSS={dr.get('boss_kills', 0)}  "
                 f"状态连续 {dr['fsm_run']} 帧 / {dr['fsm_run_s']:.2f}s  "
-                f"(X={x_lim} GX={self._spin_n(self.gx_var, 50, lo=0)} GY={self._spin_n(self.gy_var, 10, lo=0)} "
-                f"AX={self._spin_n(self.ax_var, 5, lo=0)} AY={self._spin_n(self.ay_var, 5, lo=0)} "
+                f"(X={x_lim:g}s GX={self._spin_n(self.gx_var, 50, lo=0)} GY={self._spin_n(self.gy_var, 10, lo=0)} "
+                f"AX={self._spin_n(self.ax_var, 250, lo=0)}ms AY={self._spin_n(self.ay_var, 250, lo=0)}ms "
                 f"S={self._spin_n(self.s_var, 20, lo=0)}%)"
             )
             self._draw_flow(st, dr.get("flow_steps") or (), int(dr.get("flow_hit") if dr.get("flow_hit") is not None else -1))
@@ -2552,7 +2694,7 @@ class FsmReplayApp(tk.Tk):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--session", default="", help="recordings 下某一段目录")
+    ap.add_argument("--session", default="", help="某一段目录（recordings/ 或 FSM_TEST/）")
     args = ap.parse_args()
     start = Path(args.session) if args.session.strip() else None
     app = FsmReplayApp(start_session=start)

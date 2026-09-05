@@ -136,7 +136,7 @@ class CentralController:
         self.status_analyzer.start(config)
 
         if fsm_test:
-            self.gui.log("中央控制器: FSM测试已交给状态模块（发键 + 写盘 FSM_TEST）。")
+            self.gui.log("中央控制器: FSM测试已交给状态模块（发键；进图后写盘 FSM_TEST）。")
         elif yolo_test:
             self.gui.log("中央控制器: YOLO测试已交给状态模块（只检测，不跑 FSM、不写盘）。")
         elif mode == "automation":

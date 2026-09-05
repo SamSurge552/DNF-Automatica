@@ -19,7 +19,8 @@ from fsm_core import (
     send_keys_label,
     snapshot_from_detect,
     step,
-    town_n_frames,
+    json_ms,
+    json_s_from_frames,
 )
 from fsm_execute import (
     FsmExecutor,
@@ -29,6 +30,7 @@ from fsm_execute import (
     clamp_tap_ms,
     clamp_mash_count,
     clamp_mash_gap_ms,
+    mash_n_for_slot,
 )
 from window_align import (
     find_window_by_title,
@@ -50,6 +52,7 @@ from skill_feature_extract import (
 YOLO_PREVIEW_WINDOW_FSM = "FSM Test"
 YOLO_PREVIEW_WINDOW_YOLO = "YOLO Test"
 DETECT_LOG_S = 8.0
+OCR_LOG_S = 3.0
 ROOT = Path(__file__).resolve().parent
 FSM_TEST_DIR = ROOT / "FSM_TEST"
 
@@ -96,10 +99,14 @@ class StatusAnalysisModule:
         self._fsm_png_dir = None
         self._key_listener = None
         self._last_png_name = ""
+        self._fsm_record_config = None
         self._want_game_fg = False
         self._want_game_fg_until = 0.0
         self._last_detect_log_key = None
         self._last_detect_log_t = 0.0
+        self._last_ocr_log_key = None
+        self._last_ocr_log_t = 0.0
+        self._last_ocr_roi_wh = None
         self._last_key_fail_t = 0.0
 
         self.dungeon_keywords = self._load_keywords("dun_keywords_custom.txt")
@@ -233,8 +240,11 @@ class StatusAnalysisModule:
         self._want_game_fg_until = 0.0
         self._last_detect_log_key = None
         self._last_detect_log_t = 0.0
+        self._last_ocr_log_key = None
+        self._last_ocr_log_t = 0.0
         self._last_key_fail_t = 0.0
         self._last_png_name = ""
+        self._fsm_record_config = config if self.fsm_test else None
         self._stop_fsm_record()
         if self.fsm_test:
             self._executor = FsmExecutor(log=self.gui.log, tap_ms=getattr(self, "_tap_ms", DEFAULT_TAP_MS))
@@ -245,10 +255,10 @@ class StatusAnalysisModule:
                 self.gui.log("FSM测试发键：已把游戏窗口拉到前台。点停止会松开我们按下的键。")
             else:
                 self.gui.log("FSM测试发键：未能切到游戏窗口，请点一下游戏画面。点停止会松开我们按下的键。")
-            self._start_fsm_record(config)
+            self.gui.log("FSM测试写盘：等 OCR 进入地下城后再写 FSM_TEST（城镇不录）。")
 
         if self.fsm_test:
-            self.gui.log("状态分析模块: FSM测试模式 — 发键 + 写盘 FSM_TEST。")
+            self.gui.log("状态分析模块: FSM测试模式 — 发键；进图后写盘 FSM_TEST。")
         elif self.yolo_test:
             self.gui.log("状态分析模块: YOLO测试模式 — 检测 + OCR 进图判定，不跑 FSM，不落盘。")
         elif self.ocr_only:
@@ -279,10 +289,10 @@ class StatusAnalysisModule:
         if self.fsm_test:
             p = self._fsm_params
             self.gui.log(
-                f"状态分析模块: 已启动【FSM测试】（YOLO+FSM+发键，写盘 FSM_TEST）。"
-                f"M={p.m} L={p.l} G={p.g} X={p.x} GX={p.gx} GY={p.gy} AX={p.ax} AY={p.ay} Y={p.y} S={p.s}% "
+                f"状态分析模块: 已启动【FSM测试】（YOLO+FSM+发键；进图后写盘 FSM_TEST）。"
+                f"M={p.m} L={p.l} G={p.g} X={p.x_s:g}s GX={p.gx} GY={p.gy} AX={p.ax_ms}ms AY={p.ay_ms}ms Y={p.y_ms}ms S={p.s}% "
                 f"点按{getattr(self, '_tap_ms', DEFAULT_TAP_MS)}ms 连按COUNT={getattr(self, '_mash_count', DEFAULT_MASH_COUNT)} "
-                f"间隔{getattr(self, '_mash_gap_ms', DEFAULT_MASH_GAP_MS)}ms  开打序列{len(p.fight_plan)}分布 发键开"
+                f"间隔{getattr(self, '_mash_gap_ms', DEFAULT_MASH_GAP_MS)}ms TH={p.th_ms}ms  开打序列{len(p.fight_plan)}分布 发键开"
             )
         elif self.yolo_test:
             self.gui.log("状态分析模块: 已启动【YOLO测试】（画检测框 + OCR 进图）。")
@@ -344,8 +354,7 @@ class StatusAnalysisModule:
                     t_ns = time.time_ns()
                     self._submit_ocr(frame)
                     self._run_yolo_frame(frame, t_ns)
-                    if not self.fsm_test:
-                        self._tick_dungeon_gui()
+                    self._tick_dungeon_gui()
                 elif not self.capture_only:
                     self._submit_ocr(frame)
                     self._tick_dungeon_gui()
@@ -370,6 +379,23 @@ class StatusAnalysisModule:
             getattr(self, "_mash_count", DEFAULT_MASH_COUNT),
             getattr(self, "_mash_gap_ms", DEFAULT_MASH_GAP_MS),
             slots,
+        )
+
+    def _send_text(self, decision) -> str:
+        slots = getattr(self._executor, "_mash_slots", None)
+        if slots is None:
+            slots = {int(sk.slot) for sk in (self._fsm_params.hotbar or ()) if sk.mash}
+        mash_n = mash_n_for_slot(
+            decision.skill_slot,
+            slots,
+            getattr(self, "_mash_count", DEFAULT_MASH_COUNT),
+        )
+        return send_keys_label(
+            decision.action,
+            decision.move_dirs,
+            decision.move_dir,
+            decision.skill_key,
+            mash_n=mash_n,
         )
 
     def _fsm_session_path(self, dungeon: str, stamp: str, character: str | None) -> Path:
@@ -407,6 +433,7 @@ class StatusAnalysisModule:
         writer = RecordWriter(session, log=self.gui.log)
         writer.start()
         self._writer = writer
+        self.frame_index = 0
         started_t_ns = time.time_ns()
         held = snapshot_held_keys()
         engine = self.yolo_engine
@@ -469,23 +496,24 @@ class StatusAnalysisModule:
                 "m": p.m,
                 "l": p.l,
                 "g": p.g,
-                "x": p.x,
+                "x_s": p.x_s,
                 "gx": p.gx,
                 "gy": p.gy,
-                "ax": p.ax,
-                "ay": p.ay,
-                "y": p.y,
+                "ax_ms": p.ax_ms,
+                "ay_ms": p.ay_ms,
+                "y_ms": p.y_ms,
                 "s": p.s,
                 "pm": p.pm,
                 "pc": p.pc,
                 "pt": p.pt,
-                "xxx": p.xxx,
-                "tn": p.tn,
+                "xxx_ms": p.xxx_ms,
+                "th_ms": p.th_ms,
+                "tn_s": p.tn_s,
                 "town_s": getattr(self, "_town_s", DEFAULT_TOWN_S),
                 "mon_off_x": p.mon_off_x,
                 "mon_off_y": p.mon_off_y,
-                "mash_count": p.mash_count,
-                "mash_gap_ms": p.mash_gap_ms,
+                "mash_count": getattr(self, "_mash_count", DEFAULT_MASH_COUNT),
+                "mash_gap_ms": getattr(self, "_mash_gap_ms", DEFAULT_MASH_GAP_MS),
                 "map_reset": p.map_reset,
                 "fight_plan_n": len(p.fight_plan),
                 "hotbar_n": len(p.hotbar),
@@ -606,29 +634,24 @@ class StatusAnalysisModule:
 
     def _load_fsm_params(self) -> FsmParams:
         path = self._fsm_ui_path()
-        m, l, g, x, gx, gy, ax, ay, y, s, f, pm, pc, pt, xxx, tap_ms = 5, 5, 5, 30, 50, 10, 5, 5, 5, 20, DEFAULT_F, 10, 5, 3, 20, DEFAULT_TAP_MS
+        m, l, g, gx, gy, s, f, pm, pc, pt, tap_ms = 5, 5, 5, 50, 10, 20, DEFAULT_F, 10, 5, 3, DEFAULT_TAP_MS
         mash_count, mash_gap = DEFAULT_MASH_COUNT, DEFAULT_MASH_GAP_MS
         town_s = DEFAULT_TOWN_S
         ox, oy = 0, 0
+        data = {}
         if path.is_file():
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
                 m = max(1, int(data.get("m", m)))
                 l = max(1, int(data.get("l", l)))
                 g = max(1, int(data.get("g", g)))
-                x = max(1, int(data.get("x", x)))
-                old_a = max(0, int(data.get("a", 5)))
                 gx = max(0, int(data.get("gx", gx)))
                 gy = max(0, int(data.get("gy", gy)))
-                ax = max(0, int(data.get("ax", old_a)))
-                ay = max(0, int(data.get("ay", old_a)))
-                y = max(1, int(data.get("y", y)))
                 s = max(0, min(100, int(data.get("s", s))))
                 f = max(0, min(100, int(data.get("f", f))))
                 pm = max(0, int(data.get("pm", data.get("lm", pm))))
                 pc = max(0, int(data.get("pc", data.get("lc", pc))))
                 pt = max(1, int(data.get("pt", pt)))
-                xxx = max(1, int(data.get("xxx", xxx)))
                 tap_ms = clamp_tap_ms(data.get("tap_ms", tap_ms))
                 mash_count = clamp_mash_count(data.get("mash_count", mash_count))
                 mash_gap = clamp_mash_gap_ms(data.get("mash_gap_ms", mash_gap))
@@ -636,6 +659,15 @@ class StatusAnalysisModule:
                 ox, oy = mon_off_from_dict(data)
             except Exception:
                 pass
+        x_s = json_s_from_frames(data, "x_s", "x", 30)
+        ax_ms = json_ms(data, "ax_ms", "ax", 5)
+        ay_ms = json_ms(data, "ay_ms", "ay", 5)
+        y_ms = json_ms(data, "y_ms", "y", 5, lo=1)
+        xxx_ms = json_ms(data, "xxx_ms", "xxx", 20, lo=1)
+        try:
+            th_ms = max(0, min(300, int(data.get("th_ms", mash_gap))))
+        except (TypeError, ValueError):
+            th_ms = int(mash_gap)
         self._f = f
         self._town_s = town_s
         self._tap_ms = tap_ms
@@ -654,31 +686,29 @@ class StatusAnalysisModule:
         if char and dun and feats is None and not self._plan_missing_logged:
             self._plan_missing_logged = True
             self.gui.log(f"提示: 无过图技能文件 {dun}/{char}，开打按「无技能可取」走。")
-        tn = town_n_frames(town_s, getattr(self, "_frame_interval", 0.05))
         return FsmParams(
             m=m,
             l=l,
             g=g,
-            x=x,
+            x_s=x_s,
             gx=gx,
             gy=gy,
-            ax=ax,
-            ay=ay,
-            y=y,
+            ax_ms=ax_ms,
+            ay_ms=ay_ms,
+            y_ms=y_ms,
             s=s,
             pm=pm,
             pc=pc,
             pt=pt,
-            xxx=xxx,
-            tn=tn,
+            xxx_ms=xxx_ms,
+            th_ms=th_ms,
+            tn_s=float(town_s),
             fight_plan=load_fight_plan(char, dun, f=f) if char and dun else (),
             hotbar=load_hotbar(char) if char else (),
             dist_table=load_dist_table(char, dun) if char and dun else (),
             map_reset=has_map_reset(feats) if feats else False,
             mon_off_x=ox,
             mon_off_y=oy,
-            mash_count=mash_count,
-            mash_gap_ms=mash_gap,
         )
 
     def _fsm_state_from_features(self, features: dict, t_ns: int):
@@ -718,9 +748,7 @@ class StatusAnalysisModule:
             font2 = font
         flag_s = " ".join(sorted((f.value for f in decision.flags), key=lambda s: s))
         intent = intent_text(decision)
-        send = send_keys_label(
-            decision.action, decision.move_dirs, decision.move_dir, decision.skill_key
-        )
+        send = self._send_text(decision)
         text = f"FSM {decision.state.value}"
         if flag_s:
             text += f" | {flag_s}"
@@ -799,9 +827,7 @@ class StatusAnalysisModule:
                         self._log_key_fail(e)
                 flag_s = " ".join(sorted((f.value for f in decision.flags), key=lambda s: s))
                 intent = intent_text(decision)
-                send = send_keys_label(
-                    decision.action, decision.move_dirs, decision.move_dir, decision.skill_key
-                )
+                send = self._send_text(decision)
                 fsm_s = decision.state.value
                 if flag_s:
                     fsm_s += f" | {flag_s}"
@@ -809,15 +835,7 @@ class StatusAnalysisModule:
                     fsm_s += f" | {intent}"
                 if send:
                     fsm_s += f" | {send}"
-                self._log_detect(
-                    (decision.state.value, flag_s, decision.action, decision.skill_slot, decision.skill_key, summary),
-                    f"  - FSM#{self.frame_index} {elapsed*1000:.0f}ms | {fsm_s} | {summary}",
-                )
-                self.gui.update_runtime_status(
-                    character_name=None,
-                    state_text=f"检测 · {summary}",
-                    fsm_text=fsm_s,
-                )
+                self.gui.update_runtime_status(fsm_text=fsm_s)
                 plotted = self._overlay_fsm(plotted, decision)
                 win_name = YOLO_PREVIEW_WINDOW_FSM
             else:
@@ -825,11 +843,7 @@ class StatusAnalysisModule:
                     ("yolo", summary),
                     f"  - YOLO#{self.frame_index} {elapsed*1000:.0f}ms | {summary}",
                 )
-                self.gui.update_runtime_status(
-                    character_name=None,
-                    state_text=f"检测 · {summary}",
-                    fsm_text="YOLO测试",
-                )
+                self.gui.update_runtime_status(fsm_text="YOLO测试")
                 win_name = YOLO_PREVIEW_WINDOW_YOLO
             h, w = plotted.shape[:2]
             max_w = 960
@@ -917,6 +931,7 @@ class StatusAnalysisModule:
             if elapsed >= 2.0:
                 self.gui.log(f"  - 警告: OCR耗时 {elapsed:.2f}s（偏慢，已静默丢旧帧保最新）")
             if detected_texts is not None:
+                self._log_ocr(detected_texts)
                 self._update_dungeon_state(detected_texts)
                 self._refresh_runtime_display()
         self.gui.log("状态分析模块: 退出OCR循环。")
@@ -926,7 +941,9 @@ class StatusAnalysisModule:
             self.gui.log("  - 警告: 游戏窗口坐标无效，跳过。")
             return None
         result = self.capture_module.capture(
-            rect=rect, gui=None if self.fsm_test else self.gui, save=self.save_images
+            rect=rect,
+            gui=None if self.fsm_test else self.gui,
+            save=bool(self.fsm_test and self._fsm_session_dir),
         )
         if not result:
             self.gui.log("  - 游戏窗口截图失败。")
@@ -970,6 +987,38 @@ class StatusAnalysisModule:
         s = (text or "").replace("\n", " ").strip()
         return s if len(s) <= n else s[: n - 1] + "…"
 
+    def _log_ocr(self, pairs) -> None:
+        """小框每次识别都可看：文本变了立刻打；否则最多 OCR_LOG_S 秒一条。"""
+        thr = float(getattr(self, "ocr_conf", 0.95))
+        pairs = list(pairs or [])
+        hits = self._match_keywords(pairs, self.dungeon_keywords)
+        above = [h for h in hits if h[1] is None or float(h[1]) >= thr]
+        if above:
+            verdict = f"地下城 · {above[0][0]}"
+        elif hits:
+            verdict = f"未达阈值 · {hits[0][0]}"
+        elif pairs:
+            verdict = "城镇（无关键词）"
+        else:
+            verdict = "城镇（空）"
+        if pairs:
+            raw = "  ".join(
+                f"「{self._clip_text(t, 40)}」{self._fmt_score(s)}" for t, s in pairs[:8]
+            )
+        else:
+            raw = "（未读到字）"
+        roi = getattr(self, "_last_ocr_roi_wh", None)
+        size_s = f"{roi[0]}×{roi[1]}" if roi else "整帧"
+        key = (verdict, tuple((t, None if s is None else round(float(s), 2)) for t, s in pairs[:8]))
+        now = time.time()
+        if key != self._last_ocr_log_key or now - self._last_ocr_log_t >= OCR_LOG_S:
+            self._last_ocr_log_key = key
+            self._last_ocr_log_t = now
+            extra = ""
+            if hits and not above:
+                extra = f"  关键词分<{thr:g}"
+            self.gui.log(f"  - OCR [{size_s}] {verdict} | {raw}{extra}")
+
     def _update_dungeon_state(self, pairs):
         thr = float(getattr(self, "ocr_conf", 0.95))
         hits = self._match_keywords(pairs, self.dungeon_keywords)
@@ -996,6 +1045,10 @@ class StatusAnalysisModule:
                 )
                 if self.on_state_change_callback:
                     self.on_state_change_callback(self.current_dungeon_name)
+                self._refresh_runtime_display()
+                if self.fsm_test:
+                    self._stop_fsm_record()
+                    self._start_fsm_record(self._fsm_record_config or {})
         else:
             self._ocr_kw = False
 
@@ -1003,12 +1056,11 @@ class StatusAnalysisModule:
         if not self.is_running or frame is None:
             return
         self._submit_ocr(frame)
-        if not self.fsm_test:
-            self._tick_dungeon_gui()
+        self._tick_dungeon_gui()
 
     def _tick_dungeon_gui(self) -> None:
-        tn = town_n_frames(getattr(self, "_town_s", DEFAULT_TOWN_S), getattr(self, "_frame_interval", 0.05))
-        self._ocr_dun = dungeon_deb_step(self._ocr_dun, bool(self._ocr_kw), tn)
+        tn_s = float(getattr(self, "_town_s", DEFAULT_TOWN_S))
+        self._ocr_dun = dungeon_deb_step(self._ocr_dun, bool(self._ocr_kw), time.time_ns(), tn_s)
         if self._ocr_dun.judged:
             return
         if self._saw_dungeon:
@@ -1023,6 +1075,8 @@ class StatusAnalysisModule:
         self.gui.log(f">>> 状态变更: [模式] 从 [{old_dungeon}] 返回 城镇  （连续无地下城关键词）")
         if self.on_state_change_callback:
             self.on_state_change_callback(self.current_dungeon_name)
+        if self.fsm_test:
+            self._stop_fsm_record()
         self._refresh_runtime_display()
 
     def _refresh_runtime_display(self):
@@ -1036,10 +1090,11 @@ class StatusAnalysisModule:
         """全屏帧上裁出 OCR 区；无效则回退整帧。"""
         if frame is None:
             return frame
+        fh, fw = frame.shape[:2]
         r = self.ocr_region
         if not isinstance(r, dict) or r.get("width", 0) <= 0 or r.get("height", 0) <= 0:
+            self._last_ocr_roi_wh = (fw, fh)
             return frame
-        fh, fw = frame.shape[:2]
         x = max(0, int(r.get("x", 0)))
         y = max(0, int(r.get("y", 0)))
         w = int(r["width"])
@@ -1047,8 +1102,11 @@ class StatusAnalysisModule:
         x2 = min(fw, x + w)
         y2 = min(fh, y + h)
         if x2 - x < 16 or y2 - y < 16:
+            self._last_ocr_roi_wh = (fw, fh)
             return frame
-        return frame[y:y2, x:x2]
+        crop = frame[y:y2, x:x2]
+        self._last_ocr_roi_wh = (crop.shape[1], crop.shape[0])
+        return crop
 
     def _analyze_image(self, frame):
         if not self.ocr:

@@ -58,6 +58,20 @@ def parse_command(cmd: str) -> list[list[str]]:
     return steps
 
 
+def mash_n_for_slot(slot, mash_slots, mash_count: int) -> int:
+    """和 apply() 同一套：槽在连按表里则返回 COUNT，否则 0。"""
+    if slot is None:
+        return 0
+    try:
+        sid = int(slot)
+    except (TypeError, ValueError):
+        return 0
+    slots = {int(s) for s in (mash_slots or ()) if int(s) > 0}
+    if sid not in slots:
+        return 0
+    return clamp_mash_count(mash_count)
+
+
 class FsmExecutor:
     def __init__(self, log=None, tap_ms: int = DEFAULT_TAP_MS):
         self.log = log

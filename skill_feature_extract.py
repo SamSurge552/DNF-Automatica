@@ -12,7 +12,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from statistics import median
 
-from fsm_core import DistSig, DistSkillPlan, FightSkill, classify_dist, expand_fight_skills
+from fsm_core import DistSig, DistSkillPlan, FightSkill, classify_dist, expand_fight_skills, parse_hold_ms
 
 FEATURES_DIR = Path(__file__).resolve().parent / "skill_features"
 BINDS_DIR = Path(__file__).resolve().parent / "skill_binds"
@@ -266,14 +266,21 @@ def casts_from_tracks(
         if i0 >= len(draft):
             continue
         hold = max(0, int(hold_of.get(slot, 0)))
-        end_i = min(i0 + hold, n - 1) if n else i0
+        t0 = int((views[i0] if i0 < len(views) else {}).get("t_ns") or (draft[i0] or {}).get("t_ns") or 0)
+        end_i = i0
+        lim = n if n else len(views)
+        for j in range(i0, lim):
+            row = views[j] if j < len(views) else (draft[j] if j < len(draft) else {})
+            tj = int(row.get("t_ns") or t0)
+            end_i = j
+            if (tj - t0) / 1e6 >= hold:
+                break
         v0 = views[i0] if i0 < len(views) else {}
         v1 = views[end_i] if end_i < len(views) else {}
         a = farthest_enemy(v0)
         b = farthest_enemy(v1)
         killed_mon = a["mon"] - b["mon"]
         killed_enemy = a["enemy"] - b["enemy"]
-        kind = None if is_boss else ("群" if killed_mon > e else "单")
         dist_key, dist_kind, extra, _rk = classify_dist(
             _view_player(v0),
             _xy_tuples(v0, "mon"),
@@ -285,6 +292,7 @@ def casts_from_tracks(
             s_pct,
         )
         is_boss = dist_kind == "boss"
+        kind = None if is_boss else ("群" if killed_mon > e else "单")
         out.append(
             {
                 "id": f"{session}|{i0}|{slot}",
@@ -362,13 +370,7 @@ def _bind_by_slot(skills: list[dict] | None) -> dict[int, tuple[str, float, int]
                 cd = max(0.0, float(sk.get("cooldown_s")))
         except (TypeError, ValueError):
             pass
-        hf = 0
-        try:
-            raw_hf = sk.get("hold_frames", sk.get("frames"))
-            if raw_hf is not None:
-                hf = max(0, int(raw_hf))
-        except (TypeError, ValueError):
-            hf = 0
+        hf = parse_hold_ms(sk, 0) or 0
         out[slot] = (key, cd, hf)
     return out
 
@@ -803,7 +805,7 @@ def fight_plan_from_features(
             cooldown_s=COMBO_CD_S if is_combo else cd,
             range_px=rng_f,
             combo=is_combo,
-            hold_frames=max(0, int(hf)),
+            hold_ms=max(0, int(hf)),
             multi=multi_map.get(slot, 1),
             mash=slot in mash_slots,
         )
@@ -872,7 +874,7 @@ def hotbar_from_binds(skills: list[dict] | None) -> tuple[FightSkill, ...]:
                 key=hk,
                 cooldown_s=COMBO_CD_S if combo else cd,
                 combo=combo,
-                hold_frames=hf,
+                hold_ms=hf,
                 multi=multi_n,
                 mash=mash,
             )

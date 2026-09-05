@@ -4,9 +4,9 @@
 > 对齐以 `TRAIN_ALIGN.md` 为准。架构以 `DECISIONS.md` 为准（**当前阶段定性见 §1.0**）。  
 > DECISIONS 第 4 节（并行卡住 / 不对称迟滞 / `gate.x > player.x`）**尚未落地**，也没并进 `FSM_DESIGN.txt`。不要用第 4 节覆盖 txt。
 
-生成时间：2026-09-05 14:50 (UTC+8)  
+生成时间：2026-09-05 17:05 (UTC+8)  
 项目根目录：`d:\Desktop\T\test`  
-本会话已做：对照清单裁定落地——E/F 进 FSM 设置；全模式 OCR+进图；回城=连续无地下城关键词（回城秒默认 30）；卡住升为状态并可打断方法；进图前加载技能表；无技能表中止 FSM测试/自动化。
+本会话已做：修 `is_boss`；回放扫 FSM_TEST；FSM测试进图后写盘；时间参数改 ms/秒。
 
 > **组集脚本与 TRAIN_ALIGN 已确认步骤打架时，问用户改文档还是改代码。**  
 > **新旧想法冲突：用新的，事后告知即可。**  
@@ -17,17 +17,21 @@
 
 ## 1. 下一对话先做
 
-**边打边调。** FSM测试默认发键并写 `FSM_TEST/`。对照绿/蓝字改 **FSM设置**（含连按 COUNT/间隔、MON/BOSS 补正）。回放也能改同一份 json。txt 没改就不要推翻核心。
+**边打边调。** 回放启动崩溃已修。FSM测试默认发键；**进图后**写 `FSM_TEST/`。对照绿/蓝字改 **FSM设置**。txt 没改就不要推翻核心。范围异常仍释放，不要发明走近怪。组集 fill/相对未确认。
 
-范围异常仍释放，不要发明走近怪。旧 `skill_features` 若还是改规则前提的，回放「重新提取本图」。组集 fill/相对未确认。mash COUNT/间隔归属未决。
+### 1.0 本会话已修：回放 `is_boss`
+
+`casts_from_tracks` 曾在 `classify_dist` 之前用 `is_boss` → `UnboundLocalError`。现先 `classify_dist`，再 `is_boss` / `kind`。BOSS 房仍 `kind=None`，仍留 `killed_mon`。未改其它提取规则。`python fsm_replay.py` 已能开窗（推荐段 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`）。
+
+回放顶栏有**来源**：全部 / 采集 / FSM测试。列表前缀 `[采集]` / `[FSM测试]`。`FSM_TEST/` 尚不存在时切到 FSM测试会是空列表（点刷新）。地下城名占位 `FSM测试` 时退回该段父目录。
 
 ### 1.1 已落地（对照 txt）
 
-总流程短路未改。方法层不可覆盖，**卡住除外**（全局最高优先级，状态改为卡住）。FSM测试默认发键并写 `FSM_TEST/`。回放不发键。各模式开 OCR；回城=连续无地下城关键词（回城秒→TN 帧）。技能表/过图文件进图前加载。
+总流程短路未改。方法层不可覆盖，**卡住除外**（全局最高优先级，状态改为卡住）。FSM测试默认发键；**进图后**写 `FSM_TEST/`（点开始不录城镇）。回放不发键。各模式开 OCR；回城=连续无地下城关键词达 `tn_s` 秒（不换帧）。技能表/过图文件进图前加载。
 
-**前进：** 进前进一次性记下过门方向。之后每帧用**当前门**算 GX/GY。两轴都停后才走 AX/AY。卡住：状态=卡住，上下左右各 HOLD Y 帧（不是前进）。
+**前进：** 进前进一次性记下过门方向。之后每帧用**当前门**算 GX/GY。接近是点按 → TH 毫秒 → 按住（`th_ms`，默认等于连按间隔）。两轴都停、**或本帧门坐标没了**，立刻走 AX/AY（已记下方向才过门；还没记下就原地等）。卡住：状态=卡住，上下左右各 HOLD Y 毫秒（不是前进）。卡住阈值 X 为秒。
 
-**开打：** 进图前加载。排除 CD 后取该分布文件**第一个不在 CD** 的技能。无则提示无技能可放，只从已勾选快捷栏取持续帧最短。快捷栏也没有 → 普攻 X（无 CD）XXX 帧。范围异常仍然释放。
+**开打：** 进图前加载。排除 CD 后取该分布文件**第一个不在 CD** 的技能。无则提示无技能可放，只从已勾选快捷栏取持续毫秒最短。快捷栏也没有 → 普攻 X（无 CD）XXX 毫秒。范围异常仍然释放。CAST 后等 `hold_ms`。
 
 **提取：** BOSS 房不算效率/群单/假释放，仍留 killed_mon。E/F 在 FSM 设置。
 
@@ -37,7 +41,9 @@
 
 **发键：** `fsm_execute` + `key_inject`。点按 ms 默认 50。键位表【连按】→ COUNT 次点按 + 间隔 ms（默认 3 次 / 50ms）。一键拾取=左 Alt（VK）。参数在 `_fsm_replay_ui.json`。
 
-GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写盘 `FSM_TEST/<图>/<时间戳>_<角色>/`（png + frames.jsonl + keys.jsonl + fsm_params.json）。补正 `mon_corr_u/d/l/r`；连按 `mash_count` / `mash_gap_ms`。
+**连按分层（已收口）：** 核心 `step` 只出 `skill_slot` / `CAST`，`FsmParams` **没有** `mash_count`/`mash_gap_ms`，`send_label` 只写 `点按 t`。执行层按槽是否勾【连按】+ COUNT 连打。回放红字 / 实机字幕用 `mash_n_for_slot` 再拼 `连按N×`。COUNT/间隔只在 GUI json 与 `FsmExecutor`。mash COUNT 是全局执行参数还是技能表属性仍可再议。
+
+GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写盘 `FSM_TEST/<图>/<时间戳>_<角色>/`（进图后才建段）。补正 `mon_corr_u/d/l/r`。
 
 ---
 
@@ -46,7 +52,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 长期：地下城 × 角色 → 通关操作 + YOLO 特征 → 自动化。  
 **当前对照（DECISIONS §1.0）：** 模块化 agent（YOLO+OCR 感知 → FSM 决策 → 快捷栏执行），**非行为克隆**。
 
-**现在卡在哪：** 核心已跟 `FSM_DESIGN.txt`，进入实机边打边调。旧特征表可能要重提。回放不发键。组集清洗未确认。
+**现在卡在哪：** 回放能开。下一步边打边调开打/捡物/前进手感。回放不发键。组集清洗未确认。
 
 **现成盘面（旧表结构，提取改完要重提）：** `skill_features/深渊：最终调律者/SolarWarden.json`；`skill_binds/SolarWarden.json`；YOLO `solarwarden_b`。推荐回放段 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`。
 
@@ -66,7 +72,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 决策形状：`FsmDecision`（state/flags/action/move_dir + 技能、CD、分布计数等）。卡住是状态 `卡住`；预热在 flags。`FsmAction.CAST` = 开打「立即释放」；`FsmAction.ATTACK` = 按住普攻 X（无 CD）；`FsmAction.PICK` = 捡物一键拾取。
 
-`FsmParams`：GX/GY/AX/AY、XXX、`mon_off_x/y`（MON/BOSS 补正）、`fight_plan`（按分布 key）、`hotbar`、`dist_table`、`map_reset`。
+`FsmParams`：GX/GY、`ax_ms`/`ay_ms`、`xxx_ms`、`th_ms`（接近/捡物 TAP→HOLD 间隔）、`x_s`（卡住秒）、`y_ms`、`tn_s`（回城秒）、`mon_off_x/y`、`fight_plan`、`hotbar`、`dist_table`、`map_reset`。旧帧字段按 ×50ms / ×0.05s 读入。
 
 不要拆三个独立进程。不要把发键写进回放。
 
@@ -163,15 +169,15 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 - 采集：截图+键盘，管理员硬拦。
 - **YOLO测试**：只检测，弹 `YOLO Test` 窗，不跑 FSM、不存图、不采键盘、不要求管理员。新图识别用这个。
 - 自动化：OCR 进图占位。
-- FSM测试：YOLO+FSM，弹 `FSM Test` 窗（不抢激活、置顶）。旁路勾 **发键** 才注入（须管理员）；点开始会把游戏拉到前台。间隔与采集同档 0.05s。日志不每帧刷，改状态/意图或约 8 秒一条。
+- FSM测试：YOLO+FSM，弹 `FSM Test` 窗（不抢激活、置顶）。**默认发键**（须管理员，无勾选）；点开始会把游戏拉到前台。间隔与采集同档 0.05s。状态日志不打 `FSM#` 逐帧摘要（检测看预览窗 / 顶栏 FSM状态）。OCR 小框每次识别变了立刻打，否则约 3 秒一条。**OCR 进图后才写** `FSM_TEST/`（城镇不录；回城停录，再进图新开一段）。
 
 主 GUI 停/开循环不要做成「暂停但 YOLO 还在跑」。
 
 ### 前进 / 卡住 / 开打 / 捡物
 
-前进：GX/GY 每帧相对当前门接近；一次性方向只给过门；AX/AY 过门。  
+前进：GX/GY 每帧相对当前门接近（点按→TH→按住）；一次性方向只给过门；两轴停或门消失 → AX/AY。  
 开打：排除 CD 后取文件序列第一个就绪（仅快捷栏单键/space）；最远敌对；范围异常仍然释放；没有就绪 → 最短持续帧；全 CD 普攻 X。等待显示技能和剩余帧。CAST 后 `hold_frames`。  
-捡物：PM/PT/PC；数量>PC → 左 Alt。发键仅 FSM测试勾选。点按 ms 默认 50。
+捡物：PM/PT/PC；数量 **>PC** 一键拾取，**≤PC** 依次捡（点按→TH→按住，与前进接近相同）。FSM测试默认发键。点按 ms 默认 50。
 
 ### 本会话覆盖的旧约定（不要当现行）
 
@@ -187,15 +193,16 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 | 开打距离不够 → 接近；范围异常不放 | **范围异常仍然释放（暂定）** |
 | 提取分组沿用 FSM 当时的怪物分布 | 按下技能那一帧按分布判定现算 |
 | 全 CD 则空等 | 按住普攻 X，XXX 帧（默认 20） |
-| 前进过坐标后计单个 A；TAP 空帧 | GX/GY 阈值接近；一次性方向；AX/AY 过门 |
-| 前进用【门坐标快照】，不再跟实时门 | 前进每帧相对**当前门** GX/GY；过门方向仍一次性 |
+| 前进过坐标后计单个 A；TAP 空帧 | GX/GY 阈值接近（点按→TH→按住）；一次性方向；AX/AY 过门 |
+| 前进用【门坐标快照】，不再跟实时门 | 前进每帧相对**当前门** GX/GY；过门方向仍一次性；**门消失直接过门** |
 | 发键用键位表完整指令（含 +） | 只用快捷栏单键 / space（`bind_hotkey`） |
 | 点按立刻抬起；CAST_STEP_S 写死 | **点按 ms** 默认 50，主面板/回放共用 |
 | 左 Alt 扫码瞬点 | VK 左 Alt + 短按 |
+| FSM测试点开始即写 `FSM_TEST/` | **OCR 进图后才写**；回城停录，再进图新开一段 |
 
 ### 归档
 
-`archive_notes/`。上午大改：`ARCHIVE_NOTE_2026-09-04-0.md`。本晚：`archive_notes/ARCHIVE_NOTE_2026-09-04-1.md`。
+`archive_notes/`。本交接：`ARCHIVE_NOTE_2026-09-05-1.md`。此前：`ARCHIVE_NOTE_2026-09-05-0.md`、`2026-09-04-1.md`、`2026-09-04-0.md`。
 
 ---
 
@@ -204,7 +211,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 | 文件 | 职责 |
 |------|------|
 | `fsm_core.py` | **唯一** FSM 判定 + 前进/卡住/开打/捡物意图 |
-| `fsm_replay.py` | 回放宿主；黄蓝绿；技能特征入口；F / 删【重置】 |
+| `fsm_replay.py` | 回放宿主（采集 + FSM测试）；黄蓝绿；技能特征入口；F / 删【重置】 |
 | `skill_feature_extract.py` | 快捷栏技能段 → `skill_features/`；`apply_f` / `sequences` / `map_tags` |
 | `gui_module.py` | 面板；采集 / YOLO测试 / 自动化 / FSM测试 |
 | `fsm_execute.py` | 意图 → SendInput；`tap_ms` 点按间隔 |
@@ -244,8 +251,9 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 
 ## 7. 再往后
 
-1. 边打边调开打/捡物/前进手感（`tap_ms`、持续帧、GX/GY…）。  
-2. OCR 回城进快照 `town_return`。
+1. ~~先修回放启动~~（已修，`skill_feature_extract.py`）。  
+2. 边打边调开打/捡物/前进手感（`tap_ms`、持续帧、GX/GY…）。  
+3. `meta.json` `completed` 暂缓。OCR 回城关键词已用 debounce，快照字段名以代码为准。
 
 并行未做：组集 fill/相对、自动化闭环、采集后离线 YOLO。
 
@@ -254,6 +262,6 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 ## 8. 怎么交接
 
 1. 新对话首条：`d:\Desktop\T\test\CONTEXT_HANDOFF.md`，并打开 `FSM_DESIGN.txt`。  
-2. **边打边调**；txt 没改就不要推翻核心。范围异常仍然释放，不要发明接近。  
-3. 发键只在 FSM测试「发键」勾选；不要写进回放 / `fsm_core`。开打技能范围 = 快捷栏单键 / space。  
+2. 边打边调开打/捡物/前进。txt 没改就不要推翻核心。范围异常仍然释放，不要发明接近。  
+3. 发键只在 FSM测试（默认开）；不要写进回放 / `fsm_core`。开打技能范围 = 快捷栏单键 / space。连按不要塞回 `FsmParams`。  
 4. `blueprint.txt` = 长期意图；本文件 = 当天状态。磁盘代码才是真相。回复简体中文。

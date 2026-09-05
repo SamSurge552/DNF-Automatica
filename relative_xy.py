@@ -66,6 +66,7 @@ def transform_frame(
         return minus(bl, to_bl(used_tl, height))
 
     view = {
+        "t_ns": int(fr["t_ns"]) if fr.get("t_ns") is not None else None,
         "player_hold": hold,
         "player_missing": raw_tl is None,
         "relative": relative,

@@ -2,15 +2,15 @@
   "fsm_replay": {
     "w": 1618,
     "h": 1038,
-    "x": 49,
-    "y": 188,
+    "x": 300,
+    "y": 194,
     "zoomed": false
   },
   "main": {
     "w": 695,
     "h": 1077,
-    "x": 109,
-    "y": 259,
+    "x": 17,
+    "y": 210,
     "zoomed": false
   },
   "fsm_extract": {
@@ -23,8 +23,8 @@
   "record_keys": {
     "w": 320,
     "h": 420,
-    "x": 455,
-    "y": 407,
+    "x": 578,
+    "y": 258,
     "zoomed": false
   },
   "skill_bind": {

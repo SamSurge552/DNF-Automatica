@@ -75,4 +75,9 @@
 -
 11：25 FSM测试默认发键并写FSM_TEST；连按COUNT+间隔
 12：07 .gitignore 忽略 images/ 与 FSM_TEST 图片；交接归档
+15：40 回放无法启动（extract is_boss）；交接给新对话修
+15：50 先 classify_dist 再 is_boss/kind；回放能开；下一步边打边调
+15：55 回放来源：采集 / FSM测试 / 全部；列表扫 FSM_TEST
+16：15 FSM测试改为进图后才写FSM_TEST；城镇不录
+16：58 持续/AX/AY/XXX/Y/loot_hold 改 ms；卡住X、回城用秒
 -

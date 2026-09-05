@@ -44,17 +44,105 @@ class FsmAction(Enum):
 
 
 _RECOVER_DIRS = (FsmDir.UP, FsmDir.DOWN, FsmDir.LEFT, FsmDir.RIGHT)
-_DASH_DIRS = (FsmDir.LEFT, FsmDir.RIGHT)
+_MOVE_DIR_ORDER = (FsmDir.UP, FsmDir.DOWN, FsmDir.LEFT, FsmDir.RIGHT)
+DEFAULT_TH_MS = 50
 
 
-def _start_action(d: FsmDir) -> FsmAction:
-    """左右疾跑：第一帧 TAP。上下无疾跑：第一帧就 HOLD。"""
-    return FsmAction.TAP if d in _DASH_DIRS else FsmAction.HOLD
+def _norm_dirs(dirs) -> tuple[FsmDir, ...]:
+    got = {d for d in (dirs or ()) if d is not None}
+    return tuple(d for d in _MOVE_DIR_ORDER if d in got)
+
+
+def _tap_hold(
+    want: tuple[FsmDir, ...],
+    prev_want: tuple[FsmDir, ...],
+    phase: int,
+    left: int,
+    th_ms: int,
+    dt: int,
+) -> tuple[FsmAction, tuple[FsmDir, ...], tuple[FsmDir, ...], int, int]:
+    """接近/捡物：点按 → 等 th_ms → 按住。方向变了重来；少掉的轴若仍是子集则继续按住。"""
+    want = _norm_dirs(want)
+    prev_want = _norm_dirs(prev_want)
+    th_ms = max(0, int(th_ms))
+    dt = max(0, int(dt))
+    phase = int(phase)
+    left = max(0, int(left))
+    if not want:
+        return FsmAction.NONE, (), (), 0, 0
+    if phase == 2 and want != prev_want and set(want) <= set(prev_want):
+        return FsmAction.HOLD, want, want, 2, 0
+    if want == prev_want and phase == 2:
+        return FsmAction.HOLD, want, want, 2, 0
+    if want == prev_want and phase == 1:
+        left = max(0, left - dt)
+        if left <= 0:
+            return FsmAction.HOLD, want, want, 2, 0
+        return FsmAction.NONE, (), want, 1, left
+    return FsmAction.TAP, want, want, 1, th_ms
 
 
 DEFAULT_TOWN_S = 30.0
+LEGACY_FRAME_MS = 50  # 旧「帧」字段迁毫秒：按采集 0.05s 一档
+HOLD_MS_KEY = "hold_ms"
+HOLD_FRAMES_KEY = "hold_frames"
 _REF_W = 1600.0
 _REF_H = 900.0
+
+
+def dt_ms(prev_t_ns: int | None, t_ns: int) -> int:
+    if prev_t_ns is None:
+        return 0
+    return max(0, int(round((int(t_ns) - int(prev_t_ns)) / 1e6)))
+
+
+def json_ms(data: dict | None, key_ms: str, key_old: str, default_frames: int, lo: int = 0) -> int:
+    """读 *_ms；没有则把旧帧字段 × 50。"""
+    src = data or {}
+    if key_ms in src and src[key_ms] is not None:
+        try:
+            return max(lo, int(src[key_ms]))
+        except (TypeError, ValueError):
+            pass
+    if key_old in src and src[key_old] is not None:
+        try:
+            return max(lo, int(src[key_old]) * LEGACY_FRAME_MS)
+        except (TypeError, ValueError):
+            pass
+    return max(lo, int(default_frames) * LEGACY_FRAME_MS)
+
+
+def json_s_from_frames(data: dict | None, key_s: str, key_old: str, default_frames: int, lo: float = 0.05) -> float:
+    """读秒；没有则旧帧 × 0.05s。"""
+    src = data or {}
+    if key_s in src and src[key_s] is not None:
+        try:
+            return max(lo, float(src[key_s]))
+        except (TypeError, ValueError):
+            pass
+    if key_old in src and src[key_old] is not None:
+        try:
+            return max(lo, int(src[key_old]) * LEGACY_FRAME_MS / 1000.0)
+        except (TypeError, ValueError):
+            pass
+    return max(lo, float(default_frames) * LEGACY_FRAME_MS / 1000.0)
+
+
+def parse_hold_ms(item, default: int | None = None) -> int | None:
+    if not isinstance(item, dict):
+        return default
+    if item.get(HOLD_MS_KEY) is not None:
+        try:
+            return max(0, int(item[HOLD_MS_KEY]))
+        except (TypeError, ValueError):
+            return default
+    raw = item.get(HOLD_FRAMES_KEY, item.get("frames"))
+    if raw is None:
+        return default
+    try:
+        return max(0, int(raw) * LEGACY_FRAME_MS)
+    except (TypeError, ValueError):
+        return default
 
 
 @dataclass(frozen=True)
@@ -66,10 +154,10 @@ class FightSkill:
     cooldown_s: float
     range_px: float | None = None
     combo: bool = False
-    hold_frames: int = 0
+    hold_ms: int = 0
     multi: int = 1
     charge: int = 0
-    mash: bool = False  # 键位表【连按】：执行层展开为 COUNT 次点按
+    mash: bool = False  # 键位表【连按】：宿主/执行层用，核心不读
 
 
 @dataclass(frozen=True)
@@ -99,26 +187,25 @@ class FsmParams:
     m: int = 5
     l: int = 5
     g: int = 5
-    x: int = 30
+    x_s: float = 1.5  # 卡住：同一流程状态连续秒数
     gx: int = 50
     gy: int = 10
-    ax: int = 5
-    ay: int = 5
-    y: int = 5
+    ax_ms: int = 250
+    ay_ms: int = 250
+    y_ms: int = 250  # 卡住恢复：每向按住毫秒
     s: int = 20
     pm: int = 10
     pc: int = 5
     pt: int = 3
-    xxx: int = 20
-    tn: int = 600  # 回城：连续无地下城关键词的帧数（宿主用回城秒/帧间隔换算，默认 30s）
+    xxx_ms: int = 1000
+    th_ms: int = DEFAULT_TH_MS  # 捡物/前进接近：点按后等到按住的间隔
+    tn_s: float = DEFAULT_TOWN_S  # 回城：连续无地下城关键词的秒数
     fight_plan: tuple[DistSkillPlan, ...] = ()
     hotbar: tuple[FightSkill, ...] = ()
     dist_table: tuple[DistSig, ...] = ()
     map_reset: bool = False
     mon_off_x: int = 0  # >0 右：YOLO MON/BOSS x 加；<0 左：减
     mon_off_y: int = 0  # >0 下：YOLO MON/BOSS y 加；<0 上：减
-    mash_count: int = 3  # 连按归属未决（技能表 vs 执行层）；核心只用于 send_label
-    mash_gap_ms: int = 50
 
 
 @dataclass(frozen=True)
@@ -143,6 +230,7 @@ class _Deb:
     judged: bool = False
     run_v: bool | None = None
     run_n: int = 0
+    run_t: int | None = None
 
 
 @dataclass(frozen=True)
@@ -171,7 +259,7 @@ class FsmContext:
     adv_dir_set: bool = False
     recover_on: bool = False
     recover_dir_i: int = 0
-    recover_frame: int = 0
+    recover_ms: int = 0
     through_done: bool = False
     gate_crosses: int = 0
     boss_enters: int = 0
@@ -186,10 +274,14 @@ class FsmContext:
     loot_targets: tuple[tuple[float, float], ...] = ()
     loot_dir: FsmDir | None = None
     loot_stop: _Deb = field(default_factory=_Deb)
+    dash_want: tuple[FsmDir, ...] = ()
+    dash_phase: int = 0
+    dash_left: int = 0
     dungeon: _Deb = field(default_factory=_Deb)
     saw_dungeon: bool = False
     watch_state: FsmState | None = None
     watch_run: int = 0
+    watch_start_t: int | None = None
 
 
 @dataclass(frozen=True)
@@ -289,7 +381,7 @@ def send_keys_label(
     skill_key: str | None = None,
     mash_n: int = 0,
 ) -> str:
-    """这一帧执行层会按的键（回放不注入，只展示）。"""
+    """这一帧会按的键（展示用）。mash_n 由宿主按执行层同一套槽+COUNT 传入，核心不填。"""
     dirs = move_dirs or (() if move_dir is None else (move_dir,))
     names = [d.value for d in dirs]
     if action is FsmAction.HOLD and names:
@@ -571,9 +663,10 @@ def _intent(
     ctx: FsmContext,
     gx: int,
     gy: int,
-    ax: int,
-    ay: int,
-    y: int,
+    ax_ms: int,
+    ay_ms: int,
+    y_ms: int,
+    dt_ms: int,
 ) -> tuple[
     FsmAction,
     FsmDir | None,
@@ -589,18 +682,19 @@ def _intent(
     bool,
     bool,
 ]:
-    """action, move_dir, move_dirs, adv_dirs, extra_h, extra_v, adv_phase, adv_lock, recover_on, recover_dir_i, recover_frame, through_done, adv_dir_set。"""
+    """action, move_dir, move_dirs, adv_dirs, extra_h, extra_v, adv_phase, adv_lock, recover_on, recover_dir_i, recover_ms, through_done, adv_dir_set。"""
     gx, gy = max(0, int(gx)), max(0, int(gy))
-    ax, ay = max(0, int(ax)), max(0, int(ay))
-    y = max(1, int(y))
+    ax_ms, ay_ms = max(0, int(ax_ms)), max(0, int(ay_ms))
+    y_ms = max(1, int(y_ms))
+    step_ms = max(0, int(dt_ms))
 
     if stuck:
         i = ctx.recover_dir_i if ctx.recover_on else 0
-        k = ctx.recover_frame if ctx.recover_on else 0
+        k = ctx.recover_ms if ctx.recover_on else 0
         i = i % 4
         d = _RECOVER_DIRS[i]
-        k += 1
-        if k >= y:
+        k += step_ms
+        if k >= y_ms:
             k = 0
             i = (i + 1) % 4
         return (
@@ -671,8 +765,15 @@ def _intent(
             dir_set,
         )
 
+    def _enter_through():
+        eh = ax_ms if (lock[0] or lock[1]) else 0
+        ev = ay_ms if (lock[2] or lock[3]) else 0
+        return _pack(FsmAction.NONE, (), eh, ev, 1, eh <= 0 and ev <= 0)
+
     if phase == 0:
         if gate_xy is None:
+            if dir_set:
+                return _enter_through()
             return _pack(FsmAction.NONE, (), 0, 0, 0, False)
         dx = gate_xy[0] - pos[0]
         dy = gate_xy[1] - pos[1]
@@ -685,10 +786,7 @@ def _intent(
         dirs = tuple(d for d in (hold_h, hold_v) if d is not None)
         if dirs:
             return _pack(FsmAction.HOLD, dirs, 0, 0, 0, False)
-        extra_h = ax if (lock[0] or lock[1]) else 0
-        extra_v = ay if (lock[2] or lock[3]) else 0
-        phase = 1
-        return _pack(FsmAction.NONE, (), extra_h, extra_v, 1, extra_h <= 0 and extra_v <= 0)
+        return _enter_through()
 
     if extra_h <= 0 and extra_v <= 0:
         return _pack(FsmAction.NONE, (), 0, 0, 1, True)
@@ -697,8 +795,8 @@ def _intent(
     hold_h = hx if extra_h > 0 else None
     hold_v = vy if extra_v > 0 else None
     dirs = tuple(d for d in (hold_h, hold_v) if d is not None)
-    extra_h = max(0, extra_h - (1 if hold_h is not None else 0))
-    extra_v = max(0, extra_v - (1 if hold_v is not None else 0))
+    extra_h = max(0, extra_h - (step_ms if hold_h is not None else 0))
+    extra_v = max(0, extra_v - (step_ms if hold_v is not None else 0))
     done = extra_h <= 0 and extra_v <= 0
     if not dirs:
         return _pack(FsmAction.NONE, (), extra_h, extra_v, 1, done)
@@ -725,7 +823,7 @@ def expand_fight_skills(skills: tuple[FightSkill, ...]) -> tuple[FightSkill, ...
                     cooldown_s=sk.cooldown_s,
                     range_px=sk.range_px,
                     combo=sk.combo,
-                    hold_frames=sk.hold_frames,
+                    hold_ms=sk.hold_ms,
                     multi=1,
                     charge=0,
                     mash=bool(sk.mash),
@@ -740,27 +838,13 @@ def expand_fight_skills(skills: tuple[FightSkill, ...]) -> tuple[FightSkill, ...
                     cooldown_s=sk.cooldown_s,
                     range_px=sk.range_px,
                     combo=sk.combo,
-                    hold_frames=sk.hold_frames,
+                    hold_ms=sk.hold_ms,
                     multi=n,
                     charge=i,
                     mash=bool(sk.mash),
                 )
             )
     return tuple(out)
-
-
-def _slot_is_mash(params: FsmParams, slot: int | None) -> bool:
-    if slot is None:
-        return False
-    sid = int(slot)
-    for sk in params.hotbar:
-        if int(sk.slot) == sid and sk.mash:
-            return True
-    for plan in params.fight_plan:
-        for sk in plan.skills:
-            if int(sk.slot) == sid and sk.mash:
-                return True
-    return False
 
 
 def _cd_map(skill_cd: tuple[tuple[int, int, int], ...]) -> dict[tuple[int, int], int]:
@@ -799,9 +883,9 @@ def _first_file_ready(
     return None
 
 
-def _start_attack(xxx: int) -> tuple:
-    n = max(1, int(xxx))
-    return FsmAction.ATTACK, None, None, None, "x", None, None, (), "普攻X", 0, n - 1
+def _start_attack(xxx_ms: int, step_ms: int) -> tuple:
+    n = max(1, int(xxx_ms))
+    return FsmAction.ATTACK, None, None, None, "x", None, None, (), "普攻X", 0, max(0, n - max(0, int(step_ms)))
 
 
 def _fight_intent(
@@ -815,7 +899,8 @@ def _fight_intent(
     skill_cd: tuple[tuple[int, int, int], ...],
     cast_wait_left: int,
     attack_left: int,
-    xxx: int,
+    xxx_ms: int,
+    dt_ms: int,
     last_slot: int | None = None,
     last_key: str | None = None,
 ) -> tuple[
@@ -834,6 +919,7 @@ def _fight_intent(
     """action, move_dir, fight_dir, slot, key, range, dist, new_cd, note, cast_wait_left, attack_left。"""
     wait = max(0, int(cast_wait_left))
     atk = max(0, int(attack_left))
+    step_ms = max(0, int(dt_ms))
     if wait > 0:
         return (
             FsmAction.NONE,
@@ -845,7 +931,7 @@ def _fight_intent(
             None,
             skill_cd,
             "等待释放",
-            wait - 1,
+            max(0, wait - step_ms),
             0,
         )
     if atk > 0:
@@ -860,7 +946,7 @@ def _fight_intent(
             skill_cd,
             "普攻X",
             0,
-            atk - 1,
+            max(0, atk - step_ms),
         )
     file_seq = _skills_for_dist(plan, dist_key)
     ready = _cd_map(skill_cd)
@@ -874,7 +960,7 @@ def _fight_intent(
         cd_s = max(0.0, float(picked.cooldown_s))
         ready[(picked.slot, picked.charge)] = t + int(round(cd_s * 1e9))
         new_cd = _cd_tuple(ready)
-        hold = max(0, int(picked.hold_frames))
+        hold = max(0, int(picked.hold_ms))
         return (
             FsmAction.CAST,
             None,
@@ -889,11 +975,11 @@ def _fight_intent(
             0,
         )
     if bar_ready:
-        picked = min(bar_ready, key=lambda sk: (max(0, int(sk.hold_frames)), sk.slot, sk.charge))
+        picked = min(bar_ready, key=lambda sk: (max(0, int(sk.hold_ms)), sk.slot, sk.charge))
         cd_s = max(0.0, float(picked.cooldown_s))
         ready[(picked.slot, picked.charge)] = t + int(round(cd_s * 1e9))
         new_cd = _cd_tuple(ready)
-        hold = max(0, int(picked.hold_frames))
+        hold = max(0, int(picked.hold_ms))
         return (
             FsmAction.CAST,
             None,
@@ -903,11 +989,11 @@ def _fight_intent(
             picked.range_px,
             _farthest_dist(pos, enemy_xy),
             new_cd,
-            "无技能可放",  # 不再看过图文件；快捷栏最短持续帧
+            "无技能可放",  # 不再看过图文件；快捷栏最短持续
             hold,
             0,
         )
-    act, md, fd, slot, key, rng, dist, cd, note, cw, aw = _start_attack(xxx)
+    act, md, fd, slot, key, rng, dist, cd, note, cw, aw = _start_attack(xxx_ms, step_ms)
     return act, md, fd, slot, key, rng, dist, skill_cd, note, cw, aw
 
 
@@ -981,8 +1067,7 @@ def _loot_intent(
     if _xy_dist(pos, tgt) <= max(float(pm_px), 8.0):
         return FsmAction.NONE, None, tuple(kept), loot_dir, "等消失"
     want = _axis_dir(pos, tgt)
-    action = FsmAction.HOLD if loot_dir is want else _start_action(want)
-    return action, want, tuple(kept), want, "依次捡"
+    return FsmAction.HOLD, want, tuple(kept), want, "依次捡"
 
 
 def _intent_label(
@@ -1013,8 +1098,8 @@ def _intent_label(
         sk = f"{skill_slot} {skill_key or ''}".strip()
         head = "提取分布+选技能" if fsm_run <= 1 else "选技能"
         if fight_note == "等待释放":
-            left = max(1, int(cast_wait_left) + 1)
-            return f"{head} 等待释放 {sk} 剩{left}帧".replace("  ", " ").strip()
+            left = max(1, int(cast_wait_left))
+            return f"{head} 等待释放 {sk} 剩{left}ms".replace("  ", " ").strip()
         if fight_note == "范围异常":
             if action is FsmAction.CAST:
                 return f"{head} 范围异常 仍然释放 {sk}".strip()
@@ -1122,26 +1207,20 @@ def _deb_step(d: _Deb, raw: bool, n: int) -> _Deb:
     return _Deb(judged=judged, run_v=run_v, run_n=run_n)
 
 
-def dungeon_deb_step(d: _Deb, kw: bool, n: int) -> _Deb:
-    """进图：看到关键词立刻进。回城：连续 n 帧无关键词才出（n 同 M/L/G 机制）。"""
+def dungeon_deb_step(d: _Deb, kw: bool, t_ns: int, tn_s: float) -> _Deb:
+    """进图：看到关键词立刻进。回城：连续 tn_s 秒无关键词才出。"""
+    t = int(t_ns)
     if kw:
-        return _Deb(judged=True, run_v=True, run_n=1)
-    return _deb_step(d, False, n)
-
-
-def town_n_frames(town_s: float, interval_s: float, default_s: float = 30.0) -> int:
-    """回城秒 → 连续帧数。"""
-    try:
-        sec = float(town_s)
-    except (TypeError, ValueError):
-        sec = default_s
-    try:
-        dt = float(interval_s)
-    except (TypeError, ValueError):
-        dt = 0.05
-    if dt <= 0:
-        dt = 0.05
-    return max(1, int(round(max(0.0, sec) / dt)))
+        return _Deb(judged=True, run_v=True, run_n=1, run_t=t)
+    sec = max(0.0, float(tn_s))
+    if d.run_v is False and d.run_t is not None:
+        start = d.run_t
+    else:
+        start = t
+    elapsed = (t - start) / 1e9
+    if d.judged and elapsed < sec:
+        return _Deb(judged=True, run_v=False, run_n=d.run_n + 1, run_t=start)
+    return _Deb(judged=False, run_v=False, run_n=d.run_n + 1 if d.run_v is False else 1, run_t=start)
 
 
 def _draft(
@@ -1246,16 +1325,18 @@ def step(
         raise ValueError(f"t_ns 必须单调不减: prev={ctx.last_t_ns} got={t}")
 
     m, l, g = max(1, int(params.m)), max(1, int(params.l)), max(1, int(params.g))
-    x = max(1, int(params.x))
+    x_s = max(0.05, float(params.x_s))
     gx, gy = max(0, int(params.gx)), max(0, int(params.gy))
-    ax, ay = max(0, int(params.ax)), max(0, int(params.ay))
-    y = max(1, int(params.y))
+    ax_ms, ay_ms = max(0, int(params.ax_ms)), max(0, int(params.ay_ms))
+    y_ms = max(1, int(params.y_ms))
     s = max(0, int(params.s))
     pm = max(0, int(params.pm))
     pc = max(0, int(params.pc))
     pt = max(1, int(params.pt))
-    xxx = max(1, int(params.xxx))
-    tn = max(1, int(params.tn))
+    xxx_ms = max(1, int(params.xxx_ms))
+    th_ms = max(0, int(params.th_ms))
+    tn_s = max(0.0, float(params.tn_s))
+    step_ms = dt_ms(ctx.last_t_ns, t)
     ox, oy = int(params.mon_off_x), int(params.mon_off_y)
     if ox or oy:
         snap = replace(
@@ -1277,7 +1358,7 @@ def step(
         saw_dungeon = True
         town_return = False
     else:
-        dun = dungeon_deb_step(ctx.dungeon, bool(snap.dungeon_kw), tn)
+        dun = dungeon_deb_step(ctx.dungeon, bool(snap.dungeon_kw), t, tn_s)
         in_dungeon = dun.judged
         saw_dungeon = ctx.saw_dungeon or in_dungeon
         town_return = saw_dungeon and not in_dungeon
@@ -1302,11 +1383,23 @@ def step(
     flow = hold if hold is not None else drafted
     if hold is not None:
         why += f"  {hold_why}"
-    watch_run = ctx.watch_run + 1 if ctx.watch_state is flow else 1
-    if watch_run >= x:
+    if ctx.watch_state is flow and ctx.watch_start_t is not None:
+        watch_start_t = ctx.watch_start_t
+        watch_run = ctx.watch_run + 1
+    else:
+        watch_start_t = t
+        watch_run = 1
+    watch_s = (t - watch_start_t) / 1e9
+    if watch_s >= x_s:
         flow = drafted
-        watch_run = ctx.watch_run + 1 if ctx.watch_state is flow else 1
-        state = FsmState.STUCK if watch_run >= x else flow
+        if ctx.watch_state is flow and ctx.watch_start_t is not None:
+            watch_start_t = ctx.watch_start_t
+            watch_run = ctx.watch_run + 1
+        else:
+            watch_start_t = t
+            watch_run = 1
+        watch_s = (t - watch_start_t) / 1e9
+        state = FsmState.STUCK if watch_s >= x_s else flow
         if state is FsmState.STUCK:
             why += "  卡住打断"
     else:
@@ -1423,7 +1516,7 @@ def step(
     adv_dir_set = False
     recover_on = False
     recover_dir_i = 0
-    recover_frame = 0
+    recover_ms = 0
     through_done = False
     if stuck or state is FsmState.ADVANCE:
         (
@@ -1437,7 +1530,7 @@ def step(
             adv_lock,
             recover_on,
             recover_dir_i,
-            recover_frame,
+            recover_ms,
             through_done,
             adv_dir_set,
         ) = _intent(
@@ -1449,9 +1542,10 @@ def step(
             ctx=ctx,
             gx=gx,
             gy=gy,
-            ax=ax,
-            ay=ay,
-            y=y,
+            ax_ms=ax_ms,
+            ay_ms=ay_ms,
+            y_ms=y_ms,
+            dt_ms=step_ms,
         )
     elif state is FsmState.FIGHT:
         enemy_xy = tuple(snap.boss_xy) + tuple(snap.mon_xy)
@@ -1477,7 +1571,8 @@ def step(
             skill_cd=skill_cd,
             cast_wait_left=ctx.cast_wait_left if ctx.state is FsmState.FIGHT else 0,
             attack_left=ctx.attack_left if ctx.state is FsmState.FIGHT else 0,
-            xxx=xxx,
+            xxx_ms=xxx_ms,
+            dt_ms=step_ms,
             last_slot=ctx.cast_slot if ctx.state is FsmState.FIGHT else None,
             last_key=ctx.cast_key if ctx.state is FsmState.FIGHT else None,
         )
@@ -1509,6 +1604,32 @@ def step(
             why += f"  {loot_note}"
     else:
         action, move_dir = FsmAction.NONE, None
+
+    dash_want: tuple[FsmDir, ...] = ()
+    dash_phase = 0
+    dash_left = 0
+    if state is FsmState.LOOT and not move_dirs and move_dir is not None:
+        move_dirs = (move_dir,)
+    approaching = (
+        not stuck
+        and action in (FsmAction.HOLD, FsmAction.TAP)
+        and (
+            (state is FsmState.ADVANCE and adv_phase == 0)
+            or state is FsmState.LOOT
+        )
+    )
+    if approaching:
+        want = _norm_dirs(move_dirs or ((move_dir,) if move_dir else ()))
+        same_move = ctx.state in (FsmState.ADVANCE, FsmState.LOOT)
+        action, move_dirs, dash_want, dash_phase, dash_left = _tap_hold(
+            want,
+            ctx.dash_want if same_move else (),
+            ctx.dash_phase if same_move else 0,
+            ctx.dash_left if same_move else 0,
+            th_ms,
+            step_ms,
+        )
+        move_dir = move_dirs[0] if move_dirs else None
 
     intent_label = _intent_label(
         state=state,
@@ -1569,7 +1690,7 @@ def step(
         adv_dir_set=adv_dir_set if state is FsmState.ADVANCE else False,
         recover_on=recover_on,
         recover_dir_i=recover_dir_i,
-        recover_frame=recover_frame,
+        recover_ms=recover_ms,
         through_done=through_done if state is FsmState.ADVANCE else False,
         gate_crosses=gate_crosses,
         boss_enters=boss_enters,
@@ -1584,10 +1705,14 @@ def step(
         loot_targets=loot_targets if state is FsmState.LOOT else (),
         loot_dir=loot_dir if state is FsmState.LOOT else None,
         loot_stop=loot_stop if state is FsmState.LOOT else _Deb(),
+        dash_want=dash_want,
+        dash_phase=dash_phase,
+        dash_left=dash_left,
         dungeon=dun,
         saw_dungeon=saw_dungeon if state not in (FsmState.WAIT,) else False,
         watch_state=flow,
         watch_run=watch_run,
+        watch_start_t=watch_start_t,
     )
     decision = FsmDecision(
         state=state,
@@ -1621,7 +1746,6 @@ def step(
             move_dirs,
             move_dir,
             skill_key,
-            mash_n=max(1, int(params.mash_count)) if action is FsmAction.CAST and _slot_is_mash(params, skill_slot) else 0,
         ),
         dist_key=dist_key,
         dist_kind=dist_kind,

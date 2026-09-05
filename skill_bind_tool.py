@@ -29,13 +29,13 @@ from PIL import Image, ImageDraw, ImageTk
 from screen_capture import ScreenCaptureModule
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
+from fsm_core import parse_hold_ms, HOLD_MS_KEY, HOLD_FRAMES_KEY as HOLD_FRAMES_LEGACY
 
 MAX_SKILLS = 9
 BINDS_DIR = Path("skill_binds")
 SETTINGS_PATH = BINDS_DIR / "_tool_ui.json"
 CHAR_FILE = Path("character_names_custom.txt")
 EXAMPLE_PNG = BINDS_DIR / "example_combat_stats.png"
-HOLD_FRAMES_KEY = "hold_frames"
 COOLDOWN_KEY = "cooldown_s"
 MASH_KEY = "mash"
 COMBO_KEY = "combo"
@@ -139,15 +139,10 @@ def _skill_slot(item: dict) -> int:
 
 
 def parse_hold_frames(item) -> int | None:
-    if not isinstance(item, dict):
+    v = parse_hold_ms(item)
+    if v is None:
         return None
-    raw = item.get(HOLD_FRAMES_KEY, item.get("frames"))
-    if raw is None:
-        return None
-    try:
-        return max(1, int(raw))
-    except (TypeError, ValueError):
-        return None
+    return max(1, int(v))
 
 
 def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
@@ -175,7 +170,7 @@ def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
         prev = by_slot.get(slot, {})
         row = dict(prev)
         row.update(item)
-        for keep in (HOLD_FRAMES_KEY, COOLDOWN_KEY):
+        for keep in (HOLD_MS_KEY, HOLD_FRAMES_LEGACY, COOLDOWN_KEY):
             if keep not in item and keep in prev:
                 row[keep] = prev[keep]
         if COMBO_KEY in item:
@@ -1322,7 +1317,7 @@ class SkillBindTool(tk.Tk):
                 item["hotbar"] = True
             hf = self._hold_frames.get(i + 1)
             if hf is not None:
-                item[HOLD_FRAMES_KEY] = max(1, int(hf))
+                item[HOLD_MS_KEY] = max(1, int(hf))
             cd = parse_cooldown_text(row["cooldown"].get())
             if cd is not None:
                 item[COOLDOWN_KEY] = cooldown_json_value(cd)

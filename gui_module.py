@@ -25,7 +25,7 @@ from central_controller import CentralController
 from window_align import enable_dpi_awareness, get_virtual_screen, get_window_at_point, find_window_by_process
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
-from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_TOWN_S
+from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_TOWN_S, json_ms, json_s_from_frames
 from skill_feature_extract import DEFAULT_E, DEFAULT_F, skill_table_missing
 
 
@@ -328,14 +328,14 @@ class App(tk.Tk):
         self.fsm_m_var = tk.StringVar(value="5")
         self.fsm_l_var = tk.StringVar(value="5")
         self.fsm_g_var = tk.StringVar(value="5")
-        self.fsm_x_var = tk.StringVar(value="30")
+        self.fsm_x_var = tk.StringVar(value="1.5")
         self.fsm_gx_var = tk.StringVar(value="50")
         self.fsm_gy_var = tk.StringVar(value="10")
-        self.fsm_ax_var = tk.StringVar(value="5")
-        self.fsm_ay_var = tk.StringVar(value="5")
-        self.fsm_y_var = tk.StringVar(value="5")
+        self.fsm_ax_var = tk.StringVar(value="250")
+        self.fsm_ay_var = tk.StringVar(value="250")
+        self.fsm_y_var = tk.StringVar(value="250")
         self.fsm_s_var = tk.StringVar(value="20")
-        self.fsm_xxx_var = tk.StringVar(value="20")
+        self.fsm_xxx_var = tk.StringVar(value="1000")
         self.fsm_pm_var = tk.StringVar(value="10")
         self.fsm_pc_var = tk.StringVar(value="5")
         self.fsm_pt_var = tk.StringVar(value="3")
@@ -345,6 +345,7 @@ class App(tk.Tk):
         self.fsm_tap_ms_var = tk.StringVar(value="50")
         self.fsm_mash_count_var = tk.StringVar(value="3")
         self.fsm_mash_gap_var = tk.StringVar(value="50")
+        self.fsm_th_var = tk.StringVar(value="50")
         self.fsm_corr_u = tk.IntVar(value=0)
         self.fsm_corr_d = tk.IntVar(value=0)
         self.fsm_corr_l = tk.IntVar(value=0)
@@ -378,6 +379,7 @@ class App(tk.Tk):
             self.fsm_tap_ms_var,
             self.fsm_mash_count_var,
             self.fsm_mash_gap_var,
+            self.fsm_th_var,
         ):
             var.trace_add("write", lambda *_: self._on_fsm_mlg_edit())
         for cvar in (self.fsm_corr_u, self.fsm_corr_d, self.fsm_corr_l, self.fsm_corr_r):
@@ -636,7 +638,7 @@ class App(tk.Tk):
 
         if self.is_fsm_test_mode():
             ver = self.yolo_version_var.get() or "(未选择)"
-            self.log("已开启「FSM测试」：实时 YOLO + FSM + 发键；写盘到 FSM_TEST（YOLO jsonl + 键盘 + 截图 + 当时参数）。")
+            self.log("已开启「FSM测试」：实时 YOLO + FSM + 发键；进图后写盘到 FSM_TEST（YOLO jsonl + 键盘 + 截图 + 当时参数）。城镇不录。")
             self.log(f"提示: 采集间隔默认 0.05s；调 debounce 请与采集同档，不要放到 0.2～0.5。当前版本 {ver}。")
             if ver.lower() != "solarwarden_b":
                 self.log("过图检测请点「刷新」后选 solarwarden_b；varien_t 仅自动标注，不要当过图 YOLO。")
@@ -1043,26 +1045,27 @@ class App(tk.Tk):
         spin(r1, "判定 M", self.fsm_m_var, 1, 60)
         spin(r1, "L", self.fsm_l_var, 1, 60)
         spin(r1, "G", self.fsm_g_var, 1, 60)
-        spin(r1, "卡住 X", self.fsm_x_var, 1, 500, 5)
+        spin(r1, "卡住 X秒", self.fsm_x_var, 0.05, 120, 5)
 
         r2 = ttk.Frame(body)
         r2.pack(fill=tk.X, pady=(6, 0))
         spin(r2, "GX", self.fsm_gx_var, 0, 400)
         spin(r2, "GY", self.fsm_gy_var, 0, 400)
-        spin(r2, "AX", self.fsm_ax_var, 0, 120)
-        spin(r2, "AY", self.fsm_ay_var, 0, 120)
+        spin(r2, "AX ms", self.fsm_ax_var, 0, 20000, 6)
+        spin(r2, "AY ms", self.fsm_ay_var, 0, 20000, 6)
 
         r3 = ttk.Frame(body)
         r3.pack(fill=tk.X, pady=(6, 0))
-        spin(r3, "恢复 Y", self.fsm_y_var, 1, 120)
+        spin(r3, "恢复 Y ms", self.fsm_y_var, 1, 20000, 6)
         spin(r3, "相似 S%", self.fsm_s_var, 0, 100)
-        spin(r3, "普攻 XXX", self.fsm_xxx_var, 1, 120)
+        spin(r3, "普攻 XXX ms", self.fsm_xxx_var, 1, 20000, 6)
         spin(r3, "点按 ms", self.fsm_tap_ms_var, 1, 200)
 
         r_mash = ttk.Frame(body)
         r_mash.pack(fill=tk.X, pady=(6, 0))
         spin(r_mash, "连按 COUNT", self.fsm_mash_count_var, 1, 15)
         spin(r_mash, "连按间隔 ms", self.fsm_mash_gap_var, 10, 300)
+        spin(r_mash, "移动间隔 ms", self.fsm_th_var, 0, 300)
 
         r4 = ttk.Frame(body)
         r4.pack(fill=tk.X, pady=(6, 0))
@@ -1134,7 +1137,7 @@ class App(tk.Tk):
 
         ttk.Label(
             body,
-            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒：连续无地下城关键词达该秒数（按帧间隔换成 TN 帧）即回城。前进：每帧相对当前门，距门 >GX/>GY 才继续接近；过门沿进前进时记下的方向再走 AX/AY 帧。卡住后状态改为卡住，上下左右各 HOLD Y 帧（不是前进）。S=怪物分布相对坐标/数量相差不超过该百分比则同一分布。PM=掉落位移超过该像素算在动；连续 PT 帧不动才判定停下；数量>PC 一键拾取，否则挨个捡。E/F=提取群单与假释放。XXX=快捷栏全 CD 时按住普攻 X 的帧数。点按 ms=技能/左Alt 按下保持的毫秒。连按：键位表勾了【连按】的技能，执行层打 COUNT 次点按（归属未决，暂放本面板）。该图有【CD重置】时，击败 BOSS 数 +1 清 CD。与回放共用 json：改完立刻写入；点开始会先读文件。",
+            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒：连续无地下城关键词达该秒数即回城（核心直接用秒）。前进接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。距门 >GX/>GY 才继续接近；两轴都停、或本帧门没了，沿进前进时记下的方向再走 AX/AY 毫秒。卡住后状态改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。S=怪物分布相对坐标/数量相差不超过该百分比则同一分布。PM=掉落位移超过该像素算在动；连续 PT 帧不动才判定停下；数量>PC 一键拾取，否则挨个捡。E/F=提取群单与假释放。XXX=快捷栏全 CD 时按住普攻 X 的毫秒。点按 ms=技能/左Alt 按下保持的毫秒。连按：键位表勾了【连按】的技能，执行层打 COUNT 次点按（归属未决，暂放本面板）。该图有【CD重置】时，击败 BOSS 数 +1 清 CD。与回放共用 json：改完立刻写入；点开始会先读文件。",
             foreground="#666",
             wraplength=460,
             justify=tk.LEFT,
@@ -1212,62 +1215,71 @@ class App(tk.Tk):
         except (TypeError, ValueError):
             return default
 
+    @staticmethod
+    def _parse_float(var: tk.StringVar, default: float = 1.5, lo: float = 0.05) -> float:
+        try:
+            return max(lo, float(str(var.get()).strip() or default))
+        except (TypeError, ValueError):
+            return float(default)
+
     def _load_fsm_mlg_vars(self):
-        m, l, g, x, gx, gy, ax, ay, y, s, pm, pc, pt, xxx, tap_ms = 5, 5, 5, 30, 50, 10, 5, 5, 5, 20, 10, 5, 3, 20, 50
+        m, l, g, gx, gy, s, pm, pc, pt = 5, 5, 5, 50, 10, 20, 10, 5, 3
         mash_count, mash_gap = 3, 50
-        e, f, town_s = DEFAULT_E, DEFAULT_F, int(DEFAULT_TOWN_S)
+        th_ms = 50
+        e, f, town_s = DEFAULT_E, DEFAULT_F, float(DEFAULT_TOWN_S)
+        tap_ms = 50
+        data = {}
         if FSM_UI_PATH.is_file():
             try:
                 data = json.loads(FSM_UI_PATH.read_text(encoding="utf-8"))
                 m = max(1, int(data.get("m", m)))
                 l = max(1, int(data.get("l", l)))
                 g = max(1, int(data.get("g", g)))
-                x = max(1, int(data.get("x", x)))
-                old_a = max(0, int(data.get("a", 5)))
                 gx = max(0, int(data.get("gx", gx)))
                 gy = max(0, int(data.get("gy", gy)))
-                ax = max(0, int(data.get("ax", old_a)))
-                ay = max(0, int(data.get("ay", old_a)))
-                y = max(1, int(data.get("y", y)))
                 s = max(0, min(100, int(data.get("s", s))))
                 pm = max(0, int(data.get("pm", data.get("lm", pm))))
                 pc = max(0, int(data.get("pc", data.get("lc", pc))))
                 pt = max(1, int(data.get("pt", pt)))
-                xxx = max(1, int(data.get("xxx", xxx)))
                 tap_ms = max(1, min(200, int(data.get("tap_ms", tap_ms))))
                 mash_count = max(1, min(15, int(data.get("mash_count", mash_count))))
                 mash_gap = max(10, min(300, int(data.get("mash_gap_ms", mash_gap))))
+                th_ms = max(0, min(300, int(data.get("th_ms", mash_gap))))
                 e = max(0, int(data.get("e", e)))
                 f = max(0, min(100, int(data.get("f", f))))
-                town_s = max(1, int(float(data.get("town_s", town_s))))
-                cu, cd, cl, cr = mon_corr_from_dict(data)
+                town_s = float(data.get("town_s", town_s))
             except Exception:
-                cu, cd, cl, cr = 0, 0, 0, 0
-        else:
-            cu, cd, cl, cr = 0, 0, 0, 0
-        prev = self._fsm_mlg_persist
-        self._fsm_mlg_persist = False
-        self._fsm_corr_lock = True
+                data = {}
+        x_s = json_s_from_frames(data, "x_s", "x", 30)
+        ax_ms = json_ms(data, "ax_ms", "ax", 5)
+        ay_ms = json_ms(data, "ay_ms", "ay", 5)
+        y_ms = json_ms(data, "y_ms", "y", 5, lo=1)
+        xxx_ms = json_ms(data, "xxx_ms", "xxx", 20, lo=1)
         self.fsm_m_var.set(str(m))
         self.fsm_l_var.set(str(l))
         self.fsm_g_var.set(str(g))
-        self.fsm_x_var.set(str(x))
+        self.fsm_x_var.set(str(x_s))
         self.fsm_gx_var.set(str(gx))
         self.fsm_gy_var.set(str(gy))
-        self.fsm_ax_var.set(str(ax))
-        self.fsm_ay_var.set(str(ay))
-        self.fsm_y_var.set(str(y))
+        self.fsm_ax_var.set(str(ax_ms))
+        self.fsm_ay_var.set(str(ay_ms))
+        self.fsm_y_var.set(str(y_ms))
         self.fsm_s_var.set(str(s))
+        self.fsm_xxx_var.set(str(xxx_ms))
+        cu, cd, cl, cr = mon_corr_from_dict(data)
+        prev = self._fsm_mlg_persist
+        self._fsm_mlg_persist = False
+        self._fsm_corr_lock = True
         self.fsm_pm_var.set(str(pm))
         self.fsm_pc_var.set(str(pc))
         self.fsm_pt_var.set(str(pt))
         self.fsm_e_var.set(str(e))
         self.fsm_f_var.set(str(f))
         self.fsm_town_s_var.set(str(town_s))
-        self.fsm_xxx_var.set(str(xxx))
         self.fsm_tap_ms_var.set(str(tap_ms))
         self.fsm_mash_count_var.set(str(mash_count))
         self.fsm_mash_gap_var.set(str(mash_gap))
+        self.fsm_th_var.set(str(th_ms))
         self.fsm_corr_u.set(cu)
         self.fsm_corr_d.set(cd)
         self.fsm_corr_l.set(cl)
@@ -1289,7 +1301,7 @@ class App(tk.Tk):
         data["m"] = self._parse_mlg(self.fsm_m_var)
         data["l"] = self._parse_mlg(self.fsm_l_var)
         data["g"] = self._parse_mlg(self.fsm_g_var)
-        data["x"] = self._parse_mlg(self.fsm_x_var, 30)
+        data["x_s"] = self._parse_float(self.fsm_x_var, 1.5, lo=0.05)
         try:
             data["gx"] = max(0, int(str(self.fsm_gx_var.get()).strip() or 50))
         except (TypeError, ValueError):
@@ -1299,17 +1311,17 @@ class App(tk.Tk):
         except (TypeError, ValueError):
             data["gy"] = 10
         try:
-            data["ax"] = max(0, int(str(self.fsm_ax_var.get()).strip() or 5))
+            data["ax_ms"] = max(0, int(str(self.fsm_ax_var.get()).strip() or 250))
         except (TypeError, ValueError):
-            data["ax"] = 5
+            data["ax_ms"] = 250
         try:
-            data["ay"] = max(0, int(str(self.fsm_ay_var.get()).strip() or 5))
+            data["ay_ms"] = max(0, int(str(self.fsm_ay_var.get()).strip() or 250))
         except (TypeError, ValueError):
-            data["ay"] = 5
+            data["ay_ms"] = 250
         try:
-            data["xxx"] = max(1, int(str(self.fsm_xxx_var.get()).strip() or 20))
+            data["xxx_ms"] = max(1, int(str(self.fsm_xxx_var.get()).strip() or 1000))
         except (TypeError, ValueError):
-            data["xxx"] = 20
+            data["xxx_ms"] = 1000
         try:
             data["tap_ms"] = max(1, min(200, int(str(self.fsm_tap_ms_var.get()).strip() or 50)))
         except (TypeError, ValueError):
@@ -1322,7 +1334,11 @@ class App(tk.Tk):
             data["mash_gap_ms"] = max(10, min(300, int(str(self.fsm_mash_gap_var.get()).strip() or 50)))
         except (TypeError, ValueError):
             data["mash_gap_ms"] = 50
-        data["y"] = self._parse_mlg(self.fsm_y_var, 5)
+        try:
+            data["th_ms"] = max(0, min(300, int(str(self.fsm_th_var.get()).strip() or 50)))
+        except (TypeError, ValueError):
+            data["th_ms"] = 50
+        data["y_ms"] = self._parse_mlg(self.fsm_y_var, 250)
         try:
             data["s"] = max(0, min(100, int(str(self.fsm_s_var.get()).strip() or 20)))
         except (TypeError, ValueError):
