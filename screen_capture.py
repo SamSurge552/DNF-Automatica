@@ -30,14 +30,32 @@ class ScreenCaptureModule:
         self._started_region = None
         self._use_dxcam = _dxcam is not None
         self._logged_backend = False
+        self._session_files = []
         os.makedirs(self.base_output_dir, exist_ok=True)
 
-    def begin_session(self, gui=None):
-        session_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.session_dir = os.path.join(self.base_output_dir, session_name)
+    @staticmethod
+    def _safe_folder(name: str) -> str:
+        bad = '<>:"/\\|?*'
+        out = "".join("_" if c in bad else c for c in (name or "").strip())
+        return out or "unknown"
+
+    def begin_session(self, gui=None, character=None):
+        folder = self._safe_folder(character)
+        self.session_dir = os.path.join(self.base_output_dir, folder)
         os.makedirs(self.session_dir, exist_ok=True)
+        self._session_files = []
         self._log(gui, f"本轮截图目录: {self.session_dir}")
         return self.session_dir
+
+    def discard_session_pngs(self):
+        """只删本段写下的 PNG，不删角色目录里其它段。"""
+        for fp in list(self._session_files or []):
+            try:
+                if os.path.isfile(fp):
+                    os.remove(fp)
+            except OSError:
+                pass
+        self._session_files = []
 
     def _stop_camera(self):
         cam = self._camera
@@ -190,6 +208,7 @@ class ScreenCaptureModule:
                 filename = f"{timestamp}.png"
                 filepath = os.path.join(self.session_dir, filename)
                 Image.fromarray(frame[:, :, ::-1]).save(filepath)
+                self._session_files.append(filepath)
 
             return {"frame": frame, "path": filepath, "backend": backend}
         except Exception as e:

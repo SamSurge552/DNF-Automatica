@@ -10,7 +10,7 @@
 
 > **组集脚本与 TRAIN_ALIGN 已确认步骤打架时，问用户改文档还是改代码。**  
 > **新旧想法冲突：用新的，事后告知即可。**  
-> 用词：**写盘** = 采集 PNG 在 `images/`，按键+YOLO 在 `recordings/<地下城>/<时间戳>_<角色>/`；**FSM测试写盘** = `FSM_TEST/`（与采集分开）；**回放** = 试清洗 / 试 FSM / 过图技能特征；**组集** = `dataset_export/`。不要把写盘叫导出。  
+> 用词：**写盘** = 采集 PNG 在 `images/<角色>/`，按键+YOLO 在 `recordings/<地下城>/<时间戳>_<角色>/`；**FSM测试写盘** = `FSM_TEST/`（与采集分开）；**回放** = 试清洗 / 试 FSM / 过图技能特征；**组集** = `dataset_export/`。不要把写盘叫导出。  
 > `.gitignore`：根目录 `images/` 整夹忽略；`FSM_TEST` 只忽略图片，jsonl/参数可上。
 
 ---
@@ -65,7 +65,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 | 层 | 文件 | 做什么 |
 |----|------|--------|
 | 核心 | `fsm_core.py` | 纯函数 `step(snapshot, ctx, params) → (decision, new_ctx)` |
-| 回放宿主 | `fsm_replay.py` | jsonl 的 `t_ns` **原样** → `run_track` → 可视化。绿=FSM 状态；蓝=意图（该干什么）；黄=录像真实操作。过图技能特征写 `skill_features/`，不改 jsonl |
+| 回放宿主 | `fsm_replay.py` | jsonl 的 `t_ns` **原样** → `run_track` → 可视化。绿=FSM 状态；蓝=意图（该干什么）；黄=录像真实操作。可叠 PNG 对比检测。过图技能特征写 `skill_features/`，不改 jsonl |
 | 实机宿主 | `status_analysis_module.py` | 截图完成后、YOLO **之前**打 `t_ns` → `step`。不攒整帧队列。YOLO测试只检测不跑 FSM |
 
 核心禁止：`time` / `sleep` / 读文件 / 发键 / 截屏 / `random` / 模块级可变状态。ctx 值语义，不就地改。`t_ns` 必须单调不减，否则抛错。回放缺 `t_ns` 禁止用墙钟填充。
@@ -93,7 +93,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 | 层 | 路径 | 允许 |
 |----|------|------|
-| 写盘 | PNG=`images/<时间戳>/`；jsonl=`recordings/<地下城>/<时间戳>_<角色>/` | PNG + `keys.jsonl` + 带检测框的 `frames.jsonl`。采集当场 YOLO。`t_ns` 在截图完成后、推理前打 |
+| 写盘 | PNG=`images/<角色>/`；jsonl=`recordings/<地下城>/<时间戳>_<角色>/` | PNG + `keys.jsonl` + 带检测框的 `frames.jsonl`。采集当场 YOLO。`t_ns` 在截图完成后、推理前打 |
 | 回放 | `python fsm_replay.py` | 试 fill / 相对 / FSM；可写 `skill_features/`，不改 jsonl |
 | 组集 | `python export_dataset.py` | 仅 TRAIN_ALIGN **已确认**：held_frac、去 dup、丢第一帧、坐标原样 |
 

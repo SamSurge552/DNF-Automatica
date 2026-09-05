@@ -38,6 +38,12 @@ def needs_yolo(rows: list[dict]) -> bool:
     return not any("mon" in r or "player_xy" in r or "mon_xy" in r for r in sample)
 
 
+def _safe_folder_name(name: str) -> str:
+    bad = '<>:"/\\|?*'
+    out = "".join("_" if c in bad else c for c in (name or "").strip())
+    return out or "unknown"
+
+
 def png_dir_of(session: Path, meta: dict) -> Path | None:
     raw = str((meta or {}).get("png_dir") or "").strip()
     if raw:
@@ -49,7 +55,21 @@ def png_dir_of(session: Path, meta: dict) -> Path | None:
         name = session.name
         stamp = "_".join(name.split("_")[:2]) if "_" in name else name
     p = IMAGES / stamp
-    return p if p.is_dir() else None
+    if p.is_dir():
+        return p
+    char = str((meta or {}).get("character") or "").strip()
+    if not char:
+        parts = session.name.split("_")
+        if len(parts) >= 3:
+            char = "_".join(parts[2:])
+    if char:
+        p = IMAGES / _safe_folder_name(char)
+        if p.is_dir():
+            return p
+    local = session / "png"
+    if local.is_dir():
+        return local
+    return None
 
 
 def load_bgr(path: Path):
@@ -71,13 +91,25 @@ def backfill_session(session: Path, engine: YoloEngine, force: bool = False) -> 
     if mp.is_file():
         meta = json.loads(mp.read_text(encoding="utf-8"))
     png_dir = png_dir_of(session, meta)
-    if png_dir is None:
+    extra = []
+    char = str(meta.get("character") or "").strip()
+    if char:
+        p = IMAGES / _safe_folder_name(char)
+        if p.is_dir():
+            extra.append(p)
+    if png_dir is None and not extra:
         return 0, "找不到 PNG 目录"
     out = []
     n_ok = 0
     for fr in rows:
         png_name = str(fr.get("png") or "")
-        img = load_bgr(png_dir / png_name) if png_name else None
+        img = None
+        if png_name:
+            for folder in ([png_dir] if png_dir else []) + extra:
+                hit = folder / png_name
+                if hit.is_file():
+                    img = load_bgr(hit)
+                    break
         feats = engine.infer_features(img) if img is not None else None
         if not feats:
             feats = YoloEngine.empty_features()

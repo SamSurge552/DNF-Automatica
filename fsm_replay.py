@@ -1,7 +1,6 @@
-"""回放 recordings/ 与 FSM_TEST/ 的 frames.jsonl：站在模型视角看结构化标签（不是游戏像素）。
+"""回放 recordings/ 与 FSM_TEST/ 的 frames.jsonl：站在模型视角看结构化标签。
 
-图标是抽象符号（player/mon/loot/gate/boss + 数量 + 各类中心点），
-对应 YOLO 写入 jsonl 的字段。不读 PNG、不读 dataset_export/。
+图标对应 YOLO 写入 jsonl 的字段。可选叠 PNG 对比（与检测同一套截屏像素）。
 旧段只有 player_xy、其它类是计数；新段还有 mon_xy/loot_xy/gate_xy/boss_xy。
 
 用法:
@@ -20,7 +19,7 @@ from tkinter import messagebox, ttk
 
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
-from relative_xy import as_xy_list, views_for_frames
+from relative_xy import as_xy_list, player_abs, views_for_frames
 from fsm_core import (
     FsmFlag,
     FsmParams,
@@ -76,6 +75,7 @@ from skill_feature_extract import (
 ROOT = Path(__file__).resolve().parent
 RECORDINGS = ROOT / "recordings"
 FSM_TEST_DIR = ROOT / "FSM_TEST"
+IMAGES = ROOT / "images"
 ICON_DIR = ROOT / "fsm_icons"
 SETTINGS_PATH = ROOT / "_fsm_replay_ui.json"
 BINDS_DIR = ROOT / "skill_binds"
@@ -115,6 +115,7 @@ HELP_PARAMS = (
     "点按 ms：发键层技能/左Alt 按下保持的毫秒，组合键步骤间隔相同。与主面板共用 json。\n"
     "连按 COUNT / 间隔 ms：执行层参数（不进核心）。红字由回放按槽是否勾连按 + COUNT 拼出来。\n"
     "MON/BOSS 补正：上下左右滑块，角色要往哪边站就把 YOLO 的 MON/BOSS 坐标往哪边挪（上=Y 减，左=X 减）。只影响 FSM，不改 jsonl。\n"
+    "叠图：把该帧 PNG 铺到坐标网上（半透明、最上层）。对齐=截屏像素与 jsonl 同一套；相对坐标时图平移使 player 落在盘面中心。\n"
     "改完立刻写入共用 json，回放当场重算；FSM测试点开始（或测试中再改）会读这份，不必另同步。"
 )
 HELP_SKILLS = (
@@ -132,6 +133,72 @@ HELP_EXTRACT = (
     "怪物分布按按下那一帧现算，不沿用 FSM 当时的状态。\n"
     "地图【CD重置】：提取发现短于 CD 的间隔后写入；运行时击败 BOSS +1 才清 CD。"
 )
+
+
+def _safe_folder_name(name: str) -> str:
+    bad = '<>:"/\\|?*'
+    out = "".join("_" if c in bad else c for c in (name or "").strip())
+    return out or "unknown"
+
+
+def character_from_session(session: Path, meta: dict | None = None) -> str:
+    ch = str((meta or {}).get("character") or "").strip()
+    if ch:
+        return ch
+    parts = Path(session).name.split("_")
+    if len(parts) >= 3:
+        return "_".join(parts[2:])
+    return ""
+
+
+def png_dir_candidates(session: Path, meta: dict | None = None) -> list[Path]:
+    """采集图按角色夹；jsonl 在地下城段目录。靠文件名对齐，不靠地下城路径。"""
+    meta = meta or {}
+    session = Path(session)
+    seen: set[str] = set()
+    out: list[Path] = []
+
+    def add(p: Path | None) -> None:
+        if p is None:
+            return
+        p = Path(p)
+        key = str(p.resolve()) if p.exists() else str(p)
+        if key in seen:
+            return
+        seen.add(key)
+        if p.is_dir():
+            out.append(p)
+
+    add(session / "png")
+    raw = str(meta.get("png_dir") or "").strip()
+    if raw:
+        add(Path(raw))
+    stamp = str(meta.get("started_at") or "").strip()
+    if not stamp:
+        name = session.name
+        stamp = "_".join(name.split("_")[:2]) if "_" in name else name
+    if stamp:
+        add(IMAGES / stamp)
+    char = character_from_session(session, meta)
+    if char:
+        add(IMAGES / _safe_folder_name(char))
+    return out
+
+
+def png_dir_of(session: Path, meta: dict) -> Path | None:
+    found = png_dir_candidates(session, meta)
+    return found[0] if found else None
+
+
+def png_file_of(session: Path, meta: dict | None, png_name: str) -> Path | None:
+    name = str(png_name or "").strip()
+    if not name:
+        return None
+    for folder in png_dir_candidates(session, meta):
+        p = folder / name
+        if p.is_file():
+            return p
+    return None
 
 
 def load_jsonl(path: Path) -> list[dict]:
@@ -635,6 +702,8 @@ class FsmReplayApp(tk.Tk):
         self._player_photo = None
         self._count_overlay_photo = None
         self._count_overlay_font = None
+        self._frame_overlay_photo = None
+        self._frame_overlay_key = None
         self._persist_ok = False
         self._skill_ui_guard = False
         self._skill_hold_saved: dict[str, dict[str, int]] = {}
@@ -673,6 +742,8 @@ class FsmReplayApp(tk.Tk):
 
         self.fill_var = tk.BooleanVar(value=True)
         self.rel_var = tk.BooleanVar(value=False)
+        self.overlay_var = tk.BooleanVar(value=False)
+        self.overlay_alpha_var = tk.IntVar(value=45)
         self.m_var = tk.StringVar(value="5")
         self.l_var = tk.StringVar(value="5")
         self.g_var = tk.StringVar(value="5")
@@ -807,6 +878,26 @@ class FsmReplayApp(tk.Tk):
             variable=self.rel_var,
             command=self._on_view_opts,
         ).pack(anchor=tk.W)
+        ttk.Checkbutton(
+            params,
+            text="叠图对比 PNG",
+            variable=self.overlay_var,
+            command=self._on_overlay_opts,
+        ).pack(anchor=tk.W)
+        r_ov = ttk.Frame(params)
+        r_ov.pack(fill=tk.X)
+        ttk.Label(r_ov, text="透明度").pack(side=tk.LEFT)
+        tk.Scale(
+            r_ov,
+            from_=8,
+            to=100,
+            orient=tk.HORIZONTAL,
+            length=160,
+            width=10,
+            showvalue=True,
+            variable=self.overlay_alpha_var,
+            command=lambda _=None: self._on_overlay_opts(),
+        ).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         skill_box = ttk.LabelFrame(count_wrap, text="技能表", padding=6)
         skill_box.pack(side=tk.BOTTOM, fill=tk.X, pady=(8, 0))
@@ -1335,6 +1426,11 @@ class FsmReplayApp(tk.Tk):
         self._rebuild_views()
         self._show()
 
+    def _on_overlay_opts(self):
+        self._save_ui_settings()
+        if self.data:
+            self._show()
+
     def _on_fsm_opts(self):
         if self._skill_ui_guard:
             return
@@ -1427,6 +1523,13 @@ class FsmReplayApp(tk.Tk):
             self.fill_var.set(bool(data["fill"]))
         if "relative" in data:
             self.rel_var.set(bool(data["relative"]))
+        if "overlay" in data:
+            self.overlay_var.set(bool(data["overlay"]))
+        if "overlay_alpha" in data:
+            try:
+                self.overlay_alpha_var.set(max(8, min(100, int(data["overlay_alpha"]))))
+            except (TypeError, ValueError):
+                pass
         src = str(data.get("session_source") or "").strip()
         if src in ("全部", "采集", "FSM测试"):
             self.source_var.set(src)
@@ -1497,6 +1600,8 @@ class FsmReplayApp(tk.Tk):
             "f": self._spin_n(self.f_var, DEFAULT_F, lo=0),
             "fill": bool(self.fill_var.get()),
             "relative": bool(self.rel_var.get()),
+            "overlay": bool(self.overlay_var.get()),
+            "overlay_alpha": max(8, min(100, int(self.overlay_alpha_var.get() or 45))),
             "skill_hold_ms": self._skill_hold_saved,
             "session_source": (self.source_var.get() or "全部").strip() or "全部",
             "last_session": (
@@ -2026,6 +2131,8 @@ class FsmReplayApp(tk.Tk):
             skill_range=skill_range,
             cd_reset=reset_here,
             counts=counts,
+            overlay_path=self._png_path_for_frame(fr) if self.overlay_var.get() else None,
+            player_tl=self._overlay_player_tl(fr, view, d.get("game_h") or 0),
         )
 
     def _session_rel(self, p: Path) -> str:
@@ -2448,6 +2555,80 @@ class FsmReplayApp(tk.Tk):
         else:
             messagebox.showinfo("回退上次叠加", msg, parent=self)
 
+    def _png_path_for_frame(self, fr: dict) -> Path | None:
+        d = self.data
+        if not d:
+            return None
+        name = str(fr.get("png") or "").strip()
+        if not name:
+            return None
+        hit = png_file_of(d["session"], d.get("meta") or {}, name)
+        if hit is not None:
+            d["png_dir"] = hit.parent
+        return hit
+
+    def _overlay_player_tl(self, fr: dict, view: dict | None, gh: float) -> list[float] | None:
+        raw = player_abs(fr)
+        if raw is not None:
+            return raw
+        if not self.fill_var.get() or not view:
+            return None
+        origin = view.get("origin_bl")
+        if not origin or len(origin) < 2 or not gh:
+            return None
+        return [float(origin[0]), float(gh) - float(origin[1])]
+
+    def _overlay_photo(
+        self,
+        path: Path,
+        gw: int,
+        gh: int,
+        cw: int,
+        ch: int,
+        relative: bool,
+        player_tl: list[float] | None,
+        alpha_pct: int,
+    ) -> tuple[ImageTk.PhotoImage | None, float, float]:
+        try:
+            alpha_pct = max(8, min(100, int(alpha_pct)))
+        except (TypeError, ValueError):
+            alpha_pct = 45
+        px = round(player_tl[0], 2) if player_tl and len(player_tl) >= 2 else None
+        py = round(player_tl[1], 2) if player_tl and len(player_tl) >= 2 else None
+        key = (str(path), cw, ch, gw, gh, relative, px, py, alpha_pct)
+        if key == self._frame_overlay_key and self._frame_overlay_photo is not None:
+            ox = cw / 2.0 - px / gw * cw if relative and px is not None else 0.0
+            oy = ch / 2.0 - py / gh * ch if relative and py is not None else 0.0
+            return self._frame_overlay_photo, ox, oy
+        if relative and (px is None or py is None):
+            self._frame_overlay_photo = None
+            self._frame_overlay_key = None
+            return None, 0.0, 0.0
+        try:
+            img = Image.open(path).convert("RGBA")
+        except OSError:
+            self._frame_overlay_photo = None
+            self._frame_overlay_key = None
+            return None, 0.0, 0.0
+        iw, ih = img.size
+        dw = max(1, int(round(iw / max(gw, 1) * cw)))
+        dh = max(1, int(round(ih / max(gh, 1) * ch)))
+        try:
+            resample = Image.Resampling.LANCZOS
+        except AttributeError:
+            resample = Image.LANCZOS
+        img = img.resize((dw, dh), resample)
+        a = int(round(255 * alpha_pct / 100.0))
+        r, g, b, aa = img.split()
+        aa = aa.point(lambda v, m=a: int(v * m / 255))
+        img = Image.merge("RGBA", (r, g, b, aa))
+        photo = ImageTk.PhotoImage(img)
+        self._frame_overlay_photo = photo
+        self._frame_overlay_key = key
+        ox = cw / 2.0 - px / gw * cw if relative else 0.0
+        oy = ch / 2.0 - py / gh * ch if relative else 0.0
+        return photo, ox, oy
+
     def _draw_field(
         self,
         view: dict | None,
@@ -2457,6 +2638,8 @@ class FsmReplayApp(tk.Tk):
         skill_range: float | None = None,
         cd_reset: bool = False,
         counts: dict[str, int] | None = None,
+        overlay_path: Path | None = None,
+        player_tl: list[float] | None = None,
     ):
         c = self.canvas
         cw, ch = self._field_wh()
@@ -2540,6 +2723,23 @@ class FsmReplayApp(tk.Tk):
                         font=("Consolas", 12, "bold"),
                         text=f"范围 {skill_range:.0f}px",
                     )
+
+        if overlay_path is not None and gw > 0 and gh > 0 and self.overlay_var.get():
+            photo, ox, oy = self._overlay_photo(
+                overlay_path,
+                gw,
+                gh,
+                cw,
+                ch,
+                relative,
+                player_tl,
+                self.overlay_alpha_var.get(),
+            )
+            if photo is not None:
+                c.create_image(ox, oy, image=photo, anchor=tk.NW)
+        elif not self.overlay_var.get():
+            self._frame_overlay_photo = None
+            self._frame_overlay_key = None
 
         if step:
             self._draw_edge_rulers(c, cw, ch, gw, gh, relative, step)

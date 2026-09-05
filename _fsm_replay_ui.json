@@ -11,6 +11,7 @@
   "tap_ms": 50,
   "mash_count": 3,
   "mash_gap_ms": 50,
+  "th_ms": 50,
   "y_ms": 500,
   "s": 50,
   "pm": 20,
@@ -23,6 +24,8 @@
   "f": 50,
   "fill": true,
   "relative": false,
+  "overlay": true,
+  "overlay_alpha": 26,
   "skill_hold_ms": {
     "SolarWarden": {
       "1": 10000,
@@ -36,7 +39,7 @@
     }
   },
   "session_source": "全部",
-  "last_session": "FSM_TEST/深渊：最终调律者/20260905_182933_SolarWarden",
+  "last_session": "FSM_TEST/深渊：最终调律者/20260905_182807_SolarWarden",
   "mon_corr_u": 0,
   "mon_corr_d": 0,
   "mon_corr_l": 0,

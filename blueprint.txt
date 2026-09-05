@@ -17,7 +17,7 @@
 
 采集（唯一写盘路径）：
 - 键盘线程 + 截图落 PNG + 写盘队列
-- 产出：PNG → `images/<时间戳>/`；`meta.json` / `keys.jsonl` / `frames.jsonl` → `recordings/<地下城>/<时间戳>_<角色>/`
+- 产出：PNG → `images/<角色>/`；`meta.json` / `keys.jsonl` / `frames.jsonl` → `recordings/<地下城>/<时间戳>_<角色>/`
 - frames: t_ns, png, player_xy, mon_xy, loot_xy, gate_xy, boss_xy, 计数, infer_ms（截图完成后打 t_ns，再跑 YOLO）
 - keys: t_ns, press|release, key
 - 采集当场 YOLO。组集仍只应用 TRAIN_ALIGN 已确认清洗。

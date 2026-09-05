@@ -13,7 +13,7 @@
 
 「导出」不要再用：它既像写盘又像组集，上次把相对坐标塞进组集就是被这个词带着走的。
 
-- **写盘**：采集路径唯一 = 截图 + 键盘 + YOLO。PNG 在 `images/<时间戳>/`；`keys.jsonl` / `frames.jsonl`（含 `player_xy`/`mon_xy`/…）/ `meta.json` 写到 `recordings/<地下城>/<时间戳>_<角色>/`。
+- **写盘**：采集路径唯一 = 截图 + 键盘 + YOLO。PNG 在 `images/<角色>/`；`keys.jsonl` / `frames.jsonl`（含 `player_xy`/`mon_xy`/…）/ `meta.json` 写到 `recordings/<地下城>/<时间戳>_<角色>/`。
 - **回放**：读 jsonl 试清洗，不写文件。采集段与旧段一样带 `*_xy`，可直接提技能特征。
 - **组集**：`python export_dataset.py` → `dataset_export/`，成品训练数据。只含 TRAIN_ALIGN 已确认步骤（当前：held_frac、去 dup、丢第一帧、坐标原样）。组集仍要带检测特征的 jsonl。
 

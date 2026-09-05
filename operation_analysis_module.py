@@ -4,6 +4,7 @@ from __future__ import annotations
 import shutil
 import threading
 import time
+from datetime import datetime
 from pathlib import Path
 
 from pynput import keyboard
@@ -115,10 +116,10 @@ class OperationAnalysisModule:
 
         try:
             capture = self.controller.capture_module
-            images = Path(capture.begin_session(self.gui))
-            self.images_dir = images
-            stamp = images.name
             char = self.controller.current_character_name
+            stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            images = Path(capture.begin_session(self.gui, character=char))
+            self.images_dir = images
             dun = dungeon_name or "采集"
             if dun in ("采集", "未知"):
                 try:
@@ -337,14 +338,16 @@ class OperationAnalysisModule:
         if self._collect_aborted or not self.is_recording:
             return
         self._collect_aborted = True
-        doomed = [p for p in (self.session_dir, self.images_dir) if p]
+        rec_dir = self.session_dir
+        capture = getattr(self.controller, "capture_module", None)
+        discard = getattr(capture, "discard_session_pngs", None) if capture is not None else None
         self._cleanup_recording(rename=False)
-        for path in doomed:
-            if not path.exists():
-                continue
+        if callable(discard):
+            discard()
+        if rec_dir and rec_dir.exists():
             try:
-                shutil.rmtree(path)
-                self.gui.log(f"  - 已删除空采集目录: {path}")
+                shutil.rmtree(rec_dir)
+                self.gui.log(f"  - 已删除空采集目录: {rec_dir}")
             except Exception as e:
                 self.gui.log(f"  - 删除空采集目录失败: {e}")
         msg = (

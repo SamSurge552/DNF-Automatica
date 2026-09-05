@@ -12,7 +12,7 @@
 
 | 词 | 从哪到哪 | 不是 |
 |----|----------|------|
-| **写盘** | PNG → `images/<时间戳>/`；键+帧 jsonl（含 YOLO 框）→ `recordings/<地下城>/<时间戳>_<角色>/` | 不是组集 |
+| **写盘** | PNG → `images/<角色>/`；键+帧 jsonl（含 YOLO 框）→ `recordings/<地下城>/<时间戳>_<角色>/` | 不是组集 |
 | **回放** | 读 jsonl，勾选试变换 | 不写盘、不组集 |
 | **组集** | jsonl → `dataset_export/`（`export_dataset.py`） | 成品训练数据。脚本文件名仍叫 export，口头/文档说**组集** |
 
@@ -46,7 +46,7 @@
 ## 1. 磁盘上有什么
 
 ```
-images/<时间戳>/          PNG
+images/<角色>/          PNG（同角色各段共用此目录；文件名仍是时间戳）
 recordings/<地下城>/<时间戳>[_角色]/
   meta.json
   keys.jsonl     {"t_ns","type":"press|release","key"}
@@ -54,7 +54,7 @@ recordings/<地下城>/<时间戳>[_角色]/
 ```
 
 - 坐标（旧段 / 离线 YOLO 之后）是检测框中心，相对**截屏图**（与 YOLO 一致；图左上、y 向下）。player 只留置信度最高的一个；其它类是点列表。旧段可能没有 `*_xy`。
-- **采集：PNG 进 `images/`，jsonl 进 `recordings/<地下城>/<时间戳>_<角色>/`。采集当场跑 YOLO，frames 与旧段同一套检测字段。** 组集仍只应用已确认清洗。
+- **采集：PNG 进 `images/<角色>/`，jsonl 进 `recordings/<地下城>/<时间戳>_<角色>/`。采集当场跑 YOLO，frames 与旧段同一套检测字段。** 组集仍只应用已确认清洗。
 - 采集点「开始」即写盘，不经 OCR 进图。角色名来自 GUI 下拉（`character_names_custom.txt`），不是 OCR。
 - 采集必须管理员启动；3 秒内无新按键则删段。
 
