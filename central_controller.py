@@ -124,8 +124,13 @@ class CentralController:
             if not self.operation_analyzer.start_collect("采集"):
                 self.gui.stop()
                 return
+            ocr_cfg = dict(config)
+            ocr_cfg["ocr_only"] = True
+            ocr_cfg["fsm_test"] = False
+            ocr_cfg["yolo_test"] = False
+            self.status_analyzer.start(ocr_cfg)
             self.gui.update_runtime_status(state_text="采集")
-            self.gui.log("中央控制器: 采集已启动 — 截图 + 键盘 + YOLO，无 OCR。")
+            self.gui.log("中央控制器: 采集已启动 — 截图 + 键盘 + YOLO + OCR 进图判定。")
             return
 
         self.status_analyzer.start(config)

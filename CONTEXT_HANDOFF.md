@@ -4,10 +4,9 @@
 > 对齐以 `TRAIN_ALIGN.md` 为准。架构以 `DECISIONS.md` 为准（**当前阶段定性见 §1.0**）。  
 > DECISIONS 第 4 节（并行卡住 / 不对称迟滞 / `gate.x > player.x`）**尚未落地**，也没并进 `FSM_DESIGN.txt`。不要用第 4 节覆盖 txt。
 
-生成时间：2026-09-05 12:07 (UTC+8)  
+生成时间：2026-09-05 14:50 (UTC+8)  
 项目根目录：`d:\Desktop\T\test`  
-本会话已做：MON/BOSS 补正；FSM设置窗；FSM测试默认发键并写 `FSM_TEST/`；连按；`.gitignore`。  
-用户已定：发键不要写进回放 / `fsm_core`。下一对话**边打边调**。
+本会话已做：对照清单裁定落地——E/F 进 FSM 设置；全模式 OCR+进图；回城=连续无地下城关键词（回城秒默认 30）；卡住升为状态并可打断方法；进图前加载技能表；无技能表中止 FSM测试/自动化。
 
 > **组集脚本与 TRAIN_ALIGN 已确认步骤打架时，问用户改文档还是改代码。**  
 > **新旧想法冲突：用新的，事后告知即可。**  
@@ -20,15 +19,17 @@
 
 **边打边调。** FSM测试默认发键并写 `FSM_TEST/`。对照绿/蓝字改 **FSM设置**（含连按 COUNT/间隔、MON/BOSS 补正）。回放也能改同一份 json。txt 没改就不要推翻核心。
 
-范围异常仍释放，不要发明走近怪。旧 `skill_features` 若还是改规则前提的，回放「重新提取本图」。OCR `town_return` 未进快照；组集 fill/相对未确认。
+范围异常仍释放，不要发明走近怪。旧 `skill_features` 若还是改规则前提的，回放「重新提取本图」。组集 fill/相对未确认。mash COUNT/间隔归属未决。
 
 ### 1.1 已落地（对照 txt）
 
-总流程短路未改。方法层不可短路、**不可覆盖**。FSM测试默认发键并写 `FSM_TEST/`。回放不发键。
+总流程短路未改。方法层不可覆盖，**卡住除外**（全局最高优先级，状态改为卡住）。FSM测试默认发键并写 `FSM_TEST/`。回放不发键。各模式开 OCR；回城=连续无地下城关键词（回城秒→TN 帧）。技能表/过图文件进图前加载。
 
-**前进：** 进前进一次性记下过门方向。之后每帧用**当前门**算 GX/GY。两轴都停后才走 AX/AY。卡住：上下左右各 HOLD Y 帧。
+**前进：** 进前进一次性记下过门方向。之后每帧用**当前门**算 GX/GY。两轴都停后才走 AX/AY。卡住：状态=卡住，上下左右各 HOLD Y 帧（不是前进）。
 
-**开打：** 排除 CD 后取该分布文件序列**第一个就绪**技能（只用快捷栏单键或 space，不要 `down right+z`）。最远敌对；范围内 CAST 并等持续帧；范围异常**仍然释放**。序列没有就绪 → 无技能可放，放持续帧最短的就绪技能。全 CD → 按住 X，XXX 帧。等待蓝字：`等待释放 槽 键 剩N帧`。
+**开打：** 进图前加载。排除 CD 后取该分布文件**第一个不在 CD** 的技能。无则提示无技能可放，只从已勾选快捷栏取持续帧最短。快捷栏也没有 → 普攻 X（无 CD）XXX 帧。范围异常仍然释放。
+
+**提取：** BOSS 房不算效率/群单/假释放，仍留 killed_mon。E/F 在 FSM 设置。
 
 **CD：** 提取短间隔 → 地图【CD重置】（连续释放 / 多次释放 / 假释放不算）。运行时该图有标记且 **击败 BOSS 数 +1** 才清 CD。MULTI 拆成多份独立 CD。
 
@@ -63,7 +64,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 核心禁止：`time` / `sleep` / 读文件 / 发键 / 截屏 / `random` / 模块级可变状态。ctx 值语义，不就地改。`t_ns` 必须单调不减，否则抛错。回放缺 `t_ns` 禁止用墙钟填充。
 
-决策形状：`{state: FsmState, flags: frozenset[FsmFlag], action: FsmAction, move_dir: FsmDir|None}`。卡住/预热在 **flags**，不拼进状态字符串。flags 只用 `in` 判断，不按 set 迭代顺序做逻辑。`FsmAction.CAST` = 开打「立即释放」；`FsmAction.ATTACK` = 按住普攻 X；`FsmAction.PICK` = 捡物一键拾取。
+决策形状：`FsmDecision`（state/flags/action/move_dir + 技能、CD、分布计数等）。卡住是状态 `卡住`；预热在 flags。`FsmAction.CAST` = 开打「立即释放」；`FsmAction.ATTACK` = 按住普攻 X（无 CD）；`FsmAction.PICK` = 捡物一键拾取。
 
 `FsmParams`：GX/GY/AX/AY、XXX、`mon_off_x/y`（MON/BOSS 补正）、`fight_plan`（按分布 key）、`hotbar`、`dist_table`、`map_reset`。
 

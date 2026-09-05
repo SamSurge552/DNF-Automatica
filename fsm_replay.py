@@ -21,7 +21,17 @@ from tkinter import messagebox, ttk
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 
 from relative_xy import as_xy_list, views_for_frames
-from fsm_core import FsmFlag, FsmParams, FsmState, run_track, MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr
+from fsm_core import (
+    FsmFlag,
+    FsmParams,
+    FsmState,
+    run_track,
+    MON_CORR_MAX,
+    mon_corr_from_dict,
+    mon_off_from_corr,
+    DEFAULT_TOWN_S,
+    town_n_frames,
+)
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
 from skill_feature_extract import (
@@ -90,18 +100,20 @@ FLOW_H = 78
 COUNT_PANEL_W = 400
 STATUS_VALUE_H = 52
 HELP_PARAMS = (
-    "M/L/G：连续同值才改判定。\n"
+    "M/L/G：连续同值才改判定。BOSS 暂与 MON 共用 M。\n"
+    "回城秒：连续无地下城关键词达该秒数即回城（按段 interval 换成 TN 帧）。回放 jsonl 无 OCR 时默认已进图。\n"
     "S%：开打出现时 MON 群相似。\n"
     "F%：杀 MON 效率低于该百分比记假释放（不进序列 / 范围 / CD）。\n"
     "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。数量 > PC 一键拾取，否则挨个捡。\n"
-    "GX/GY：相对当前门，距离大于该像素才继续接近。AX/AY：两轴停后再按过门方向走的帧数。XXX：全 CD 时按住普攻 X 的帧数。\n"
+    "卡住：连续 X 帧逻辑状态不变则状态改为卡住，上下左右各 HOLD Y 帧（不是前进）。\n"
+    "GX/GY：相对当前门，距离大于该像素才继续接近。AX/AY：两轴停后再按过门方向走的帧数。XXX：快捷栏全 CD 时按住普攻 X 的帧数。\n"
     "点按 ms：发键层技能/左Alt 按下保持的毫秒，组合键步骤间隔相同。与主面板共用 json。\n"
     "连按 COUNT / 间隔 ms：键位表勾了【连按】的技能，执行层打 COUNT 次点按，两次之间停间隔 ms。\n"
     "MON/BOSS 补正：上下左右滑块，角色要往哪边站就把 YOLO 的 MON/BOSS 坐标往哪边挪（上=Y 减，左=X 减）。只影响 FSM，不改 jsonl。\n"
     "改完立刻写入共用 json，回放当场重算；FSM测试点开始（或测试中再改）会读这份，不必另同步。"
 )
 HELP_SKILLS = (
-    "只列出带快捷键的技能（space 即使未勾快捷栏也保留）。\n"
+    "只列出已勾选快捷栏的技能（space 即使未勾快捷栏也保留）。普攻 X 无 CD，不在这张表里。\n"
     "连续释放：该槽 CD 按 270 秒。\n"
     "多次释放：勾选后填 MULTI（默认 2），FSM 拆成多份独立 CD。\n"
     "连按：执行层把该技能展开成 COUNT 次点按（COUNT/间隔在参数区）。与连续释放/多次释放不是一回事。\n"
@@ -187,6 +199,7 @@ def compute_draft_track(
     mon_off_y: int = 0,
     mash_count: int = 3,
     mash_gap_ms: int = 50,
+    tn: int = 600,
 ) -> list[dict]:
     """回放宿主入口；t_ns 用 jsonl 原值。判定在 fsm_core.step。"""
     return run_track(
@@ -214,6 +227,7 @@ def compute_draft_track(
             mon_off_y=int(mon_off_y),
             mash_count=int(mash_count),
             mash_gap_ms=int(mash_gap_ms),
+            tn=int(tn),
         ),
     )
 
@@ -655,6 +669,7 @@ class FsmReplayApp(tk.Tk):
         self.pm_var = tk.StringVar(value=str(DEFAULT_PM))
         self.pc_var = tk.StringVar(value=str(DEFAULT_PC))
         self.pt_var = tk.StringVar(value=str(DEFAULT_PT))
+        self.town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
         self.run_press_var = tk.StringVar(value=str(RUN_PRESS_GT))
         self.loot_hold_var = tk.StringVar(value=str(LOOT_HOLD_DEFAULT))
         self.corr_u = tk.IntVar(value=0)
@@ -727,7 +742,9 @@ class FsmReplayApp(tk.Tk):
         ttk.Label(r_loot_fsm, text="一键拾取 PC").pack(side=tk.LEFT)
         self._spin(r_loot_fsm, self.pc_var, frm=0, to=40).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_loot_fsm, text="停下 PT").pack(side=tk.LEFT)
-        self._spin(r_loot_fsm, self.pt_var, frm=1, to=60).pack(side=tk.LEFT, padx=(2, 0))
+        self._spin(r_loot_fsm, self.pt_var).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_loot_fsm, text="回城秒").pack(side=tk.LEFT)
+        self._spin(r_loot_fsm, self.town_s_var, frm=1, to=120).pack(side=tk.LEFT, padx=(2, 0))
         r_run = ttk.Frame(params)
         r_run.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_run, text="跑 press>").pack(side=tk.LEFT)
@@ -980,7 +997,17 @@ class FsmReplayApp(tk.Tk):
             "mon_off_y": oy,
             "mash_count": self._spin_n(self.mash_count_var, 3),
             "mash_gap_ms": self._spin_n(self.mash_gap_var, 50, lo=10),
+            "tn": self._town_n(),
         }
+
+    def _town_n(self) -> int:
+        dt = 0.05
+        meta = (getattr(self, "data", None) or {}).get("meta") or {}
+        try:
+            dt = float(meta.get("interval") or dt)
+        except (TypeError, ValueError):
+            dt = 0.05
+        return town_n_frames(self._spin_n(self.town_s_var, int(DEFAULT_TOWN_S)), dt)
 
     def _corr_tuple(self) -> tuple[int, int, int, int]:
         def n(var: tk.IntVar) -> int:
@@ -1064,6 +1091,7 @@ class FsmReplayApp(tk.Tk):
             FsmState.ADVANCE,
             FsmState.RETURN,
             FsmState.IDLE,
+            FsmState.STUCK,
         )
         n = len(states)
         box_w = max(56, min(100, (w - 16) // n - 8))
@@ -1250,6 +1278,7 @@ class FsmReplayApp(tk.Tk):
             ("pm", self.pm_var, DEFAULT_PM, 0),
             ("pc", self.pc_var, DEFAULT_PC, 0),
             ("pt", self.pt_var, DEFAULT_PT, 1),
+            ("town_s", self.town_s_var, int(DEFAULT_TOWN_S), 1),
             ("run_press", self.run_press_var, RUN_PRESS_GT, 0),
             ("loot_hold", self.loot_hold_var, LOOT_HOLD_DEFAULT, 1),
             ("e", self.e_var, 3, 0),
@@ -1325,6 +1354,7 @@ class FsmReplayApp(tk.Tk):
             "pm": self._spin_n(self.pm_var, DEFAULT_PM, lo=0),
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
+            "town_s": self._spin_n(self.town_s_var, int(DEFAULT_TOWN_S)),
             "run_press": self._spin_n(self.run_press_var, RUN_PRESS_GT, lo=0),
             "loot_hold": self._spin_n(self.loot_hold_var, LOOT_HOLD_DEFAULT),
             "e": self._spin_n(self.e_var, 3, lo=0),

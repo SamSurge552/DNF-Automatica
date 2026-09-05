@@ -15,6 +15,7 @@ from statistics import median
 from fsm_core import DistSig, DistSkillPlan, FightSkill, classify_dist, expand_fight_skills
 
 FEATURES_DIR = Path(__file__).resolve().parent / "skill_features"
+BINDS_DIR = Path(__file__).resolve().parent / "skill_binds"
 TZ8 = timezone(timedelta(hours=8))
 DEFAULT_E = 3
 _UNSAFE = r'\/:*?"<>|'
@@ -50,6 +51,27 @@ def prev_path(character: str, dungeon: str) -> Path:
 def legacy_feature_path(character: str) -> Path:
     """旧路径 skill_features/<角色>.json（不再写入）。"""
     return FEATURES_DIR / f"{_safe_name(character, 'character')}.json"
+
+
+def bind_path(character: str) -> Path:
+    return BINDS_DIR / f"{_safe_name(character, 'character')}.json"
+
+
+def skill_table_missing(character: str) -> bool:
+    """技能表文件不存在或 skills 为空。"""
+    if not (character or "").strip():
+        return True
+    path = bind_path(character)
+    if not path.is_file():
+        return True
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return True
+    if not isinstance(data, dict):
+        return True
+    skills = data.get("skills")
+    return not isinstance(skills, list) or len(skills) == 0
 
 
 def maybe_adopt_legacy(character: str, dungeon: str) -> Path | None:
@@ -94,7 +116,7 @@ def load_fight_plan(
     data = load_features(character, dungeon)
     if data:
         apply_f(data, data.get("f", DEFAULT_F) if f is None else f)
-    binds_path = Path(__file__).resolve().parent / "skill_binds" / f"{_safe_name(character, 'character')}.json"
+    binds_path = bind_path(character)
     skills: list[dict] = []
     if binds_path.is_file():
         try:
@@ -106,7 +128,7 @@ def load_fight_plan(
 
 
 def load_hotbar(character: str) -> tuple[FightSkill, ...]:
-    binds_path = Path(__file__).resolve().parent / "skill_binds" / f"{_safe_name(character, 'character')}.json"
+    binds_path = bind_path(character)
     skills: list[dict] = []
     if binds_path.is_file():
         try:
@@ -251,7 +273,7 @@ def casts_from_tracks(
         b = farthest_enemy(v1)
         killed_mon = a["mon"] - b["mon"]
         killed_enemy = a["enemy"] - b["enemy"]
-        kind = "群" if killed_mon > e else "单"
+        kind = None if is_boss else ("群" if killed_mon > e else "单")
         dist_key, dist_kind, extra, _rk = classify_dist(
             _view_player(v0),
             _xy_tuples(v0, "mon"),
@@ -287,7 +309,7 @@ def casts_from_tracks(
                 "boss_end": b["boss"],
                 "enemy_end": b["enemy"],
                 "killed_mon": killed_mon,
-                "killed_enemy": killed_enemy,
+                "killed_enemy": None if is_boss else killed_enemy,
                 "kill_ratio": None if is_boss else _ratio(killed_mon, a["mon"]),
                 "kill_ratio_enemy": None if is_boss else _ratio(killed_enemy, a["enemy"]),
             }

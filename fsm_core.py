@@ -19,6 +19,7 @@ class FsmState(Enum):
     ADVANCE = "前进"
     RETURN = "返回"
     IDLE = "空闲"
+    STUCK = "卡住"
 
 
 class FsmFlag(Enum):
@@ -51,6 +52,7 @@ def _start_action(d: FsmDir) -> FsmAction:
     return FsmAction.TAP if d in _DASH_DIRS else FsmAction.HOLD
 
 
+DEFAULT_TOWN_S = 30.0
 _REF_W = 1600.0
 _REF_H = 900.0
 
@@ -108,13 +110,14 @@ class FsmParams:
     pc: int = 5
     pt: int = 3
     xxx: int = 20
+    tn: int = 600  # 回城：连续无地下城关键词的帧数（宿主用回城秒/帧间隔换算，默认 30s）
     fight_plan: tuple[DistSkillPlan, ...] = ()
     hotbar: tuple[FightSkill, ...] = ()
     dist_table: tuple[DistSig, ...] = ()
     map_reset: bool = False
     mon_off_x: int = 0  # >0 右：YOLO MON/BOSS x 加；<0 左：减
     mon_off_y: int = 0  # >0 下：YOLO MON/BOSS y 加；<0 上：减
-    mash_count: int = 3
+    mash_count: int = 3  # 连按归属未决（技能表 vs 执行层）；核心只用于 send_label
     mash_gap_ms: int = 50
 
 
@@ -132,6 +135,7 @@ class FsmSnapshot:
     loot_xy: tuple[tuple[float, float], ...] = ()
     in_dungeon: bool = True
     town_return: bool = False
+    dungeon_kw: bool | None = None  # None=回放默认已进图；bool=本帧 OCR 是否看到地下城关键词
 
 
 @dataclass(frozen=True)
@@ -182,6 +186,10 @@ class FsmContext:
     loot_targets: tuple[tuple[float, float], ...] = ()
     loot_dir: FsmDir | None = None
     loot_stop: _Deb = field(default_factory=_Deb)
+    dungeon: _Deb = field(default_factory=_Deb)
+    saw_dungeon: bool = False
+    watch_state: FsmState | None = None
+    watch_run: int = 0
 
 
 @dataclass(frozen=True)
@@ -506,6 +514,7 @@ def snapshot_from_detect(
     *,
     in_dungeon: bool = True,
     town_return: bool = False,
+    dungeon_kw: bool | None = None,
 ) -> FsmSnapshot:
     player = _parse_xy(features.get("player_xy"))
     gate = _nearest_gate(player, features.get("gate_xy"))
@@ -522,6 +531,7 @@ def snapshot_from_detect(
         loot_xy=_parse_xy_list(features.get("loot_xy")),
         in_dungeon=bool(in_dungeon),
         town_return=bool(town_return),
+        dungeon_kw=None if dungeon_kw is None else bool(dungeon_kw),
     )
 
 
@@ -893,7 +903,7 @@ def _fight_intent(
             picked.range_px,
             _farthest_dist(pos, enemy_xy),
             new_cd,
-            "无技能可放",
+            "无技能可放",  # 不再看过图文件；快捷栏最短持续帧
             hold,
             0,
         )
@@ -995,7 +1005,7 @@ def _intent_label(
     dirs = move_dirs or (() if move_dir is None else (move_dir,))
     dir_s = _dirs_label(dirs)
     act = f"{action.value} {dir_s}".strip() if dirs else action.value
-    if FsmFlag.STUCK in flags:
+    if FsmFlag.STUCK in flags or state is FsmState.STUCK:
         if action is FsmAction.NONE or not dirs:
             return "卡住"
         return f"卡住 {recover}{act}".replace("  ", " ").strip()
@@ -1072,13 +1082,13 @@ def _method_flow(
     loot_note: str = "",
     fsm_run: int = 0,
 ) -> tuple[tuple[str, ...], int]:
-    if FsmFlag.STUCK in flags:
+    if FsmFlag.STUCK in flags or state is FsmState.STUCK:
         return ("卡住", "上", "下", "左", "右"), (recover_dir_i % 4) + 1
     if state is FsmState.FIGHT:
-        steps = ("1加载技能", "2提取分布", "3选技能")
+        steps = ("1提取分布", "2选技能")
         if fsm_run <= 1:
-            return steps, 1
-        return steps, 2
+            return steps, 0
+        return steps, 1
     if state is FsmState.LOOT:
         steps = ("1掉落在动?", "2数量>PC?")
         if loot_note == "等待停下":
@@ -1110,6 +1120,28 @@ def _deb_step(d: _Deb, raw: bool, n: int) -> _Deb:
     if run_n >= n:
         judged = v
     return _Deb(judged=judged, run_v=run_v, run_n=run_n)
+
+
+def dungeon_deb_step(d: _Deb, kw: bool, n: int) -> _Deb:
+    """进图：看到关键词立刻进。回城：连续 n 帧无关键词才出（n 同 M/L/G 机制）。"""
+    if kw:
+        return _Deb(judged=True, run_v=True, run_n=1)
+    return _deb_step(d, False, n)
+
+
+def town_n_frames(town_s: float, interval_s: float, default_s: float = 30.0) -> int:
+    """回城秒 → 连续帧数。"""
+    try:
+        sec = float(town_s)
+    except (TypeError, ValueError):
+        sec = default_s
+    try:
+        dt = float(interval_s)
+    except (TypeError, ValueError):
+        dt = 0.05
+    if dt <= 0:
+        dt = 0.05
+    return max(1, int(round(max(0.0, sec) / dt)))
 
 
 def _draft(
@@ -1152,11 +1184,14 @@ def _draft(
         (
             "5 返回城镇?",
             town_return,
-            "OCR 回城 → 返回" if town_return else "无回城关键词 → 空闲",
+            "连续无地下城关键词 → 返回" if town_return else "未进过图或仍在图内",
         ),
     ]
     if not in_dungeon:
-        state, hit_i = FsmState.WAIT, 0
+        if town_return:
+            state, hit_i = FsmState.RETURN, 4
+        else:
+            state, hit_i = FsmState.WAIT, 0
     elif has_enemy:
         state, hit_i = FsmState.FIGHT, 1
     elif has_loot:
@@ -1220,6 +1255,7 @@ def step(
     pc = max(0, int(params.pc))
     pt = max(1, int(params.pt))
     xxx = max(1, int(params.xxx))
+    tn = max(1, int(params.tn))
     ox, oy = int(params.mon_off_x), int(params.mon_off_y)
     if ox or oy:
         snap = replace(
@@ -1230,17 +1266,28 @@ def step(
     n_seen = ctx.n_seen + 1
 
     mon = _deb_step(ctx.mon, snap.mon > 0, m)
-    boss = _deb_step(ctx.boss, snap.boss > 0, m)
+    boss = _deb_step(ctx.boss, snap.boss > 0, m)  # BOSS 暂与 MON 共用 M
     loot = _deb_step(ctx.loot, snap.loot > 0, l)
     gate = _deb_step(ctx.gate, snap.gate > 0, g)
     has_enemy = mon.judged or boss.judged
 
-    state, why, chain = _draft(
-        in_dungeon=snap.in_dungeon,
+    if snap.dungeon_kw is None:
+        dun = _Deb(judged=True, run_v=True, run_n=1)
+        in_dungeon = True
+        saw_dungeon = True
+        town_return = False
+    else:
+        dun = dungeon_deb_step(ctx.dungeon, bool(snap.dungeon_kw), tn)
+        in_dungeon = dun.judged
+        saw_dungeon = ctx.saw_dungeon or in_dungeon
+        town_return = saw_dungeon and not in_dungeon
+
+    drafted, why, chain = _draft(
+        in_dungeon=in_dungeon,
         has_enemy=has_enemy,
         has_loot=loot.judged,
         has_gate=gate.judged,
-        town_return=snap.town_return,
+        town_return=town_return,
         raw_mon=snap.mon,
         raw_loot=snap.loot,
         raw_gate=snap.gate,
@@ -1249,10 +1296,21 @@ def step(
         l=l,
         g=g,
     )
-    hold, hold_why = _method_hold(ctx, state, loot.judged)
+    hold, hold_why = (None, "")
+    if ctx.state is not FsmState.STUCK:
+        hold, hold_why = _method_hold(ctx, drafted, loot.judged)
+    flow = hold if hold is not None else drafted
     if hold is not None:
-        state = hold
         why += f"  {hold_why}"
+    watch_run = ctx.watch_run + 1 if ctx.watch_state is flow else 1
+    if watch_run >= x:
+        flow = drafted
+        watch_run = ctx.watch_run + 1 if ctx.watch_state is flow else 1
+        state = FsmState.STUCK if watch_run >= x else flow
+        if state is FsmState.STUCK:
+            why += "  卡住打断"
+    else:
+        state = flow
 
     if snap.player_xy is not None:
         last_xy = snap.player_xy
@@ -1339,7 +1397,7 @@ def step(
     flags_list: list[FsmFlag] = []
     if n_seen <= max(m, l, g):
         flags_list.append(FsmFlag.WARMUP)
-    stuck = fsm_run >= x
+    stuck = state is FsmState.STUCK
     if stuck:
         flags_list.append(FsmFlag.STUCK)
     flags = frozenset(flags_list)
@@ -1526,6 +1584,10 @@ def step(
         loot_targets=loot_targets if state is FsmState.LOOT else (),
         loot_dir=loot_dir if state is FsmState.LOOT else None,
         loot_stop=loot_stop if state is FsmState.LOOT else _Deb(),
+        dungeon=dun,
+        saw_dungeon=saw_dungeon if state not in (FsmState.WAIT,) else False,
+        watch_state=flow,
+        watch_run=watch_run,
     )
     decision = FsmDecision(
         state=state,
@@ -1577,7 +1639,11 @@ def run_track(frames: list[dict], params: FsmParams) -> list[dict]:
     for i, fr in enumerate(frames):
         if "t_ns" not in fr or fr["t_ns"] is None:
             raise ValueError(f"回放第 {i} 帧缺少 t_ns，禁止用当前时间填充")
-        snap = snapshot_from_detect(int(fr["t_ns"]), fr)
+        snap = snapshot_from_detect(
+            int(fr["t_ns"]),
+            fr,
+            dungeon_kw=None if fr.get("dungeon_kw") is None else bool(fr.get("dungeon_kw")),
+        )
         decision, ctx = step(snap, ctx, params)
         out.append(decision.as_row())
     return out

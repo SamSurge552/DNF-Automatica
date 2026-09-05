@@ -25,7 +25,8 @@ from central_controller import CentralController
 from window_align import enable_dpi_awareness, get_virtual_screen, get_window_at_point, find_window_by_process
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
-from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr
+from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_TOWN_S
+from skill_feature_extract import DEFAULT_E, DEFAULT_F, skill_table_missing
 
 
 class WindowSelector(tk.Toplevel):
@@ -338,6 +339,9 @@ class App(tk.Tk):
         self.fsm_pm_var = tk.StringVar(value="10")
         self.fsm_pc_var = tk.StringVar(value="5")
         self.fsm_pt_var = tk.StringVar(value="3")
+        self.fsm_e_var = tk.StringVar(value=str(DEFAULT_E))
+        self.fsm_f_var = tk.StringVar(value=str(DEFAULT_F))
+        self.fsm_town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
         self.fsm_tap_ms_var = tk.StringVar(value="50")
         self.fsm_mash_count_var = tk.StringVar(value="3")
         self.fsm_mash_gap_var = tk.StringVar(value="50")
@@ -368,6 +372,9 @@ class App(tk.Tk):
             self.fsm_pm_var,
             self.fsm_pc_var,
             self.fsm_pt_var,
+            self.fsm_e_var,
+            self.fsm_f_var,
+            self.fsm_town_s_var,
             self.fsm_tap_ms_var,
             self.fsm_mash_count_var,
             self.fsm_mash_gap_var,
@@ -951,6 +958,17 @@ class App(tk.Tk):
                     )
                     self.log("FSM测试已拦截：当前不是管理员。")
                     return
+        if self.is_fsm_test_mode() or self.mode_var.get() == "automation":
+            char = (self.character_var.get() or "").strip()
+            if skill_table_missing(char):
+                messagebox.showerror(
+                    "没有技能表",
+                    "FSM测试 / 自动化需要玩家技能表（skill_binds 下该角色 json，且 skills 非空）。\n"
+                    "请先用技能绑定工具保存技能表。",
+                    parent=self,
+                )
+                self.log("已拦截：没有技能表。")
+                return
         self.start_button.config(state=tk.DISABLED)
         self.stop_button.config(state=tk.NORMAL)
         self._toggle_settings_state("disabled")
@@ -1052,6 +1070,12 @@ class App(tk.Tk):
         spin(r4, "一键拾取 PC", self.fsm_pc_var, 0, 40)
         spin(r4, "停下 PT", self.fsm_pt_var, 1, 60)
 
+        r_ef = ttk.Frame(body)
+        r_ef.pack(fill=tk.X, pady=(6, 0))
+        spin(r_ef, "群单 E", self.fsm_e_var, 0, 40)
+        spin(r_ef, "假释放 F%", self.fsm_f_var, 0, 100)
+        spin(r_ef, "回城秒", self.fsm_town_s_var, 1, 120, 5)
+
         pad = ttk.LabelFrame(body, text="MON/BOSS 位置补正", padding=8)
         pad.pack(fill=tk.X, pady=(10, 0))
         self._fsm_corr_summary = ttk.Label(pad, text="", foreground="#06c")
@@ -1110,7 +1134,7 @@ class App(tk.Tk):
 
         ttk.Label(
             body,
-            text="M/L/G 连续同值才改判定。前进：每帧相对当前门，距门 >GX/>GY 才继续接近；过门沿进前进时记下的方向再走 AX/AY 帧。卡住后按上下左右各 HOLD Y 帧。S=怪物分布相对坐标/数量相差不超过该百分比则同一分布。PM=掉落位移超过该像素算在动；连续 PT 帧不动才判定停下；数量>PC 一键拾取，否则挨个捡。XXX=全技能 CD 时按住普攻 X 的帧数。点按 ms=技能/左Alt 按下保持的毫秒。连按：键位表勾了【连按】的技能，执行层打 COUNT 次点按，两次之间空间隔 ms。该图有【CD重置】时，击败 BOSS 数 +1 清 CD。与回放共用 json：改完立刻写入；点开始会先读文件。",
+            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒：连续无地下城关键词达该秒数（按帧间隔换成 TN 帧）即回城。前进：每帧相对当前门，距门 >GX/>GY 才继续接近；过门沿进前进时记下的方向再走 AX/AY 帧。卡住后状态改为卡住，上下左右各 HOLD Y 帧（不是前进）。S=怪物分布相对坐标/数量相差不超过该百分比则同一分布。PM=掉落位移超过该像素算在动；连续 PT 帧不动才判定停下；数量>PC 一键拾取，否则挨个捡。E/F=提取群单与假释放。XXX=快捷栏全 CD 时按住普攻 X 的帧数。点按 ms=技能/左Alt 按下保持的毫秒。连按：键位表勾了【连按】的技能，执行层打 COUNT 次点按（归属未决，暂放本面板）。该图有【CD重置】时，击败 BOSS 数 +1 清 CD。与回放共用 json：改完立刻写入；点开始会先读文件。",
             foreground="#666",
             wraplength=460,
             justify=tk.LEFT,
@@ -1191,6 +1215,7 @@ class App(tk.Tk):
     def _load_fsm_mlg_vars(self):
         m, l, g, x, gx, gy, ax, ay, y, s, pm, pc, pt, xxx, tap_ms = 5, 5, 5, 30, 50, 10, 5, 5, 5, 20, 10, 5, 3, 20, 50
         mash_count, mash_gap = 3, 50
+        e, f, town_s = DEFAULT_E, DEFAULT_F, int(DEFAULT_TOWN_S)
         if FSM_UI_PATH.is_file():
             try:
                 data = json.loads(FSM_UI_PATH.read_text(encoding="utf-8"))
@@ -1212,6 +1237,9 @@ class App(tk.Tk):
                 tap_ms = max(1, min(200, int(data.get("tap_ms", tap_ms))))
                 mash_count = max(1, min(15, int(data.get("mash_count", mash_count))))
                 mash_gap = max(10, min(300, int(data.get("mash_gap_ms", mash_gap))))
+                e = max(0, int(data.get("e", e)))
+                f = max(0, min(100, int(data.get("f", f))))
+                town_s = max(1, int(float(data.get("town_s", town_s))))
                 cu, cd, cl, cr = mon_corr_from_dict(data)
             except Exception:
                 cu, cd, cl, cr = 0, 0, 0, 0
@@ -1233,6 +1261,9 @@ class App(tk.Tk):
         self.fsm_pm_var.set(str(pm))
         self.fsm_pc_var.set(str(pc))
         self.fsm_pt_var.set(str(pt))
+        self.fsm_e_var.set(str(e))
+        self.fsm_f_var.set(str(f))
+        self.fsm_town_s_var.set(str(town_s))
         self.fsm_xxx_var.set(str(xxx))
         self.fsm_tap_ms_var.set(str(tap_ms))
         self.fsm_mash_count_var.set(str(mash_count))
@@ -1308,6 +1339,18 @@ class App(tk.Tk):
             data["pt"] = max(1, int(str(self.fsm_pt_var.get()).strip() or 3))
         except (TypeError, ValueError):
             data["pt"] = 3
+        try:
+            data["e"] = max(0, int(str(self.fsm_e_var.get()).strip() or DEFAULT_E))
+        except (TypeError, ValueError):
+            data["e"] = DEFAULT_E
+        try:
+            data["f"] = max(0, min(100, int(str(self.fsm_f_var.get()).strip() or DEFAULT_F)))
+        except (TypeError, ValueError):
+            data["f"] = DEFAULT_F
+        try:
+            data["town_s"] = max(1, int(float(str(self.fsm_town_s_var.get()).strip() or DEFAULT_TOWN_S)))
+        except (TypeError, ValueError):
+            data["town_s"] = int(DEFAULT_TOWN_S)
         data.pop("lm", None)
         data.pop("lc", None)
         u, dwn, left, right = self._corr_tuple()

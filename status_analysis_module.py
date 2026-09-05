@@ -11,11 +11,15 @@ from yolo_engine import DEFAULT_YOLO_WEIGHTS
 from fsm_core import (
     FsmContext,
     FsmParams,
+    FsmState,
+    DEFAULT_TOWN_S,
+    dungeon_deb_step,
     intent_text,
     mon_off_from_dict,
     send_keys_label,
     snapshot_from_detect,
     step,
+    town_n_frames,
 )
 from fsm_execute import (
     FsmExecutor,
@@ -35,12 +39,12 @@ from window_align import (
 from skill_feature_extract import (
     DEFAULT_F,
     feature_path,
-    guess_dungeon,
     has_map_reset,
     load_dist_table,
     load_features,
     load_fight_plan,
     load_hotbar,
+    skill_table_missing,
 )
 
 YOLO_PREVIEW_WINDOW_FSM = "FSM Test"
@@ -138,13 +142,14 @@ class StatusAnalysisModule:
 
         self.capture_only = bool(config.get("capture_only", False))
         self.fsm_test = bool(config.get("fsm_test"))
+        self.ocr_only = bool(config.get("ocr_only"))
         self.yolo_test = bool(config.get("yolo_test") or self.fsm_test)
         mode = config.get("mode", "collect")
         if mode == "record":
             mode = "collect"
         if mode == "yolo_test":
             self.yolo_test = True
-        if mode == "collect" and not self.yolo_test:
+        if mode == "collect" and not self.yolo_test and not self.ocr_only:
             self.gui.log("状态分析模块: 采集由操作模块负责，这里不截图。")
             return
         # YOLO测试：不落盘。FSM测试：写 FSM_TEST。
@@ -160,6 +165,31 @@ class StatusAnalysisModule:
             self.ocr_conf = min(1.0, max(0.0, float(config.get("ocr_conf", 0.95))))
         except (TypeError, ValueError):
             self.ocr_conf = 0.95
+
+        try:
+            self._frame_interval = max(0.01, float(config.get("interval", 0.05)))
+        except (TypeError, ValueError):
+            self._frame_interval = 0.05
+        self._ocr_kw = False
+        self._ocr_dun = FsmContext().dungeon
+        self._saw_dungeon = False
+        self._plan_missing_logged = False
+
+        if not self.ocr:
+            self.gui.log("错误: OCR引擎未初始化，无法启动（各模式都要进图判定）。")
+            self.gui.stop()
+            return
+
+        char = (config.get("character") or "").strip()
+        try:
+            char = char or (self.gui.character_var.get() or "").strip()
+        except Exception:
+            pass
+        if self.fsm_test or mode == "automation":
+            if skill_table_missing(char):
+                self.gui.log("错误: 没有技能表（文件不存在或没有任何技能）。已中止 FSM测试/自动化。")
+                self.gui.stop()
+                return
 
         if self.capture_only and self.yolo_test:
             self.gui.log("错误: 采集与检测测试不能同时开启。")
@@ -181,13 +211,12 @@ class StatusAnalysisModule:
                 self.gui.stop()
                 return
             self.gui.log(f"  - YOLO 推理参数 conf={self.yolo_conf}, iou={self.yolo_iou}")
-        elif not self.capture_only and not self.ocr:
+        elif not self.ocr_only and not self.yolo_test and not self.fsm_test and not self.ocr:
             self.gui.log("错误: OCR引擎未初始化，无法启动分析模块。")
             self.gui.stop()
             return
 
-        if not self.capture_only and not self.yolo_test:
-            self.dungeon_keywords = self._load_keywords("dun_keywords_custom.txt")
+        self.dungeon_keywords = self._load_keywords("dun_keywords_custom.txt")
 
         self.game_state = "TOWN"
         self.current_dungeon_name = None
@@ -221,15 +250,31 @@ class StatusAnalysisModule:
         if self.fsm_test:
             self.gui.log("状态分析模块: FSM测试模式 — 发键 + 写盘 FSM_TEST。")
         elif self.yolo_test:
-            self.gui.log("状态分析模块: YOLO测试模式 — 只检测，不跑 FSM，不落盘。")
+            self.gui.log("状态分析模块: YOLO测试模式 — 检测 + OCR 进图判定，不跑 FSM，不落盘。")
+        elif self.ocr_only:
+            self.gui.log("状态分析模块: 采集旁路 OCR — 进图判定（不截图）。")
         else:
             self.gui.log("状态分析模块: 自动化 — OCR 用内存帧，截图不落盘。")
 
         self.is_running = True
-        self.ocr_queue = None
-        self.ocr_thread = None
-        self.capture_thread = threading.Thread(target=self._capture_loop, args=(config,), daemon=True)
-        self.capture_thread.start()
+        self.ocr_queue = queue.Queue(maxsize=1)
+        self.ocr_thread = threading.Thread(target=self._ocr_loop, daemon=True)
+        self.ocr_thread.start()
+        if isinstance(self.ocr_region, dict) and self.ocr_region.get("width", 0) > 0:
+            r = self.ocr_region
+            self.gui.log(
+                f"状态分析模块: 已启动 RapidOCR — conf>={self.ocr_conf:g}，仅识别裁剪区 "
+                f"X:{r.get('x')} Y:{r.get('y')} W:{r.get('width')} H:{r.get('height')}"
+            )
+        else:
+            self.gui.log(
+                f"状态分析模块: 已启动 RapidOCR（conf>={self.ocr_conf:g}，未设置裁剪则识别整帧）。"
+            )
+
+        self.capture_thread = None
+        if not self.ocr_only:
+            self.capture_thread = threading.Thread(target=self._capture_loop, args=(config,), daemon=True)
+            self.capture_thread.start()
 
         if self.fsm_test:
             p = self._fsm_params
@@ -240,21 +285,7 @@ class StatusAnalysisModule:
                 f"间隔{getattr(self, '_mash_gap_ms', DEFAULT_MASH_GAP_MS)}ms  开打序列{len(p.fight_plan)}分布 发键开"
             )
         elif self.yolo_test:
-            self.gui.log("状态分析模块: 已启动【YOLO测试】（只画检测框，不跑 FSM，无OCR/无存图）。")
-        else:
-            self.ocr_queue = queue.Queue(maxsize=1)
-            self.ocr_thread = threading.Thread(target=self._ocr_loop, daemon=True)
-            self.ocr_thread.start()
-            if isinstance(self.ocr_region, dict) and self.ocr_region.get("width", 0) > 0:
-                r = self.ocr_region
-                self.gui.log(
-                    f"状态分析模块: 已启动 RapidOCR — 间隔 {self.ocr_interval:g}s  conf>={self.ocr_conf:g}，仅识别裁剪区 "
-                    f"X:{r.get('x')} Y:{r.get('y')} W:{r.get('width')} H:{r.get('height')}"
-                )
-            else:
-                self.gui.log(
-                    f"状态分析模块: 已启动 RapidOCR（间隔 {self.ocr_interval:g}s  conf>={self.ocr_conf:g}，未设置裁剪则识别整帧）。"
-                )
+            self.gui.log("状态分析模块: 已启动【YOLO测试】（画检测框 + OCR 进图）。")
 
     def get_current_dungeon_name(self):
         return self.current_dungeon_name
@@ -311,9 +342,13 @@ class StatusAnalysisModule:
                     pass
                 elif self.yolo_test:
                     t_ns = time.time_ns()
+                    self._submit_ocr(frame)
                     self._run_yolo_frame(frame, t_ns)
+                    if not self.fsm_test:
+                        self._tick_dungeon_gui()
                 elif not self.capture_only:
                     self._submit_ocr(frame)
+                    self._tick_dungeon_gui()
             time.sleep(0.02)
         self.gui.log("状态分析模块: 退出截图循环。")
 
@@ -361,7 +396,7 @@ class StatusAnalysisModule:
             char = (self.gui.character_var.get() or "").strip()
         except Exception:
             char = ""
-        dun = self.current_dungeon_name or guess_dungeon(char) or "FSM测试"
+        dun = self.current_dungeon_name or "FSM测试"
         stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         session = self._fsm_session_path(dun, stamp, char or None)
         png_dir = session / "png"
@@ -423,7 +458,7 @@ class StatusAnalysisModule:
         payload = {
             "saved_at": time.strftime("%Y-%m-%d %H:%M:%S"),
             "character": char,
-            "dungeon": self.current_dungeon_name or guess_dungeon(char) or "",
+            "dungeon": self.current_dungeon_name or "",
             "yolo_conf": self.yolo_conf,
             "yolo_iou": self.yolo_iou,
             "tap_ms": getattr(self, "_tap_ms", DEFAULT_TAP_MS),
@@ -445,6 +480,8 @@ class StatusAnalysisModule:
                 "pc": p.pc,
                 "pt": p.pt,
                 "xxx": p.xxx,
+                "tn": p.tn,
+                "town_s": getattr(self, "_town_s", DEFAULT_TOWN_S),
                 "mon_off_x": p.mon_off_x,
                 "mon_off_y": p.mon_off_y,
                 "mash_count": p.mash_count,
@@ -559,7 +596,7 @@ class StatusAnalysisModule:
             char = (self.gui.character_var.get() or "").strip()
         except Exception:
             char = ""
-        dun = self.current_dungeon_name or (guess_dungeon(char) if char else "")
+        dun = self.current_dungeon_name or ""
         if char and dun:
             try:
                 times.append(feature_path(char, dun).stat().st_mtime)
@@ -571,6 +608,7 @@ class StatusAnalysisModule:
         path = self._fsm_ui_path()
         m, l, g, x, gx, gy, ax, ay, y, s, f, pm, pc, pt, xxx, tap_ms = 5, 5, 5, 30, 50, 10, 5, 5, 5, 20, DEFAULT_F, 10, 5, 3, 20, DEFAULT_TAP_MS
         mash_count, mash_gap = DEFAULT_MASH_COUNT, DEFAULT_MASH_GAP_MS
+        town_s = DEFAULT_TOWN_S
         ox, oy = 0, 0
         if path.is_file():
             try:
@@ -594,10 +632,12 @@ class StatusAnalysisModule:
                 tap_ms = clamp_tap_ms(data.get("tap_ms", tap_ms))
                 mash_count = clamp_mash_count(data.get("mash_count", mash_count))
                 mash_gap = clamp_mash_gap_ms(data.get("mash_gap_ms", mash_gap))
+                town_s = float(data.get("town_s", town_s))
                 ox, oy = mon_off_from_dict(data)
             except Exception:
                 pass
         self._f = f
+        self._town_s = town_s
         self._tap_ms = tap_ms
         self._mash_count = mash_count
         self._mash_gap_ms = mash_gap
@@ -609,7 +649,12 @@ class StatusAnalysisModule:
             char = (self.gui.character_var.get() or "").strip()
         except Exception:
             pass
-        dun = self.current_dungeon_name or guess_dungeon(char)
+        dun = self.current_dungeon_name or ""
+        feats = load_features(char, dun) if char and dun else None
+        if char and dun and feats is None and not self._plan_missing_logged:
+            self._plan_missing_logged = True
+            self.gui.log(f"提示: 无过图技能文件 {dun}/{char}，开打按「无技能可取」走。")
+        tn = town_n_frames(town_s, getattr(self, "_frame_interval", 0.05))
         return FsmParams(
             m=m,
             l=l,
@@ -625,10 +670,11 @@ class StatusAnalysisModule:
             pc=pc,
             pt=pt,
             xxx=xxx,
+            tn=tn,
             fight_plan=load_fight_plan(char, dun, f=f) if char and dun else (),
             hotbar=load_hotbar(char) if char else (),
             dist_table=load_dist_table(char, dun) if char and dun else (),
-            map_reset=has_map_reset(load_features(char, dun)) if char and dun else False,
+            map_reset=has_map_reset(feats) if feats else False,
             mon_off_x=ox,
             mon_off_y=oy,
             mash_count=mash_count,
@@ -640,8 +686,18 @@ class StatusAnalysisModule:
         if mtime != getattr(self, "_fsm_ui_mtime", None):
             self._fsm_ui_mtime = mtime
             self._fsm_params = self._load_fsm_params()
-        snap = snapshot_from_detect(int(t_ns), features)
+        snap = snapshot_from_detect(
+            int(t_ns),
+            features,
+            dungeon_kw=bool(getattr(self, "_ocr_kw", False)),
+        )
         decision, self._fsm_ctx = step(snap, self._fsm_ctx, self._fsm_params)
+        if decision.state is FsmState.RETURN:
+            self._confirm_town()
+        elif decision.state not in (FsmState.WAIT, FsmState.RETURN) and self.current_dungeon_name:
+            if self.game_state != "DUNGEON":
+                self.game_state = "DUNGEON"
+                self._refresh_runtime_display()
         return decision
 
     def _overlay_fsm(self, plotted, decision):
@@ -923,10 +979,16 @@ class StatusAnalysisModule:
             self.gui.log(f"  - 警告: 匹配到多个地下城关键词 {[h[0] for h in above]}，默认使用第一个: '{matched_dungeon}'")
 
         if matched_dungeon:
+            self._ocr_kw = True
+            self._saw_dungeon = True
             entered_new = self.game_state != "DUNGEON" or self.current_dungeon_name != matched_dungeon
             if entered_new:
                 kw, score, raw = above[0]
                 self.current_dungeon_name = matched_dungeon
+                self._plan_missing_logged = False
+                if self.fsm_test or (not self.yolo_test and not self.ocr_only):
+                    self._fsm_params = self._load_fsm_params()
+                    self._fsm_ui_mtime = self._fsm_ui_file_mtime()
                 self.game_state = "DUNGEON"
                 self.gui.log(
                     f">>> 状态变更: [模式] 进入地下城 [{self.current_dungeon_name}]  "
@@ -934,27 +996,34 @@ class StatusAnalysisModule:
                 )
                 if self.on_state_change_callback:
                     self.on_state_change_callback(self.current_dungeon_name)
-        elif self.game_state != "TOWN":
-            old_dungeon = self.current_dungeon_name
-            self.current_dungeon_name = None
-            self.game_state = "TOWN"
-            if hits:
-                kw, score, raw = max(hits, key=lambda h: float(h[1] or 0.0))
-                why = (
-                    f"关键词「{kw}」conf={self._fmt_score(score)} 低于阈值 {thr:g}  "
-                    f"原文「{self._clip_text(raw)}」"
-                )
-            elif pairs:
-                raw, score = max(pairs, key=lambda p: float(p[1] or 0.0))
-                why = (
-                    f"本帧无关键词  最高OCR conf={self._fmt_score(score)}  "
-                    f"「{self._clip_text(raw)}」"
-                )
-            else:
-                why = "本帧无OCR结果"
-            self.gui.log(f">>> 状态变更: [模式] 从 [{old_dungeon}] 返回 城镇  {why}")
-            if self.on_state_change_callback:
-                self.on_state_change_callback(self.current_dungeon_name)
+        else:
+            self._ocr_kw = False
+
+    def offer_ocr_frame(self, frame) -> None:
+        if not self.is_running or frame is None:
+            return
+        self._submit_ocr(frame)
+        if not self.fsm_test:
+            self._tick_dungeon_gui()
+
+    def _tick_dungeon_gui(self) -> None:
+        tn = town_n_frames(getattr(self, "_town_s", DEFAULT_TOWN_S), getattr(self, "_frame_interval", 0.05))
+        self._ocr_dun = dungeon_deb_step(self._ocr_dun, bool(self._ocr_kw), tn)
+        if self._ocr_dun.judged:
+            return
+        if self._saw_dungeon:
+            self._confirm_town()
+
+    def _confirm_town(self) -> None:
+        if self.game_state == "TOWN" and not self.current_dungeon_name:
+            return
+        old_dungeon = self.current_dungeon_name
+        self.current_dungeon_name = None
+        self.game_state = "TOWN"
+        self.gui.log(f">>> 状态变更: [模式] 从 [{old_dungeon}] 返回 城镇  （连续无地下城关键词）")
+        if self.on_state_change_callback:
+            self.on_state_change_callback(self.current_dungeon_name)
+        self._refresh_runtime_display()
 
     def _refresh_runtime_display(self):
         if self.game_state == "DUNGEON" and self.current_dungeon_name:

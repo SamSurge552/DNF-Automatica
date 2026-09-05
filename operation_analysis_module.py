@@ -319,6 +319,12 @@ class OperationAnalysisModule:
                     f"gate={feats.get('gate') or 0} boss={feats.get('boss') or 0} "
                     f"infer={feats.get('infer_ms') or 0:.0f}ms"
                 )
+            offer = getattr(self.controller.status_analyzer, "offer_ocr_frame", None)
+            if callable(offer):
+                try:
+                    offer(result["frame"])
+                except Exception:
+                    pass
 
     def _collect_keys_watchdog(self):
         time.sleep(COLLECT_KEYS_GRACE_S)
