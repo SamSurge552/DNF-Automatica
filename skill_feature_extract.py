@@ -29,6 +29,7 @@ COMBO_CD_S = 270.0
 DEFAULT_F = 20
 DEFAULT_MULTI = 2
 MULTI_N_MAX = 9
+EXTRACT_PRESS_LAG_FRAMES = 1  # 特征快照相对黄字 onset 延后的帧数；hold/CD 仍用 i0
 
 
 def _now_iso() -> str:
@@ -250,10 +251,12 @@ def casts_from_tracks(
     s: int = 20,
     extra_sigs: tuple[DistSig, ...] = (),
     slot_durs: dict[int, int] | None = None,
+    press_lag_frames: int = EXTRACT_PRESS_LAG_FRAMES,
 ) -> tuple[list[dict], tuple[DistSig, ...]]:
-    """快捷栏技能（含 SPACE）。怪物分布按按下那一帧现算，不用 FSM 状态里的 dist_key。"""
+    """快捷栏技能（含 SPACE）。分布/最远敌对按 onset+lag 帧快照；hold 窗口仍从黄字 i0 起算。"""
     e = max(0, int(e))
     s_pct = max(0.0, float(s))
+    lag = max(0, int(press_lag_frames))
     hold_of = {slot: hf for slot, (_k, _cd, hf) in _bind_by_slot(skills).items()}
     for slot, hf in (slot_durs or {}).items():
         try:
@@ -263,31 +266,34 @@ def casts_from_tracks(
     n = len(skill_hold)
     extra = extra_sigs
     out = []
+    n_views = len(views)
     for i0, i1, slot, key in skill_spans(skill_hold):
         if i0 >= len(draft):
             continue
         hold = max(0, int(hold_of.get(slot, 0)))
-        t0 = int((views[i0] if i0 < len(views) else {}).get("t_ns") or (draft[i0] or {}).get("t_ns") or 0)
+        t0 = int((views[i0] if i0 < n_views else {}).get("t_ns") or (draft[i0] or {}).get("t_ns") or 0)
         end_i = i0
-        lim = n if n else len(views)
+        lim = n if n else n_views
         for j in range(i0, lim):
-            row = views[j] if j < len(views) else (draft[j] if j < len(draft) else {})
+            row = views[j] if j < n_views else (draft[j] if j < len(draft) else {})
             tj = int(row.get("t_ns") or t0)
             end_i = j
             if (tj - t0) / 1e6 >= hold:
                 break
-        v0 = views[i0] if i0 < len(views) else {}
-        v1 = views[end_i] if end_i < len(views) else {}
-        a = farthest_enemy(v0)
+        last_v = max(n_views - 1, 0)
+        i_feat = min(i0 + lag, end_i, last_v)
+        v_feat = views[i_feat] if i_feat < n_views else {}
+        v1 = views[end_i] if end_i < n_views else {}
+        a = farthest_enemy(v_feat)
         b = farthest_enemy(v1)
         killed_mon = a["mon"] - b["mon"]
         killed_enemy = a["enemy"] - b["enemy"]
         dist_key, dist_kind, extra, _rk = classify_dist(
-            _view_player(v0),
-            _xy_tuples(v0, "mon"),
-            _xy_tuples(v0, "boss"),
-            int(v0.get("mon") or a["mon"] or 0),
-            int(v0.get("boss") or a["boss"] or 0),
+            _view_player(v_feat),
+            _xy_tuples(v_feat, "mon"),
+            _xy_tuples(v_feat, "boss"),
+            int(v_feat.get("mon") or a["mon"] or 0),
+            int(v_feat.get("boss") or a["boss"] or 0),
             dist_table,
             extra,
             s_pct,
@@ -304,6 +310,7 @@ def casts_from_tracks(
                 "slot": slot,
                 "key": key,
                 "i0": i0,
+                "i_feat": i_feat,
                 "i1": i1,
                 "i_end": end_i,
                 "mon": a["mon"],

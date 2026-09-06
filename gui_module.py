@@ -25,7 +25,7 @@ from central_controller import CentralController
 from window_align import enable_dpi_awareness, get_virtual_screen, get_window_at_point, find_window_by_process
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
-from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_PW_MS, DEFAULT_TOWN_S, json_ms, json_s_from_frames
+from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_PW_MS, DEFAULT_TOWN_S, json_ms, json_s
 from skill_feature_extract import DEFAULT_E, DEFAULT_F, skill_table_missing
 
 
@@ -1263,11 +1263,11 @@ class App(tk.Tk):
                 town_s = float(data.get("town_s", town_s))
             except Exception:
                 data = {}
-        x_s = json_s_from_frames(data, "x_s", "x", 30)
-        ax_ms = json_ms(data, "ax_ms", "ax", 5)
-        ay_ms = json_ms(data, "ay_ms", "ay", 5)
-        y_ms = json_ms(data, "y_ms", "y", 5, lo=1)
-        xxx_ms = json_ms(data, "xxx_ms", "xxx", 20, lo=1)
+        x_s = json_s(data, "x_s", 30.0)
+        ax_ms = json_ms(data, "ax_ms", 1000)
+        ay_ms = json_ms(data, "ay_ms", 1000)
+        y_ms = json_ms(data, "y_ms", 500, lo=1)
+        xxx_ms = json_ms(data, "xxx_ms", 2000, lo=1)
         self.fsm_m_var.set(str(m))
         self.fsm_l_var.set(str(l))
         self.fsm_g_var.set(str(g))

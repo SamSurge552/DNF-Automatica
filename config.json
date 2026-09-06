@@ -1,5 +1,5 @@
 {
-    "interval": 0.05,
+    "interval": 0.1,
     "region": {
         "rect": {
             "x": 949,

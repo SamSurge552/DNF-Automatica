@@ -4,9 +4,9 @@
 > 对齐以 `TRAIN_ALIGN.md` 为准。架构以 `DECISIONS.md` 为准（**当前阶段定性见 §1.0**）。  
 > DECISIONS 第 4 节（并行卡住 / 不对称迟滞 / `gate.x > player.x`）**尚未落地**，也没并进 `FSM_DESIGN.txt`。不要用第 4 节覆盖 txt。
 
-生成时间：2026-09-06 13:05 (UTC+8)  
+生成时间：2026-09-06 14:05 (UTC+8)  
 项目根目录：`d:\Desktop\T\test`  
-本会话已做：审计 B1–B7 文档对齐（决策形状 / 连按分层 / 写盘两条 / §8 卫生）。A 类已落地。**请重提 skill_features**。
+本会话已做：提取 press 特征 `i_feat=i0+lag`（默认 1 帧）；回放「参数」拆行防裁切。**请重提 skill_features**。
 
 > **组集脚本与 TRAIN_ALIGN 已确认步骤打架时，问用户改文档还是改代码。**  
 > **新旧想法冲突：用新的，事后告知即可。**  
@@ -30,6 +30,7 @@
 - **A3** OCR 无关键词沿用上一帧 raw，再进 `dungeon_deb_step`。
 - **A5** 捡物等停下上限 **PW**（`pw_ms` 默认 3000）；超时蓝字「捡物等待超时 PW」后按当前掉落继续捡。A4 卡住恢复方向未改。
 - 卡住 `x_s` 应大于 max(最长技能持续, AX, AY, PW, 四向 Y)（秒）。
+- 提取分布/最远敌对用 `i_feat`（黄字 onset `i0` + `EXTRACT_PRESS_LAG_FRAMES`，默认 1）；hold/`t0`/`i_end` 仍从 `i0`。改后须重提。
 
 回放 `python fsm_replay.py`。推荐段仍 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`（旧 PNG 在 `images/<时间戳>/`）。新采集叠图看 `images/<角色>/`。顶栏来源：全部 / 采集 / FSM测试。
 
@@ -45,7 +46,7 @@
 
 **CD：** 提取短间隔 → 地图【CD重置】（连续释放 / 多次释放 / 假释放不算）。运行时该图有标记且 **击败 BOSS 数 +1** 才清 CD。MULTI 拆成多份独立 CD。
 
-**提取：** 按下快捷栏即收，不要求开打。分布按按下帧现算。范围=最远敌对距离中位数。杀 MON>E → 群。F 默认 20。面板持续帧是提取真相，点「重新读取」才跟磁盘。
+**提取：** 按下快捷栏即收，不要求开打。分布按按下帧现算。范围=最远敌对距离中位数。杀 MON>E → 群。F 默认 20。面板持续毫秒是提取真相，点「重新读取」才跟磁盘。
 
 **发键：** `fsm_execute` + `key_inject`。点按 ms 默认 50。键位表【连按】→ COUNT 次点按 + 间隔 ms（默认 3 次 / 50ms）。一键拾取=左 Alt（VK）。参数在 `_fsm_replay_ui.json`。
 
@@ -80,7 +81,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 决策形状：`FsmDecision` 执行要消费 `state` / `flags` / `action` / `move_dir` / `move_dirs` / `skill_slot` / `skill_key`。宿主优先 `move_dirs`，空则回退 `move_dir`。`skill_slot`/`skill_key` 是决策输出（CAST 等），不是展示字段。诊断展示另列：`why` / CD / 分布计数 / `send_label` 等。卡住是状态 `卡住`；预热在 flags。`FsmAction.CAST` = 开打「立即释放」；`FsmAction.ATTACK` = 按住普攻 X（无 CD）；`FsmAction.PICK` = 捡物一键拾取。
 
-`FsmParams`：GX/GY、`ax_ms`/`ay_ms`、`xxx_ms`、`th_ms`（接近/捡物 TAP→HOLD 间隔）、`pw_ms`（捡物等停下上限）、`x_s`（卡住秒）、`y_ms`、`tn_s`（回城秒）、`mon_off_x/y`、`fight_plan`、`hotbar`、`dist_table`、`map_reset`。旧帧字段按 ×50ms / ×0.05s 读入。mash 不进 `FsmParams`。
+`FsmParams`：GX/GY、`ax_ms`/`ay_ms`、`xxx_ms`、`th_ms`（接近/捡物 TAP→HOLD 间隔）、`pw_ms`（捡物等停下上限）、`x_s`（卡住秒）、`y_ms`、`tn_s`（回城秒）、`mon_off_x/y`、`fight_plan`、`hotbar`、`dist_table`、`map_reset`。只认 `*_ms` / `hold_ms` / `x_s`；旧帧字段不再换算。mash 不进 `FsmParams`。
 
 不要拆三个独立进程。不要把发键写进回放。
 
@@ -150,7 +151,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 
 `python skill_bind_tool.py`。不写 `recordings/`。行号=技能1…9。快捷栏单键 + `space`。橙色提示不要乱改。  
 非管理员点「读取技能」→ 弹窗拒绝。保存/载入 json 不拦。  
-每个 skill：`command` / `hotbar` / `hold_frames` / `cooldown_s` / **`combo`（连续释放）**。回放改帧数与连续释放、键位工具 OCR「操作指令」「冷却时间」冒号右，**按 slot 合并**，不丢未知字段、不丢空槽旧行。技能表「连续释放」勾选后点保存。  
+每个 skill：`command` / `hotbar` / `hold_ms` / `cooldown_s` / **`combo`（连续释放）**。回放改毫秒与连续释放、键位工具 OCR「操作指令」「冷却时间」冒号右，**按 slot 合并**，不丢未知字段、不丢空槽旧行。技能表「连续释放」勾选后点保存。  
 权威文件：`skill_binds/<角色>.json`。回放 `_fsm_replay_ui.json` 的 `skill_hold` 当备份。回放顶栏可直接打开本工具。
 
 ### 回放黄字（录像真实操作）
@@ -161,7 +162,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 - **移动**：方向键按住（或本帧沿有方向 press）；**不显示方向**。
 - **跑**：本帧任一方向 `press` 次数 >「跑 press>」才叫跑（连发）。不显示方向。
 - **捡物**：alt press 起持续 N 帧。
-- **技能**：快捷栏单键或 `space`，持续该技能 `hold_frames`。
+- **技能**：快捷栏单键或 `space`，持续该技能 `hold_ms`。
 
 绿/蓝/红/黄四列固定宽**且固定高**，空字占位。蓝=方法意图；红=这一帧会发的键（回放不注入）；黄=录像真实按键。绿字第二行「怪物分布 / 已过房间 / 击败BOSS」。回城/等待清空指纹与计数，**不清 CD**（该图【CD重置】且击败 BOSS +1 才清）。  
 **预热** = 开头 `max(M,L,G)` 帧防抖未满。黑字：`特征未变` ≠ FSM 卡住；`状态连续` = 当前 FSM 状态已连续帧数；`推理` = 该帧 YOLO ms。  
@@ -170,7 +171,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 ### 过图技能特征
 
 磁盘：`skill_feature_extract.py` 已按 txt。落盘仍是 `skill_features/<地下城>/<角色>.json`。  
-补正变更后旧表作废，**请重提**。提取与 FSM 用同一 `mon_off`（回放提取前 `apply_mon_boss_corr`）。  
+分布/最远敌对快照 = `i_feat`（`i0+lag`，默认 1 帧），不是黄字那一帧画面。补正或 lag 变更后旧表作废，**请重提**。提取与 FSM 用同一 `mon_off`（回放提取前 `apply_mon_boss_corr`）。  
 回放提取按钮在右侧顶栏。「提取同地下城全部 / 重新提取本图」默认只采集；勾「含FSM测试」才扫 `FSM_TEST/`。不要靠顶栏来源下拉过滤提取范围。
 
 ### 主 GUI 模式
@@ -187,7 +188,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 ### 前进 / 卡住 / 开打 / 捡物
 
 前进：GX/GY 每帧相对当前门接近（点按→TH→按住）；一次性方向只给过门；两轴停或门消失 → AX/AY。  
-开打：排除 CD 后取文件序列第一个就绪（仅快捷栏单键/space）；最远敌对；范围异常仍然释放；没有就绪 → 最短持续帧；全 CD 普攻 X。等待显示技能和剩余帧。CAST 后 `hold_frames`。  
+开打：排除 CD 后取文件序列第一个就绪（仅快捷栏单键/space）；最远敌对；范围异常仍然释放；没有就绪 → 最短持续毫秒；全 CD 普攻 X。等待显示技能和剩余帧。CAST 后 `hold_ms`。  
 捡物：PM/PT/PC + **PW**（`pw_ms` 默认 3000，等停下上限）。超时结束等待，蓝字「捡物等待超时 PW」，按当前掉落继续（>PC 则 PICK，否则依次捡）。数量 **>PC** 一键拾取，**≤PC** 依次捡（点按→TH→按住）。检测框可仍为原始 YOLO；逻辑点已补正。
 
 ### 本会话覆盖的旧约定（不要当现行）
@@ -196,13 +197,14 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 |----|----|
 | 房间号 = MON+BOSS 绝对中心+数量 | **怪物分布**：BOSS 表 / 小怪表，相对坐标，S% |
 | 地图【重置】+ 相似房清 CD；进带【重置点】的分布才清 | 地图【CD重置】；**击败 BOSS 数 +1** 才清 |
-| 范围 = 群中心 dist 中位；黄字消失后算效率 | 按下时最远敌对点距离中位；持续帧结束后算效率 |
+| 范围 = 群中心 dist 中位；黄字消失后算效率 | 特征快照（`i_feat`）最远敌对点距离中位；持续帧结束后算效率 |
 | 提取须开打；群 = 按下时 MON>E | 按下快捷栏即提取；群 = **杀 MON 数 > E** |
 | 假释放只不进序列 | 假释放不进序列 / 范围 / **CD 重置** |
 | 开打只用文件第 1 个槽（该槽多次释放各份） | 排除 CD 后取**文件序列里第一个就绪**（后面的技能可以顶上） |
 | F 默认 50；序列一律次数 | F 默认 **20**；BOSS 房次数、MON 房效率 |
 | 开打距离不够 → 接近；范围异常不放 | **范围异常仍然释放（暂定）** |
 | 提取分组沿用 FSM 当时的怪物分布 | 按下技能那一帧按分布判定现算 |
+| 特征快照用黄字 `i0` 同帧画面 | **`i_feat = i0+lag`（默认 1 帧）**；hold/CD 仍 `i0` |
 | 全 CD 则空等 | 按住普攻 X，XXX 帧（默认 20） |
 | 前进过坐标后计单个 A；TAP 空帧 | GX/GY 阈值接近（点按→TH→按住）；一次性方向；AX/AY 过门 |
 | 前进用【门坐标快照】，不再跟实时门 | 前进每帧相对**当前门** GX/GY；过门方向仍一次性；**门消失直接过门** |

@@ -33,8 +33,9 @@ from fsm_core import (
     DEFAULT_TOWN_S,
     send_keys_label,
     json_ms,
-    json_s_from_frames,
+    json_s,
     parse_hold_ms,
+    warn_legacy_key,
     HOLD_MS_KEY,
 )
 from fsm_execute import mash_n_for_slot
@@ -132,7 +133,7 @@ HELP_EXTRACT = (
     "按下快捷栏技能（含 SPACE）即提取，不要求开打。\n"
     "持续结束后杀 MON 数 > E → 群，否则为单。\n"
     "杀 MON 效率 < F% → 假释放（不进序列 / 范围 / CD）。\n"
-    "怪物分布按按下那一帧现算，不沿用 FSM 当时的状态。\n"
+    "怪物分布按黄字 onset 后 lag 帧快照现算，不沿用 FSM 当时的状态。\n"
     "MON/BOSS 用当前补正（与 FSM 同一套）；jsonl 不改。改补正后请重新提取本图。\n"
     "地图【CD重置】：提取发现短于 CD 的间隔后写入；运行时击败 BOSS +1 才清 CD。\n"
     "「提取同地下城全部 / 重新提取本图」默认只扫 recordings/ 采集段。勾「含FSM测试」才并入 FSM_TEST。提取本段始终用当前这一段。"
@@ -451,10 +452,6 @@ def load_skill_binds(character: str) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
-def parse_hold_frames(item, default: int | None = None) -> int | None:
-    return parse_hold_ms(item, default)
-
-
 def write_hold_frames(character: str, slot_durs: dict[int, int]) -> bool:
     """把回放里调的持续 ms 写进键位表，其它字段原样保留。"""
     return write_skill_table(character, slot_durs=slot_durs, combo_slots=None, multi_n=None)
@@ -468,7 +465,7 @@ def write_skill_table(
     mash_slots: set[int] | None = None,
     edit_slots: set[int] | None = None,
 ) -> bool:
-    """把持续帧 / 连续释放 / 多次释放 / 连按写进键位表，其它字段原样保留。"""
+    """把持续毫秒 / 连续释放 / 多次释放 / 连按写进键位表，其它字段原样保留。"""
     path = bind_file(character)
     if not path.is_file():
         return False
@@ -568,7 +565,7 @@ def skill_rows(data: dict | None) -> list[dict]:
             "command": cmd,
             "hotbar": bool(item.get("hotbar")),
         }
-        hf = parse_hold_frames(item)
+        hf = parse_hold_ms(item)
         if hf is not None:
             row[HOLD_FRAMES_KEY] = hf
         row["_combo_set"] = COMBO_KEY in item
@@ -876,29 +873,35 @@ class FsmReplayApp(tk.Tk):
         ttk.Label(r_gate, text="GX").pack(side=tk.LEFT)
         self._spin(r_gate, self.gx_var, frm=0, to=400).pack(side=tk.LEFT, padx=(2, 6))
         ttk.Label(r_gate, text="GY").pack(side=tk.LEFT)
-        self._spin(r_gate, self.gy_var, frm=0, to=400).pack(side=tk.LEFT, padx=(2, 6))
-        ttk.Label(r_gate, text="AX ms").pack(side=tk.LEFT)
-        self._spin(r_gate, self.ax_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 6))
-        ttk.Label(r_gate, text="AY ms").pack(side=tk.LEFT)
-        self._spin(r_gate, self.ay_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        self._spin(r_gate, self.gy_var, frm=0, to=400).pack(side=tk.LEFT, padx=(2, 0))
+        r_ax = ttk.Frame(params)
+        r_ax.pack(fill=tk.X, pady=(4, 0))
+        ttk.Label(r_ax, text="AX ms").pack(side=tk.LEFT)
+        self._spin(r_ax, self.ax_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 6))
+        ttk.Label(r_ax, text="AY ms").pack(side=tk.LEFT)
+        self._spin(r_ax, self.ay_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         r_sf = ttk.Frame(params)
         r_sf.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_sf, text="相似 S%").pack(side=tk.LEFT)
         self._spin(r_sf, self.s_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_sf, text="假释放 F%").pack(side=tk.LEFT)
-        self._spin(r_sf, self.f_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_sf, text="普攻 XXX ms").pack(side=tk.LEFT)
-        self._spin(r_sf, self.xxx_var, frm=1, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_sf, text="点按 ms").pack(side=tk.LEFT)
-        self._spin(r_sf, self.tap_ms_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 0))
+        self._spin(r_sf, self.f_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 0))
+        r_xxx = ttk.Frame(params)
+        r_xxx.pack(fill=tk.X, pady=(4, 0))
+        ttk.Label(r_xxx, text="普攻 XXX ms").pack(side=tk.LEFT)
+        self._spin(r_xxx, self.xxx_var, frm=1, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_xxx, text="点按 ms").pack(side=tk.LEFT)
+        self._spin(r_xxx, self.tap_ms_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 0))
         r_mash = ttk.Frame(params)
         r_mash.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_mash, text="连按 COUNT").pack(side=tk.LEFT)
         self._spin(r_mash, self.mash_count_var, frm=1, to=15).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_mash, text="间隔 ms").pack(side=tk.LEFT)
-        self._spin(r_mash, self.mash_gap_var, frm=10, to=300).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_mash, text="移动间隔 ms").pack(side=tk.LEFT)
-        self._spin(r_mash, self.th_var, frm=0, to=300).pack(side=tk.LEFT, padx=(2, 0))
+        self._spin(r_mash, self.mash_gap_var, frm=10, to=300).pack(side=tk.LEFT, padx=(2, 0))
+        r_th = ttk.Frame(params)
+        r_th.pack(fill=tk.X, pady=(4, 0))
+        ttk.Label(r_th, text="移动间隔 ms").pack(side=tk.LEFT)
+        self._spin(r_th, self.th_var, frm=0, to=300).pack(side=tk.LEFT, padx=(2, 0))
         r_loot_fsm = ttk.Frame(params)
         r_loot_fsm.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_loot_fsm, text="掉落动 PM").pack(side=tk.LEFT)
@@ -906,11 +909,13 @@ class FsmReplayApp(tk.Tk):
         ttk.Label(r_loot_fsm, text="一键拾取 PC").pack(side=tk.LEFT)
         self._spin(r_loot_fsm, self.pc_var, frm=0, to=40).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_loot_fsm, text="停下 PT").pack(side=tk.LEFT)
-        self._spin(r_loot_fsm, self.pt_var).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_loot_fsm, text="PW ms").pack(side=tk.LEFT)
-        self._spin(r_loot_fsm, self.pw_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_loot_fsm, text="回城秒").pack(side=tk.LEFT)
-        self._spin(r_loot_fsm, self.town_s_var, frm=1, to=120).pack(side=tk.LEFT, padx=(2, 0))
+        self._spin(r_loot_fsm, self.pt_var).pack(side=tk.LEFT, padx=(2, 0))
+        r_pw = ttk.Frame(params)
+        r_pw.pack(fill=tk.X, pady=(4, 0))
+        ttk.Label(r_pw, text="PW ms").pack(side=tk.LEFT)
+        self._spin(r_pw, self.pw_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_pw, text="回城秒").pack(side=tk.LEFT)
+        self._spin(r_pw, self.town_s_var, frm=1, to=120).pack(side=tk.LEFT, padx=(2, 0))
         r_run = ttk.Frame(params)
         r_run.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(r_run, text="跑 press>").pack(side=tk.LEFT)
@@ -1558,19 +1563,14 @@ class FsmReplayApp(tk.Tk):
                 self.th_var.set(str(max(0, int(str(self.mash_gap_var.get() or 50)))))
             except (TypeError, ValueError):
                 self.th_var.set("50")
-        self.x_var.set(str(json_s_from_frames(data, "x_s", "x", 30)))
-        self.ax_var.set(str(json_ms(data, "ax_ms", "ax", 5)))
-        self.ay_var.set(str(json_ms(data, "ay_ms", "ay", 5)))
-        if "ax_ms" not in data and "ax" not in data and "a" in data:
-            try:
-                n = max(0, int(data["a"])) * 50
-                self.ax_var.set(str(n))
-                self.ay_var.set(str(n))
-            except (TypeError, ValueError):
-                pass
-        self.xxx_var.set(str(json_ms(data, "xxx_ms", "xxx", 20, lo=1)))
-        self.y_var.set(str(json_ms(data, "y_ms", "y", 5, lo=1)))
-        self.loot_hold_var.set(str(json_ms(data, "loot_hold_ms", "loot_hold", 5, lo=1)))
+        self.x_var.set(str(json_s(data, "x_s", 30.0)))
+        self.ax_var.set(str(json_ms(data, "ax_ms", 1000)))
+        self.ay_var.set(str(json_ms(data, "ay_ms", 1000)))
+        if "a" in data:
+            warn_legacy_key("a")
+        self.xxx_var.set(str(json_ms(data, "xxx_ms", 2000, lo=1)))
+        self.y_var.set(str(json_ms(data, "y_ms", 500, lo=1)))
+        self.loot_hold_var.set(str(json_ms(data, "loot_hold_ms", 250, lo=1)))
         if "pm" not in data and "lm" in data:
             try:
                 self.pm_var.set(str(max(0, int(data["lm"]))))
@@ -1613,10 +1613,10 @@ class FsmReplayApp(tk.Tk):
         self._corr_lock = False
         self._corr_prev = (cu, cd, cl, cr)
         sh = data.get("skill_hold_ms")
-        legacy = False
         if not isinstance(sh, dict):
-            sh = data.get("skill_hold")
-            legacy = True
+            if isinstance(data.get("skill_hold"), dict):
+                warn_legacy_key("skill_hold")
+            sh = None
         if isinstance(sh, dict):
             saved: dict[str, dict[str, int]] = {}
             for ch, slots in sh.items():
@@ -1628,8 +1628,6 @@ class FsmReplayApp(tk.Tk):
                         n = max(1, int(sv))
                     except (TypeError, ValueError):
                         continue
-                    if legacy:
-                        n *= 50
                     one[str(sk)] = n
                 saved[str(ch)] = one
             self._skill_hold_saved = saved

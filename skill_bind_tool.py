@@ -138,15 +138,8 @@ def _skill_slot(item: dict) -> int:
         return 0
 
 
-def parse_hold_frames(item) -> int | None:
-    v = parse_hold_ms(item)
-    if v is None:
-        return None
-    return max(1, int(v))
-
-
 def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
-    """保存时合并旧表：不丢 hold_frames / cooldown_s / combo / multi / mash 和未出现在新列表里的技能行。"""
+    """保存时合并旧表：不丢 hold_ms / cooldown_s / combo / multi / mash 和未出现在新列表里的技能行。"""
     old = existing if isinstance(existing, dict) else {}
     out = dict(old)
     out.update(payload)
@@ -170,9 +163,10 @@ def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
         prev = by_slot.get(slot, {})
         row = dict(prev)
         row.update(item)
-        for keep in (HOLD_MS_KEY, HOLD_FRAMES_LEGACY, COOLDOWN_KEY):
+        for keep in (HOLD_MS_KEY, COOLDOWN_KEY):
             if keep not in item and keep in prev:
                 row[keep] = prev[keep]
+        row.pop(HOLD_FRAMES_LEGACY, None)
         if COMBO_KEY in item:
             row[COMBO_KEY] = bool(item.get(COMBO_KEY))
         if MASH_KEY in item:
@@ -193,6 +187,9 @@ def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
         if slot not in seen:
             merged.append(prev)
     merged.sort(key=lambda s: _skill_slot(s) or 999)
+    for row in merged:
+        if isinstance(row, dict):
+            row.pop(HOLD_FRAMES_LEGACY, None)
     out["skills"] = merged
     return out
 
@@ -1375,13 +1372,13 @@ class SkillBindTool(tk.Tk):
         self._hold_frames = {}
         kept = 0
         for item in payload.get("skills") or []:
-            hf = parse_hold_frames(item)
+            hf = parse_hold_ms(item)
             slot = _skill_slot(item)
             if hf is not None and slot > 0:
                 self._hold_frames[slot] = hf
                 kept += 1
         self._save_ui_settings()
-        extra = f"，保留 {kept} 条 hold_frames" if kept else ""
+        extra = f"，保留 {kept} 条 hold_ms" if kept else ""
         n_cd = sum(1 for it in payload.get("skills") or [] if parse_cooldown_item(it) is not None)
         if n_cd:
             extra += f"，{n_cd} 条 cooldown_s"
@@ -1468,11 +1465,11 @@ class SkillBindTool(tk.Tk):
                     n = DEFAULT_MULTI
                 row["multi_n"].set(str(max(DEFAULT_MULTI, min(9, n))))
                 row["multi_spin"].config(state=tk.NORMAL if on_m else tk.DISABLED)
-            hf = parse_hold_frames(item)
+            hf = parse_hold_ms(item)
             if hf is not None and slot > 0:
                 self._hold_frames[slot] = hf
         n_hf = len(self._hold_frames)
-        extra = f"，{n_hf} 条 hold_frames" if n_hf else ""
+        extra = f"，{n_hf} 条 hold_ms" if n_hf else ""
         n_cd = sum(1 for it in data.get("skills") or [] if parse_cooldown_item(it) is not None)
         if n_cd:
             extra += f"，{n_cd} 条 cooldown_s"

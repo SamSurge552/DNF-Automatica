@@ -22,7 +22,7 @@ from fsm_core import (
     step,
     stuck_x_s_floor,
     json_ms,
-    json_s_from_frames,
+    json_s,
 )
 from fsm_execute import (
     FsmExecutor,
@@ -664,11 +664,11 @@ class StatusAnalysisModule:
                 ox, oy = mon_off_from_dict(data)
             except Exception:
                 pass
-        x_s = json_s_from_frames(data, "x_s", "x", 30)
-        ax_ms = json_ms(data, "ax_ms", "ax", 5)
-        ay_ms = json_ms(data, "ay_ms", "ay", 5)
-        y_ms = json_ms(data, "y_ms", "y", 5, lo=1)
-        xxx_ms = json_ms(data, "xxx_ms", "xxx", 20, lo=1)
+        x_s = json_s(data, "x_s", 30.0)
+        ax_ms = json_ms(data, "ax_ms", 1000)
+        ay_ms = json_ms(data, "ay_ms", 1000)
+        y_ms = json_ms(data, "y_ms", 500, lo=1)
+        xxx_ms = json_ms(data, "xxx_ms", 2000, lo=1)
         try:
             th_ms = max(0, min(300, int(data.get("th_ms", mash_gap))))
         except (TypeError, ValueError):

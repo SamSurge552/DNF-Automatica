@@ -1,5 +1,5 @@
 {
-  "m": 2,
+  "m": 3,
   "l": 3,
   "g": 3,
   "x_s": 30.0,
@@ -41,7 +41,7 @@
   },
   "session_source": "全部",
   "extract_include_fsm": false,
-  "last_session": "FSM_TEST/深渊：最终调律者/20260905_182933_SolarWarden",
+  "last_session": "recordings/深渊：最终调律者/20260906_132820_SolarWarden",
   "mon_corr_u": 0,
   "mon_corr_d": 0,
   "mon_corr_l": 0,

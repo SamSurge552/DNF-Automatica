@@ -84,11 +84,32 @@ def _tap_hold(
 
 
 DEFAULT_TOWN_S = 30.0
-LEGACY_FRAME_MS = 50  # 旧「帧」字段迁毫秒：按采集 0.05s 一档
 HOLD_MS_KEY = "hold_ms"
-HOLD_FRAMES_KEY = "hold_frames"
+HOLD_FRAMES_KEY = "hold_frames"  # 仅清理/警告，不再换算
 _REF_W = 1600.0
 _REF_H = 900.0
+
+_LEGACY_MS_KEYS = {
+    "ax_ms": ("ax", "a"),
+    "ay_ms": ("ay", "a"),
+    "y_ms": ("y",),
+    "xxx_ms": ("xxx",),
+    "loot_hold_ms": ("loot_hold",),
+}
+_LEGACY_S_KEYS = {
+    "x_s": ("x",),
+}
+_warned_legacy: set[str] = set()
+
+
+def warn_legacy_key(*names: str) -> None:
+    """旧帧字段只警告、不换算。"""
+    for n in names:
+        s = str(n).strip()
+        if not s or s in _warned_legacy:
+            continue
+        _warned_legacy.add(s)
+        print(f"忽略旧帧字段 {s!r}（不再换算毫秒/秒）", flush=True)
 
 
 def dt_ms(prev_t_ns: int | None, t_ns: int) -> int:
@@ -97,53 +118,48 @@ def dt_ms(prev_t_ns: int | None, t_ns: int) -> int:
     return max(0, int(round((int(t_ns) - int(prev_t_ns)) / 1e6)))
 
 
-def json_ms(data: dict | None, key_ms: str, key_old: str, default_frames: int, lo: int = 0) -> int:
-    """读 *_ms；没有则把旧帧字段 × 50。"""
+def json_ms(data: dict | None, key_ms: str, default_ms: int, lo: int = 0) -> int:
+    """只读 *_ms；没有则用毫秒默认。旧帧键忽略。"""
     src = data or {}
+    for old in _LEGACY_MS_KEYS.get(key_ms, ()):
+        if old in src:
+            warn_legacy_key(old)
     if key_ms in src and src[key_ms] is not None:
         try:
             return max(lo, int(src[key_ms]))
         except (TypeError, ValueError):
             pass
-    if key_old in src and src[key_old] is not None:
-        try:
-            return max(lo, int(src[key_old]) * LEGACY_FRAME_MS)
-        except (TypeError, ValueError):
-            pass
-    return max(lo, int(default_frames) * LEGACY_FRAME_MS)
+    return max(lo, int(default_ms))
 
 
-def json_s_from_frames(data: dict | None, key_s: str, key_old: str, default_frames: int, lo: float = 0.05) -> float:
-    """读秒；没有则旧帧 × 0.05s。"""
+def json_s(data: dict | None, key_s: str, default_s: float, lo: float = 0.05) -> float:
+    """只读秒字段；没有则用秒默认。旧帧键忽略。"""
     src = data or {}
+    for old in _LEGACY_S_KEYS.get(key_s, ()):
+        if old in src:
+            warn_legacy_key(old)
     if key_s in src and src[key_s] is not None:
         try:
             return max(lo, float(src[key_s]))
         except (TypeError, ValueError):
             pass
-    if key_old in src and src[key_old] is not None:
-        try:
-            return max(lo, int(src[key_old]) * LEGACY_FRAME_MS / 1000.0)
-        except (TypeError, ValueError):
-            pass
-    return max(lo, float(default_frames) * LEGACY_FRAME_MS / 1000.0)
+    return max(lo, float(default_s))
 
 
 def parse_hold_ms(item, default: int | None = None) -> int | None:
+    """只读 hold_ms。有 hold_frames/frames 则警告并忽略。"""
     if not isinstance(item, dict):
         return default
+    if item.get(HOLD_FRAMES_KEY) is not None:
+        warn_legacy_key(HOLD_FRAMES_KEY)
+    if item.get("frames") is not None and HOLD_MS_KEY not in item:
+        warn_legacy_key("frames")
     if item.get(HOLD_MS_KEY) is not None:
         try:
             return max(0, int(item[HOLD_MS_KEY]))
         except (TypeError, ValueError):
             return default
-    raw = item.get(HOLD_FRAMES_KEY, item.get("frames"))
-    if raw is None:
-        return default
-    try:
-        return max(0, int(raw) * LEGACY_FRAME_MS)
-    except (TypeError, ValueError):
-        return default
+    return default
 
 
 @dataclass(frozen=True)

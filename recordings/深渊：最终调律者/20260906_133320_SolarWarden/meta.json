@@ -1,0 +1,32 @@
+{
+  "dungeon": "深渊：最终调律者",
+  "started_at": "20260906_133320",
+  "started_t_ns": 1788672800297502400,
+  "interval": 0.05,
+  "region": {
+    "x": 949,
+    "y": 475,
+    "width": 1600,
+    "height": 900
+  },
+  "format": "keys.jsonl + frames.jsonl (t_ns absolute)",
+  "yolo_weights": "D:\\Atrain\\runs\\solarwarden_d\\weights\\best.pt",
+  "yolo_classes": [
+    "boss",
+    "gate",
+    "loot",
+    "mon",
+    "player"
+  ],
+  "yolo": {
+    "weights": "D:\\Atrain\\runs\\solarwarden_d\\weights\\best.pt",
+    "conf": 0.1,
+    "iou": 0.7
+  },
+  "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260906_133320_SolarWarden",
+  "png_dir": "D:\\Desktop\\T\\test\\images\\solarwarden",
+  "character": "SolarWarden",
+  "keys_held_at_start": [],
+  "keys_count": 119,
+  "frames_count": 141
+}
