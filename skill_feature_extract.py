@@ -1,6 +1,7 @@
 """过图技能特征：快捷栏技能（含 SPACE）按下 → 按按下时现算的怪物分布整理。
 
 不进 fsm_core。相对坐标只在提取时算，不改 jsonl。
+调用方须对 frames/views 做 apply_mon_boss_corr（与 FSM 同一 mon_off），再算最远敌对与范围。
 落盘：skill_features/<地下城>/<角色>.json
 """
 from __future__ import annotations

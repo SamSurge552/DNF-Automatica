@@ -4,9 +4,9 @@
 > 对齐以 `TRAIN_ALIGN.md` 为准。架构以 `DECISIONS.md` 为准（**当前阶段定性见 §1.0**）。  
 > DECISIONS 第 4 节（并行卡住 / 不对称迟滞 / `gate.x > player.x`）**尚未落地**，也没并进 `FSM_DESIGN.txt`。不要用第 4 节覆盖 txt。
 
-生成时间：2026-09-06 11:45 (UTC+8)  
+生成时间：2026-09-06 13:05 (UTC+8)  
 项目根目录：`d:\Desktop\T\test`  
-本会话已做：回放提取区钉顶；「含FSM测试」勾选。
+本会话已做：审计 B1–B7 文档对齐（决策形状 / 连按分层 / 写盘两条 / §8 卫生）。A 类已落地。**请重提 skill_features**。
 
 > **组集脚本与 TRAIN_ALIGN 已确认步骤打架时，问用户改文档还是改代码。**  
 > **新旧想法冲突：用新的，事后告知即可。**  
@@ -25,6 +25,11 @@
 - 前进：门消失且已记下方向 → 过门。接近与捡物依次走：TAP → `th_ms` → HOLD。
 - 采集 PNG → `images/<角色>/`。回放叠图按**文件名**找图（角色夹 / 旧时间戳夹 / `meta.png_dir` / FSM `png/`），不靠地下城路径。
 - 回放右侧「过图技能特征」钉在顶上（参数/技能表可滚）。「提取同地下城全部 / 重新提取本图」默认只扫 `recordings/`；勾 **含FSM测试** 才并入 `FSM_TEST/`。提取本段仍用当前段。勾选写入 `_fsm_replay_ui.json` 的 `extract_include_fsm`。
+- **A1** 回城只 `tn_s` 秒（`t_ns` 差），txt 已去掉 TN 帧换算。
+- **A2** 补正 `apply_mon_boss_corr`：FSM / 提取 / 回放逻辑点同一偏移；jsonl 与叠图 PNG 仍原始。**改补正后请重提 skill_features。**
+- **A3** OCR 无关键词沿用上一帧 raw，再进 `dungeon_deb_step`。
+- **A5** 捡物等停下上限 **PW**（`pw_ms` 默认 3000）；超时蓝字「捡物等待超时 PW」后按当前掉落继续捡。A4 卡住恢复方向未改。
+- 卡住 `x_s` 应大于 max(最长技能持续, AX, AY, PW, 四向 Y)（秒）。
 
 回放 `python fsm_replay.py`。推荐段仍 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`（旧 PNG 在 `images/<时间戳>/`）。新采集叠图看 `images/<角色>/`。顶栏来源：全部 / 采集 / FSM测试。
 
@@ -44,7 +49,7 @@
 
 **发键：** `fsm_execute` + `key_inject`。点按 ms 默认 50。键位表【连按】→ COUNT 次点按 + 间隔 ms（默认 3 次 / 50ms）。一键拾取=左 Alt（VK）。参数在 `_fsm_replay_ui.json`。
 
-**连按分层（已收口）：** 核心 `step` 只出 `skill_slot` / `CAST`，`FsmParams` **没有** `mash_count`/`mash_gap_ms`，`send_label` 只写 `点按 t`。执行层按槽是否勾【连按】+ COUNT 连打。回放红字 / 实机字幕用 `mash_n_for_slot` 再拼 `连按N×`。COUNT/间隔只在 GUI json 与 `FsmExecutor`。mash COUNT 是全局执行参数还是技能表属性仍可再议。
+**连按分层（已定，见 DECISIONS §1.0）：** 核心 `step` 只出 `skill_slot` / `CAST`，`FsmParams` **没有** `mash_count`/`mash_gap_ms`，`send_label` 只写 `点按 t`。执行层按槽是否勾【连按】+ COUNT 连打。回放红字 / 实机字幕用 `mash_n_for_slot` 再拼 `连按N×`。COUNT/间隔只在 GUI json 与 `FsmExecutor`。mash COUNT 是全局执行参数还是技能表属性仍可再议（属 D）。
 
 GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写盘 `FSM_TEST/<图>/<时间戳>_<角色>/`（进图后才建段）。补正 `mon_corr_u/d/l/r`。
 
@@ -73,9 +78,9 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 核心禁止：`time` / `sleep` / 读文件 / 发键 / 截屏 / `random` / 模块级可变状态。ctx 值语义，不就地改。`t_ns` 必须单调不减，否则抛错。回放缺 `t_ns` 禁止用墙钟填充。
 
-决策形状：`FsmDecision`（state/flags/action/move_dir + 技能、CD、分布计数等）。卡住是状态 `卡住`；预热在 flags。`FsmAction.CAST` = 开打「立即释放」；`FsmAction.ATTACK` = 按住普攻 X（无 CD）；`FsmAction.PICK` = 捡物一键拾取。
+决策形状：`FsmDecision` 执行要消费 `state` / `flags` / `action` / `move_dir` / `move_dirs` / `skill_slot` / `skill_key`。宿主优先 `move_dirs`，空则回退 `move_dir`。`skill_slot`/`skill_key` 是决策输出（CAST 等），不是展示字段。诊断展示另列：`why` / CD / 分布计数 / `send_label` 等。卡住是状态 `卡住`；预热在 flags。`FsmAction.CAST` = 开打「立即释放」；`FsmAction.ATTACK` = 按住普攻 X（无 CD）；`FsmAction.PICK` = 捡物一键拾取。
 
-`FsmParams`：GX/GY、`ax_ms`/`ay_ms`、`xxx_ms`、`th_ms`（接近/捡物 TAP→HOLD 间隔）、`x_s`（卡住秒）、`y_ms`、`tn_s`（回城秒）、`mon_off_x/y`、`fight_plan`、`hotbar`、`dist_table`、`map_reset`。旧帧字段按 ×50ms / ×0.05s 读入。
+`FsmParams`：GX/GY、`ax_ms`/`ay_ms`、`xxx_ms`、`th_ms`（接近/捡物 TAP→HOLD 间隔）、`pw_ms`（捡物等停下上限）、`x_s`（卡住秒）、`y_ms`、`tn_s`（回城秒）、`mon_off_x/y`、`fight_plan`、`hotbar`、`dist_table`、`map_reset`。旧帧字段按 ×50ms / ×0.05s 读入。mash 不进 `FsmParams`。
 
 不要拆三个独立进程。不要把发键写进回放。
 
@@ -96,7 +101,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 | 层 | 路径 | 允许 |
 |----|------|------|
-| 写盘 | PNG=`images/<角色>/`；jsonl=`recordings/<地下城>/<时间戳>_<角色>/` | PNG + `keys.jsonl` + 带检测框的 `frames.jsonl`。采集当场 YOLO。`t_ns` 在截图完成后、推理前打 |
+| 写盘 | 采集：PNG=`images/<角色>/`；jsonl=`recordings/<地下城>/<时间戳>_<角色>/`。FSM测试：`FSM_TEST/<图>/<时间戳>_<角色>/`（OCR 进图后才建段） | 采集当场 YOLO。`t_ns` 在截图完成后、推理前打。FSM_TEST 有同样检测字段即可提特征 |
 | 回放 | `python fsm_replay.py` | 试 fill / 相对 / FSM；可写 `skill_features/`，不改 jsonl |
 | 组集 | `python export_dataset.py` | 仅 TRAIN_ALIGN **已确认**：held_frac、去 dup、丢第一帧、坐标原样 |
 
@@ -116,8 +121,9 @@ YOLO 权重已在内存且路径未变 → `YoloEngine.apply` **复用**。用�
 
 ### 写盘 / OCR / 键钩
 
-- **采集模式**是唯一写盘路径：点开始即 PNG + 键盘 + YOLO，无 OCR 开录。
-- 非管理员点开始 → 弹窗拒绝。开录 3 秒无新按键 → 弹窗中止并删段。
+- **采集写盘**：点开始即 PNG + 键盘 + YOLO（不经 OCR 开录）。管理员硬拦；3 秒无新按键删段。
+- **FSM测试写盘**：OCR 进图后才写 `FSM_TEST/`；城镇不录；回城停录，再进图新开一段。
+- 非管理员点开始（采集 / FSM测试发键）→ 弹窗拒绝。
 - 视觉 0.05s。OCR 只给自动化进图/回城（采集不用）。
 - 键钩进程内只挂一次。须整进程重启 GUI 才生效。
 - 开录 `GetAsyncKeyState` 一次 → `keys_held_at_start`（不算 3 秒门槛里的「新按键」）。
@@ -163,7 +169,8 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 
 ### 过图技能特征
 
-磁盘：`skill_feature_extract.py` 已按 txt。落盘仍是 `skill_features/<地下城>/<角色>.json`。旧 json 对不上，需重提。  
+磁盘：`skill_feature_extract.py` 已按 txt。落盘仍是 `skill_features/<地下城>/<角色>.json`。  
+补正变更后旧表作废，**请重提**。提取与 FSM 用同一 `mon_off`（回放提取前 `apply_mon_boss_corr`）。  
 回放提取按钮在右侧顶栏。「提取同地下城全部 / 重新提取本图」默认只采集；勾「含FSM测试」才扫 `FSM_TEST/`。不要靠顶栏来源下拉过滤提取范围。
 
 ### 主 GUI 模式
@@ -181,7 +188,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 
 前进：GX/GY 每帧相对当前门接近（点按→TH→按住）；一次性方向只给过门；两轴停或门消失 → AX/AY。  
 开打：排除 CD 后取文件序列第一个就绪（仅快捷栏单键/space）；最远敌对；范围异常仍然释放；没有就绪 → 最短持续帧；全 CD 普攻 X。等待显示技能和剩余帧。CAST 后 `hold_frames`。  
-捡物：PM/PT/PC；数量 **>PC** 一键拾取，**≤PC** 依次捡（点按→TH→按住，与前进接近相同）。FSM测试默认发键。点按 ms 默认 50。
+捡物：PM/PT/PC + **PW**（`pw_ms` 默认 3000，等停下上限）。超时结束等待，蓝字「捡物等待超时 PW」，按当前掉落继续（>PC 则 PICK，否则依次捡）。数量 **>PC** 一键拾取，**≤PC** 依次捡（点按→TH→按住）。检测框可仍为原始 YOLO；逻辑点已补正。
 
 ### 本会话覆盖的旧约定（不要当现行）
 
@@ -204,6 +211,10 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 | 左 Alt 扫码瞬点 | VK 左 Alt + 短按 |
 | FSM测试点开始即写 `FSM_TEST/` | **OCR 进图后才写**；回城停录，再进图新开一段 |
 | 同图提取一律扫 `recordings/` + `FSM_TEST/` | 默认只扫采集；勾 **含FSM测试** 才并入 |
+| 回城「TN 帧 / 按帧间隔换算」 | **只 tn_s 秒**（t_ns 差，不换帧） |
+| 补正只给 FSM | FSM / 提取 / 回放逻辑点同一补正；jsonl 原始；改后重提 |
+| OCR 无关键词立刻 false | 沿用上一帧 raw，再跑进图/回城 |
+| 捡物在动无限等 | **PW** 超时后继续步骤 2 |
 
 ### 归档
 

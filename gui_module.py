@@ -25,7 +25,7 @@ from central_controller import CentralController
 from window_align import enable_dpi_awareness, get_virtual_screen, get_window_at_point, find_window_by_process
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
-from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_TOWN_S, json_ms, json_s_from_frames
+from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_PW_MS, DEFAULT_TOWN_S, json_ms, json_s_from_frames
 from skill_feature_extract import DEFAULT_E, DEFAULT_F, skill_table_missing
 
 
@@ -339,6 +339,7 @@ class App(tk.Tk):
         self.fsm_pm_var = tk.StringVar(value="10")
         self.fsm_pc_var = tk.StringVar(value="5")
         self.fsm_pt_var = tk.StringVar(value="3")
+        self.fsm_pw_var = tk.StringVar(value=str(DEFAULT_PW_MS))
         self.fsm_e_var = tk.StringVar(value=str(DEFAULT_E))
         self.fsm_f_var = tk.StringVar(value=str(DEFAULT_F))
         self.fsm_town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
@@ -373,6 +374,7 @@ class App(tk.Tk):
             self.fsm_pm_var,
             self.fsm_pc_var,
             self.fsm_pt_var,
+            self.fsm_pw_var,
             self.fsm_e_var,
             self.fsm_f_var,
             self.fsm_town_s_var,
@@ -1072,6 +1074,7 @@ class App(tk.Tk):
         spin(r4, "掉落动 PM", self.fsm_pm_var, 0, 200)
         spin(r4, "一键拾取 PC", self.fsm_pc_var, 0, 40)
         spin(r4, "停下 PT", self.fsm_pt_var, 1, 60)
+        spin(r4, "PW ms", self.fsm_pw_var, 0, 20000, 6)
 
         r_ef = ttk.Frame(body)
         r_ef.pack(fill=tk.X, pady=(6, 0))
@@ -1128,7 +1131,7 @@ class App(tk.Tk):
         ).grid(row=2, column=1)
         ttk.Label(
             pad,
-            text="滑块方向=你希望角色往哪边站。上：YOLO 的 MON/BOSS 的 Y 全部减去该值；左：X 全部减去。同轴互斥。预览框仍画原始检测，只改 FSM 用的坐标。",
+            text="滑块方向=你希望角色往哪边站。上：YOLO 的 MON/BOSS 的 Y 全部减去该值；左：X 全部减去。同轴互斥。检测框/jsonl 仍原始；FSM、提取、回放逻辑点用补正。改补正后请重提 skill_features。",
             foreground="#666",
             wraplength=420,
             justify=tk.LEFT,
@@ -1137,7 +1140,7 @@ class App(tk.Tk):
 
         ttk.Label(
             body,
-            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒：连续无地下城关键词达该秒数即回城（核心直接用秒）。前进接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。距门 >GX/>GY 才继续接近；两轴都停、或本帧门没了，沿进前进时记下的方向再走 AX/AY 毫秒。卡住后状态改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。S=怪物分布相对坐标/数量相差不超过该百分比则同一分布。PM=掉落位移超过该像素算在动；连续 PT 帧不动才判定停下；数量>PC 一键拾取，否则挨个捡。E/F=提取群单与假释放。XXX=快捷栏全 CD 时按住普攻 X 的毫秒。点按 ms=技能/左Alt 按下保持的毫秒。连按：键位表勾了【连按】的技能，执行层打 COUNT 次点按（归属未决，暂放本面板）。该图有【CD重置】时，击败 BOSS 数 +1 清 CD。与回放共用 json：改完立刻写入；点开始会先读文件。",
+            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒 tn_s：连续无地下城关键词达该秒数即回城（不换帧）。OCR 无关键词则沿用上一帧再进进图/回城。前进接近与捡物：点按 → TH 毫秒 → 按住。距门 >GX/>GY 才接近；两轴停或门没了再 AX/AY 毫秒。卡住后 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)。S=分布相似百分比。PM/PT=掉落在动；PW=等停下上限毫秒，超时按当前掉落继续捡。数量>PC 一键拾取。E/F=提取。XXX=全 CD 普攻毫秒。点按 ms=技能/左Alt。连按 COUNT 在执行层。MON/BOSS 补正用于 FSM/提取/回放逻辑点，jsonl 仍原始，改后请重提。与回放共用 json：改完立刻写入；点开始会先读文件。",
             foreground="#666",
             wraplength=460,
             justify=tk.LEFT,
@@ -1206,6 +1209,11 @@ class App(tk.Tk):
         finally:
             self._fsm_corr_lock = False
         self._refresh_fsm_corr_summary()
+        ox, oy = mon_off_from_corr(*self._corr_tuple())
+        prev_off = getattr(self, "_corr_off_warned", None)
+        if self._fsm_mlg_persist and prev_off is not None and prev_off != (ox, oy):
+            self.log("补正已改：旧 skill_features 作废，请在回放「重新提取本图」。jsonl 未改。")
+        self._corr_off_warned = (ox, oy)
         self._on_fsm_mlg_edit()
 
     @staticmethod
@@ -1228,6 +1236,7 @@ class App(tk.Tk):
         th_ms = 50
         e, f, town_s = DEFAULT_E, DEFAULT_F, float(DEFAULT_TOWN_S)
         tap_ms = 50
+        pw_ms = DEFAULT_PW_MS
         data = {}
         if FSM_UI_PATH.is_file():
             try:
@@ -1241,6 +1250,10 @@ class App(tk.Tk):
                 pm = max(0, int(data.get("pm", data.get("lm", pm))))
                 pc = max(0, int(data.get("pc", data.get("lc", pc))))
                 pt = max(1, int(data.get("pt", pt)))
+                try:
+                    pw_ms = max(0, int(data.get("pw_ms", pw_ms)))
+                except (TypeError, ValueError):
+                    pw_ms = DEFAULT_PW_MS
                 tap_ms = max(1, min(200, int(data.get("tap_ms", tap_ms))))
                 mash_count = max(1, min(15, int(data.get("mash_count", mash_count))))
                 mash_gap = max(10, min(300, int(data.get("mash_gap_ms", mash_gap))))
@@ -1273,6 +1286,7 @@ class App(tk.Tk):
         self.fsm_pm_var.set(str(pm))
         self.fsm_pc_var.set(str(pc))
         self.fsm_pt_var.set(str(pt))
+        self.fsm_pw_var.set(str(pw_ms))
         self.fsm_e_var.set(str(e))
         self.fsm_f_var.set(str(f))
         self.fsm_town_s_var.set(str(town_s))
@@ -1355,6 +1369,10 @@ class App(tk.Tk):
             data["pt"] = max(1, int(str(self.fsm_pt_var.get()).strip() or 3))
         except (TypeError, ValueError):
             data["pt"] = 3
+        try:
+            data["pw_ms"] = max(0, int(str(self.fsm_pw_var.get()).strip() or DEFAULT_PW_MS))
+        except (TypeError, ValueError):
+            data["pw_ms"] = DEFAULT_PW_MS
         try:
             data["e"] = max(0, int(str(self.fsm_e_var.get()).strip() or DEFAULT_E))
         except (TypeError, ValueError):

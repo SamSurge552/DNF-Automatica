@@ -46,6 +46,7 @@ class FsmAction(Enum):
 _RECOVER_DIRS = (FsmDir.UP, FsmDir.DOWN, FsmDir.LEFT, FsmDir.RIGHT)
 _MOVE_DIR_ORDER = (FsmDir.UP, FsmDir.DOWN, FsmDir.LEFT, FsmDir.RIGHT)
 DEFAULT_TH_MS = 50
+DEFAULT_PW_MS = 3000
 
 
 def _norm_dirs(dirs) -> tuple[FsmDir, ...]:
@@ -199,6 +200,7 @@ class FsmParams:
     pt: int = 3
     xxx_ms: int = 1000
     th_ms: int = DEFAULT_TH_MS  # 捡物/前进接近：点按后等到按住的间隔
+    pw_ms: int = DEFAULT_PW_MS  # 捡物等停下上限；超时后按当前掉落继续步骤 2
     tn_s: float = DEFAULT_TOWN_S  # 回城：连续无地下城关键词的秒数
     fight_plan: tuple[DistSkillPlan, ...] = ()
     hotbar: tuple[FightSkill, ...] = ()
@@ -274,6 +276,8 @@ class FsmContext:
     loot_targets: tuple[tuple[float, float], ...] = ()
     loot_dir: FsmDir | None = None
     loot_stop: _Deb = field(default_factory=_Deb)
+    loot_wait_t: int | None = None  # 进入「等停下」的 t_ns
+    loot_wait_done: bool = False  # 本轮捡物已 PW 超时，不再无限等
     dash_want: tuple[FsmDir, ...] = ()
     dash_phase: int = 0
     dash_left: int = 0
@@ -590,6 +594,30 @@ def mon_off_from_corr(u: int, dwn: int, left: int, right: int) -> tuple[int, int
 
 def mon_off_from_dict(data: dict | None) -> tuple[int, int]:
     return mon_off_from_corr(*mon_corr_from_dict(data))
+
+
+def apply_mon_boss_corr(data: dict | None, ox: int = 0, oy: int = 0) -> dict:
+    """读时平移 mon_xy / boss_xy。浅拷贝，不改入参、不写 jsonl。"""
+    src = dict(data or {})
+    dx, dy = int(ox), int(oy)
+    if not dx and not dy:
+        return src
+    src["mon_xy"] = [list(p) for p in _shift_xy(_parse_xy_list(src.get("mon_xy")), dx, dy)]
+    src["boss_xy"] = [list(p) for p in _shift_xy(_parse_xy_list(src.get("boss_xy")), dx, dy)]
+    return src
+
+
+def stuck_x_s_floor(params: FsmParams) -> float:
+    """卡住 x_s 建议下限（秒）：max(XXX, AX, AY, PW, 四向 Y) / 1000。技能表最长持续由宿主另算。"""
+    ms = max(
+        int(params.xxx_ms),
+        int(params.ax_ms),
+        int(params.ay_ms),
+        int(params.pw_ms),
+        int(params.y_ms) * 4,
+        1,
+    )
+    return ms / 1000.0
 
 
 def _shift_xy(
@@ -1114,6 +1142,8 @@ def _intent_label(
     if state is FsmState.LOOT:
         if loot_note == "等待停下":
             return "掉落在动 等待停下"
+        if loot_note.startswith("捡物等待超时 PW"):
+            return loot_note
         if action is FsmAction.PICK or loot_note == "一键拾取":
             return "数量>PC 一键拾取"
         if loot_note == "等消失":
@@ -1178,6 +1208,8 @@ def _method_flow(
         steps = ("1掉落在动?", "2数量>PC?")
         if loot_note == "等待停下":
             return steps, 0
+        if loot_note.startswith("捡物等待超时 PW"):
+            return steps, 1
         return steps, 1
     if state is FsmState.ADVANCE:
         steps = ("1确认方向", "2前进", "3过门")
@@ -1335,14 +1367,16 @@ def step(
     pt = max(1, int(params.pt))
     xxx_ms = max(1, int(params.xxx_ms))
     th_ms = max(0, int(params.th_ms))
+    pw_ms = max(0, int(params.pw_ms))
     tn_s = max(0.0, float(params.tn_s))
     step_ms = dt_ms(ctx.last_t_ns, t)
     ox, oy = int(params.mon_off_x), int(params.mon_off_y)
     if ox or oy:
+        corr = apply_mon_boss_corr({"mon_xy": snap.mon_xy, "boss_xy": snap.boss_xy}, ox, oy)
         snap = replace(
             snap,
-            mon_xy=_shift_xy(snap.mon_xy, ox, oy),
-            boss_xy=_shift_xy(snap.boss_xy, ox, oy),
+            mon_xy=_parse_xy_list(corr.get("mon_xy")),
+            boss_xy=_parse_xy_list(corr.get("boss_xy")),
         )
     n_seen = ctx.n_seen + 1
 
@@ -1507,6 +1541,8 @@ def step(
     loot_targets: tuple[tuple[float, float], ...] = ()
     loot_dir = None
     loot_stop = _Deb()
+    loot_wait_t = None
+    loot_wait_done = False
     move_dirs: tuple[FsmDir, ...] = ()
     adv_dirs: tuple[FsmDir, ...] = ()
     adv_phase = 0
@@ -1589,6 +1625,25 @@ def step(
             (not raw_moving),
             pt,
         )
+        loot_wait_done = False if just_entered else bool(ctx.loot_wait_done)
+        loot_wait_t = None if just_entered else ctx.loot_wait_t
+        timed_out = False
+        if loot_wait_done:
+            still_ok = True
+        elif loot_stop.judged:
+            still_ok = True
+            loot_wait_t = None
+        else:
+            if loot_wait_t is None:
+                loot_wait_t = t
+            waited_ms = (t - loot_wait_t) / 1e6
+            if pw_ms > 0 and waited_ms >= pw_ms:
+                still_ok = True
+                loot_wait_done = True
+                timed_out = True
+                loot_wait_t = None
+            else:
+                still_ok = False
         action, move_dir, loot_targets, loot_dir, loot_note = _loot_intent(
             pos=pos,
             loot_xy=snap.loot_xy,
@@ -1596,10 +1651,15 @@ def step(
             targets=ctx.loot_targets if not just_entered else (),
             loot_dir=ctx.loot_dir if not just_entered else None,
             just_entered=just_entered,
-            still_ok=loot_stop.judged,
+            still_ok=still_ok,
             pm=pm,
             pc=pc,
         )
+        if timed_out or loot_wait_done:
+            if loot_note == "等待停下":
+                loot_note = "捡物等待超时 PW"
+            else:
+                loot_note = f"捡物等待超时 PW {loot_note}".strip()
         if loot_note:
             why += f"  {loot_note}"
     else:
@@ -1705,6 +1765,8 @@ def step(
         loot_targets=loot_targets if state is FsmState.LOOT else (),
         loot_dir=loot_dir if state is FsmState.LOOT else None,
         loot_stop=loot_stop if state is FsmState.LOOT else _Deb(),
+        loot_wait_t=loot_wait_t if state is FsmState.LOOT else None,
+        loot_wait_done=loot_wait_done if state is FsmState.LOOT else False,
         dash_want=dash_want,
         dash_phase=dash_phase,
         dash_left=dash_left,

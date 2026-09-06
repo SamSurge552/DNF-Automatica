@@ -17,6 +17,7 @@
   "pm": 20,
   "pc": 5,
   "pt": 3,
+  "pw_ms": 3000,
   "town_s": 30.0,
   "run_press": 2,
   "loot_hold_ms": 250,
@@ -39,7 +40,7 @@
     }
   },
   "session_source": "全部",
-  "extract_include_fsm": true,
+  "extract_include_fsm": false,
   "last_session": "FSM_TEST/深渊：最终调律者/20260905_182933_SolarWarden",
   "mon_corr_u": 0,
   "mon_corr_d": 0,

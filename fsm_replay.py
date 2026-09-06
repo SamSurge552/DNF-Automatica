@@ -26,8 +26,10 @@ from fsm_core import (
     FsmState,
     run_track,
     MON_CORR_MAX,
+    apply_mon_boss_corr,
     mon_corr_from_dict,
     mon_off_from_corr,
+    DEFAULT_PW_MS,
     DEFAULT_TOWN_S,
     send_keys_label,
     json_ms,
@@ -109,12 +111,12 @@ HELP_PARAMS = (
     "回城秒：连续无地下城关键词达该秒数即回城（核心直接用秒，不换帧）。回放 jsonl 无 OCR 时默认已进图。\n"
     "S%：开打出现时 MON 群相似。\n"
     "F%：杀 MON 效率低于该百分比记假释放（不进序列 / 范围 / CD）。\n"
-    "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。数量 > PC 一键拾取，否则挨个捡。\n"
-    "卡住：同一流程状态连续 X 秒则改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。\n"
+    "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。PW：等停下上限毫秒，超时结束等待并按当前掉落继续捡（蓝字「捡物等待超时 PW」）。数量 > PC 一键拾取，否则挨个捡。\n"
+    "卡住：同一流程状态连续 X 秒则改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)（秒）。\n"
     "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
     "点按 ms：发键层技能/左Alt 按下保持的毫秒，组合键步骤间隔相同。与主面板共用 json。\n"
     "连按 COUNT / 间隔 ms：执行层参数（不进核心）。红字由回放按槽是否勾连按 + COUNT 拼出来。\n"
-    "MON/BOSS 补正：上下左右滑块，角色要往哪边站就把 YOLO 的 MON/BOSS 坐标往哪边挪（上=Y 减，左=X 减）。只影响 FSM，不改 jsonl。\n"
+    "MON/BOSS 补正：上下左右滑块。FSM / 提取 / 回放逻辑点用同一偏移；jsonl 与叠图 PNG 仍是原始检测。改补正后旧 skill_features 作废，请重新提取本图。\n"
     "叠图：把该帧 PNG 铺到坐标网上（半透明、最上层）。对齐=截屏像素与 jsonl 同一套；相对坐标时图平移使 player 落在盘面中心。\n"
     "改完立刻写入共用 json，回放当场重算；FSM测试点开始（或测试中再改）会读这份，不必另同步。"
 )
@@ -131,6 +133,7 @@ HELP_EXTRACT = (
     "持续结束后杀 MON 数 > E → 群，否则为单。\n"
     "杀 MON 效率 < F% → 假释放（不进序列 / 范围 / CD）。\n"
     "怪物分布按按下那一帧现算，不沿用 FSM 当时的状态。\n"
+    "MON/BOSS 用当前补正（与 FSM 同一套）；jsonl 不改。改补正后请重新提取本图。\n"
     "地图【CD重置】：提取发现短于 CD 的间隔后写入；运行时击败 BOSS +1 才清 CD。\n"
     "「提取同地下城全部 / 重新提取本图」默认只扫 recordings/ 采集段。勾「含FSM测试」才并入 FSM_TEST。提取本段始终用当前这一段。"
 )
@@ -277,6 +280,7 @@ def compute_draft_track(
     pt: int = 3,
     xxx_ms: int = 1000,
     th_ms: int = 50,
+    pw_ms: int = 3000,
     fight_plan=(),
     hotbar=(),
     dist_table=(),
@@ -304,6 +308,7 @@ def compute_draft_track(
             pt=pt,
             xxx_ms=xxx_ms,
             th_ms=th_ms,
+            pw_ms=int(pw_ms),
             fight_plan=tuple(fight_plan or ()),
             hotbar=tuple(hotbar or ()),
             dist_table=tuple(dist_table or ()),
@@ -763,6 +768,7 @@ class FsmReplayApp(tk.Tk):
         self.pm_var = tk.StringVar(value=str(DEFAULT_PM))
         self.pc_var = tk.StringVar(value=str(DEFAULT_PC))
         self.pt_var = tk.StringVar(value=str(DEFAULT_PT))
+        self.pw_var = tk.StringVar(value=str(DEFAULT_PW_MS))
         self.town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
         self.run_press_var = tk.StringVar(value=str(RUN_PRESS_GT))
         self.loot_hold_var = tk.StringVar(value=str(LOOT_HOLD_DEFAULT))
@@ -901,6 +907,8 @@ class FsmReplayApp(tk.Tk):
         self._spin(r_loot_fsm, self.pc_var, frm=0, to=40).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_loot_fsm, text="停下 PT").pack(side=tk.LEFT)
         self._spin(r_loot_fsm, self.pt_var).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_loot_fsm, text="PW ms").pack(side=tk.LEFT)
+        self._spin(r_loot_fsm, self.pw_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_loot_fsm, text="回城秒").pack(side=tk.LEFT)
         self._spin(r_loot_fsm, self.town_s_var, frm=1, to=120).pack(side=tk.LEFT, padx=(2, 0))
         r_run = ttk.Frame(params)
@@ -1133,6 +1141,7 @@ class FsmReplayApp(tk.Tk):
             "pm": self._spin_n(self.pm_var, DEFAULT_PM, lo=0),
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
+            "pw_ms": self._spin_n(self.pw_var, DEFAULT_PW_MS, lo=0),
             "xxx_ms": self._spin_n(self.xxx_var, 1000),
             "th_ms": self._spin_n(self.th_var, 50, lo=0),
             "fight_plan": self._fight_plan(),
@@ -1207,7 +1216,17 @@ class FsmReplayApp(tk.Tk):
         finally:
             self._corr_lock = False
         self._refresh_corr_summary()
-        self._on_fsm_opts()
+        ox, oy = mon_off_from_corr(*self._corr_tuple())
+        prev_off = getattr(self, "_corr_off_warned", None)
+        if prev_off is not None and prev_off != (ox, oy) and getattr(self, "_persist_ok", False):
+            self._warn_corr_reextract()
+        self._corr_off_warned = (ox, oy)
+        self._save_ui_settings()
+        if self.data:
+            self._rebuild_views()
+            self._show()
+        else:
+            self._on_fsm_opts()
 
     @staticmethod
     def _spin_n(var: tk.StringVar, default: int, lo: int = 1) -> int:
@@ -1523,6 +1542,7 @@ class FsmReplayApp(tk.Tk):
             ("pm", self.pm_var, DEFAULT_PM, 0),
             ("pc", self.pc_var, DEFAULT_PC, 0),
             ("pt", self.pt_var, DEFAULT_PT, 1),
+            ("pw_ms", self.pw_var, DEFAULT_PW_MS, 0),
             ("town_s", self.town_s_var, int(DEFAULT_TOWN_S), 1),
             ("run_press", self.run_press_var, RUN_PRESS_GT, 0),
             ("e", self.e_var, 3, 0),
@@ -1637,6 +1657,7 @@ class FsmReplayApp(tk.Tk):
             "pm": self._spin_n(self.pm_var, DEFAULT_PM, lo=0),
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
+            "pw_ms": self._spin_n(self.pw_var, DEFAULT_PW_MS, lo=0),
             "town_s": self._spin_f(self.town_s_var, float(DEFAULT_TOWN_S), lo=0.05),
             "run_press": self._spin_n(self.run_press_var, RUN_PRESS_GT, lo=0),
             "loot_hold_ms": self._spin_n(self.loot_hold_var, LOOT_HOLD_DEFAULT),
@@ -1901,13 +1922,25 @@ class FsmReplayApp(tk.Tk):
         d = self.data
         if not d:
             return
+        ox, oy = mon_off_from_corr(*self._corr_tuple())
+        frames = d["frames"]
+        if ox or oy:
+            frames = [apply_mon_boss_corr(fr, ox, oy) for fr in frames]
         d["views"] = views_for_frames(
-            d["frames"],
+            frames,
             fill=bool(self.fill_var.get()),
             relative=bool(self.rel_var.get()),
             height=float(d["game_h"]) if d.get("game_h") else None,
         )
         self._rebuild_draft()
+
+    def _warn_corr_reextract(self):
+        msg = "补正已改：旧 skill_features 作废，请「重新提取本图」。jsonl 未改。"
+        try:
+            self.extract_prog_var.set("补正已改·请重提")
+            self._set_extract_result(msg)
+        except (tk.TclError, AttributeError):
+            pass
 
     def _fight_plan(self):
         data = self._feature_cache
@@ -2344,8 +2377,12 @@ class FsmReplayApp(tk.Tk):
             slot_durs if slot_durs is not None else self._slot_durs(),
         )
         gh = data.get("game_h")
+        ox, oy = mon_off_from_corr(*self._corr_tuple())
+        view_frames = frames
+        if ox or oy:
+            view_frames = [apply_mon_boss_corr(fr, ox, oy) for fr in frames]
         views = views_for_frames(
-            frames,
+            view_frames,
             fill=True,
             relative=True,
             height=float(gh) if gh else None,
@@ -2729,6 +2766,9 @@ class FsmReplayApp(tk.Tk):
             hint = "相对 player（y 向上）"
         else:
             hint = "区域左下角绝对（y 向上）"
+        ox, oy = mon_off_from_corr(*self._corr_tuple())
+        if ox or oy:
+            hint += " · 逻辑点已补正（叠图/jsonl 原始）"
         if not has_xy:
             hint += " · 旧段仅 player"
 

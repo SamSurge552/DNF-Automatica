@@ -12,6 +12,7 @@ from fsm_core import (
     FsmContext,
     FsmParams,
     FsmState,
+    DEFAULT_PW_MS,
     DEFAULT_TOWN_S,
     dungeon_deb_step,
     intent_text,
@@ -19,6 +20,7 @@ from fsm_core import (
     send_keys_label,
     snapshot_from_detect,
     step,
+    stuck_x_s_floor,
     json_ms,
     json_s_from_frames,
 )
@@ -178,9 +180,11 @@ class StatusAnalysisModule:
         except (TypeError, ValueError):
             self._frame_interval = 0.05
         self._ocr_kw = False
+        self._ocr_kw_last = False
         self._ocr_dun = FsmContext().dungeon
         self._saw_dungeon = False
         self._plan_missing_logged = False
+        self._logged_loot_pw = False
 
         if not self.ocr:
             self.gui.log("错误: OCR引擎未初始化，无法启动（各模式都要进图判定）。")
@@ -508,6 +512,7 @@ class StatusAnalysisModule:
                 "pt": p.pt,
                 "xxx_ms": p.xxx_ms,
                 "th_ms": p.th_ms,
+                "pw_ms": p.pw_ms,
                 "tn_s": p.tn_s,
                 "town_s": getattr(self, "_town_s", DEFAULT_TOWN_S),
                 "mon_off_x": p.mon_off_x,
@@ -668,6 +673,10 @@ class StatusAnalysisModule:
             th_ms = max(0, min(300, int(data.get("th_ms", mash_gap))))
         except (TypeError, ValueError):
             th_ms = int(mash_gap)
+        try:
+            pw_ms = max(0, int(data.get("pw_ms", DEFAULT_PW_MS)))
+        except (TypeError, ValueError):
+            pw_ms = DEFAULT_PW_MS
         self._f = f
         self._town_s = town_s
         self._tap_ms = tap_ms
@@ -686,7 +695,7 @@ class StatusAnalysisModule:
         if char and dun and feats is None and not self._plan_missing_logged:
             self._plan_missing_logged = True
             self.gui.log(f"提示: 无过图技能文件 {dun}/{char}，开打按「无技能可取」走。")
-        return FsmParams(
+        params = FsmParams(
             m=m,
             l=l,
             g=g,
@@ -702,6 +711,7 @@ class StatusAnalysisModule:
             pt=pt,
             xxx_ms=xxx_ms,
             th_ms=th_ms,
+            pw_ms=pw_ms,
             tn_s=float(town_s),
             fight_plan=load_fight_plan(char, dun, f=f) if char and dun else (),
             hotbar=load_hotbar(char) if char else (),
@@ -710,6 +720,14 @@ class StatusAnalysisModule:
             mon_off_x=ox,
             mon_off_y=oy,
         )
+        floor_s = stuck_x_s_floor(params)
+        if params.x_s + 1e-9 < floor_s and not getattr(self, "_stuck_floor_logged", False):
+            self._stuck_floor_logged = True
+            self.gui.log(
+                f"提示: 卡住 X秒={params.x_s:g} 小于建议下限 {floor_s:g}s"
+                f"（max(XXX,AX,AY,PW,四向Y)）。技能表最长持续也计入此下限。"
+            )
+        return params
 
     def _fsm_state_from_features(self, features: dict, t_ns: int):
         mtime = self._fsm_ui_file_mtime()
@@ -722,6 +740,13 @@ class StatusAnalysisModule:
             dungeon_kw=bool(getattr(self, "_ocr_kw", False)),
         )
         decision, self._fsm_ctx = step(snap, self._fsm_ctx, self._fsm_params)
+        lab = decision.intent_label or ""
+        if "捡物等待超时 PW" in lab:
+            if not getattr(self, "_logged_loot_pw", False):
+                self._logged_loot_pw = True
+                self.gui.log("捡物等待超时 PW：结束等停下，按当前掉落继续捡。")
+        elif decision.state is not FsmState.LOOT:
+            self._logged_loot_pw = False
         if decision.state is FsmState.RETURN:
             self._confirm_town()
         elif decision.state not in (FsmState.WAIT, FsmState.RETURN) and self.current_dungeon_name:
@@ -1027,8 +1052,15 @@ class StatusAnalysisModule:
         if len(above) > 1:
             self.gui.log(f"  - 警告: 匹配到多个地下城关键词 {[h[0] for h in above]}，默认使用第一个: '{matched_dungeon}'")
 
+        raw_kw = bool(matched_dungeon)
+        if raw_kw:
+            cur_kw = True
+        else:
+            cur_kw = bool(getattr(self, "_ocr_kw_last", False))
+        self._ocr_kw_last = raw_kw
+        self._ocr_kw = cur_kw
+
         if matched_dungeon:
-            self._ocr_kw = True
             self._saw_dungeon = True
             entered_new = self.game_state != "DUNGEON" or self.current_dungeon_name != matched_dungeon
             if entered_new:
@@ -1049,8 +1081,6 @@ class StatusAnalysisModule:
                 if self.fsm_test:
                     self._stop_fsm_record()
                     self._start_fsm_record(self._fsm_record_config or {})
-        else:
-            self._ocr_kw = False
 
     def offer_ocr_frame(self, frame) -> None:
         if not self.is_running or frame is None:
