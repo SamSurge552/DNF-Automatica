@@ -4,9 +4,9 @@
 > 对齐以 `TRAIN_ALIGN.md` 为准。架构以 `DECISIONS.md` 为准（**当前阶段定性见 §1.0**）。  
 > DECISIONS 第 4 节（并行卡住 / 不对称迟滞 / `gate.x > player.x`）**尚未落地**，也没并进 `FSM_DESIGN.txt`。不要用第 4 节覆盖 txt。
 
-生成时间：2026-09-05 17:05 (UTC+8)  
+生成时间：2026-09-06 11:45 (UTC+8)  
 项目根目录：`d:\Desktop\T\test`  
-本会话已做：修 `is_boss`；回放扫 FSM_TEST；FSM测试进图后写盘；时间参数改 ms/秒。
+本会话已做：回放提取区钉顶；「含FSM测试」勾选。
 
 > **组集脚本与 TRAIN_ALIGN 已确认步骤打架时，问用户改文档还是改代码。**  
 > **新旧想法冲突：用新的，事后告知即可。**  
@@ -17,13 +17,16 @@
 
 ## 1. 下一对话先做
 
-**边打边调。** 回放启动崩溃已修。FSM测试默认发键；**进图后**写 `FSM_TEST/`。对照绿/蓝字改 **FSM设置**。txt 没改就不要推翻核心。范围异常仍释放，不要发明走近怪。组集 fill/相对未确认。
+**边打边调，不要另开架构。** 回放勾「叠图对比 PNG」看检测是否压在人/怪/门上；对不齐先确认图文件找到了、再讨论变换。FSM测试调 GX/GY/AX/AY/`th_ms`。txt 没改不要推翻核心。范围异常仍释放，不要发明走近怪。组集 fill/相对未确认。
 
-### 1.0 本会话已修：回放 `is_boss`
+### 1.0 本会话已做（2026-09-05 晚～09-06）
 
-`casts_from_tracks` 曾在 `classify_dist` 之前用 `is_boss` → `UnboundLocalError`。现先 `classify_dist`，再 `is_boss` / `kind`。BOSS 房仍 `kind=None`，仍留 `killed_mon`。未改其它提取规则。`python fsm_replay.py` 已能开窗（推荐段 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`）。
+- 主面板当前状态只显示城镇 / 地下城·图名。日志无 `FSM#`；OCR 小框有日志。
+- 前进：门消失且已记下方向 → 过门。接近与捡物依次走：TAP → `th_ms` → HOLD。
+- 采集 PNG → `images/<角色>/`。回放叠图按**文件名**找图（角色夹 / 旧时间戳夹 / `meta.png_dir` / FSM `png/`），不靠地下城路径。
+- 回放右侧「过图技能特征」钉在顶上（参数/技能表可滚）。「提取同地下城全部 / 重新提取本图」默认只扫 `recordings/`；勾 **含FSM测试** 才并入 `FSM_TEST/`。提取本段仍用当前段。勾选写入 `_fsm_replay_ui.json` 的 `extract_include_fsm`。
 
-回放顶栏有**来源**：全部 / 采集 / FSM测试。列表前缀 `[采集]` / `[FSM测试]`。`FSM_TEST/` 尚不存在时切到 FSM测试会是空列表（点刷新）。地下城名占位 `FSM测试` 时退回该段父目录。
+回放 `python fsm_replay.py`。推荐段仍 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`（旧 PNG 在 `images/<时间戳>/`）。新采集叠图看 `images/<角色>/`。顶栏来源：全部 / 采集 / FSM测试。
 
 ### 1.1 已落地（对照 txt）
 
@@ -52,7 +55,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 长期：地下城 × 角色 → 通关操作 + YOLO 特征 → 自动化。  
 **当前对照（DECISIONS §1.0）：** 模块化 agent（YOLO+OCR 感知 → FSM 决策 → 快捷栏执行），**非行为克隆**。
 
-**现在卡在哪：** 回放能开。下一步边打边调开打/捡物/前进手感。回放不发键。组集清洗未确认。
+**现在卡在哪：** 手感（`th_ms` / 过门 / 开打）和叠图是否像素级对齐，都还是试验中。回放不发键。组集清洗未确认。
 
 **现成盘面（旧表结构，提取改完要重提）：** `skill_features/深渊：最终调律者/SolarWarden.json`；`skill_binds/SolarWarden.json`；YOLO `solarwarden_b`。推荐回放段 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`。
 
@@ -101,8 +104,8 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 ### 过图 YOLO
 
-默认 **`solarwarden_b`**：`D:/Atrain/runs/solarwarden_b/weights/best.pt`  
-五类 `boss / gate / loot / mon / player`。conf 0.1、iou 0.7。`varien_t` 禁止当过图 YOLO。
+默认过图权重仍是 **`solarwarden_b`**（GUI 不切）。  
+**`solarwarden_d`** 已训完：freeze=0 mosaic=0，yolo26n，训练 conf=0.15 iou=0.5。权重 `D:/Atrain/runs/solarwarden_d/weights/best.pt`。
 
 人工校对标注：与 png **同目录** 的 X-AnyLabeling **json**（格式同 `Aset/solarwarden/solarwarden_b`）。`Xout/` 只给 X-AnyLabeling **导出** YOLO txt，自动标不要往 Xout 写。`auto_label.py` 只写 sidecar json，且逐张推理（禁止把路径列表一次丢给 predict）。
 
@@ -160,7 +163,8 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 
 ### 过图技能特征
 
-磁盘：`skill_feature_extract.py` 已按 txt。落盘仍是 `skill_features/<地下城>/<角色>.json`。旧 json 对不上，需重提。
+磁盘：`skill_feature_extract.py` 已按 txt。落盘仍是 `skill_features/<地下城>/<角色>.json`。旧 json 对不上，需重提。  
+回放提取按钮在右侧顶栏。「提取同地下城全部 / 重新提取本图」默认只采集；勾「含FSM测试」才扫 `FSM_TEST/`。不要靠顶栏来源下拉过滤提取范围。
 
 ### 主 GUI 模式
 
@@ -199,10 +203,11 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 | 点按立刻抬起；CAST_STEP_S 写死 | **点按 ms** 默认 50，主面板/回放共用 |
 | 左 Alt 扫码瞬点 | VK 左 Alt + 短按 |
 | FSM测试点开始即写 `FSM_TEST/` | **OCR 进图后才写**；回城停录，再进图新开一段 |
+| 同图提取一律扫 `recordings/` + `FSM_TEST/` | 默认只扫采集；勾 **含FSM测试** 才并入 |
 
 ### 归档
 
-`archive_notes/`。本交接：`ARCHIVE_NOTE_2026-09-05-1.md`。此前：`ARCHIVE_NOTE_2026-09-05-0.md`、`2026-09-04-1.md`、`2026-09-04-0.md`。
+`archive_notes/`。本交接：`ARCHIVE_NOTE_2026-09-06-0.md`。此前：`2026-09-05-1.md`、`2026-09-05-0.md`、`2026-09-04-1.md`。
 
 ---
 
@@ -252,7 +257,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 ## 7. 再往后
 
 1. ~~先修回放启动~~（已修，`skill_feature_extract.py`）。  
-2. 边打边调开打/捡物/前进手感（`tap_ms`、持续帧、GX/GY…）。  
+2. 边打边调开打/捡物/前进手感（`th_ms`、`tap_ms`、GX/GY、AX/AY）；回放叠图核对 YOLO。  
 3. `meta.json` `completed` 暂缓。OCR 回城关键词已用 debounce，快照字段名以代码为准。
 
 并行未做：组集 fill/相对、自动化闭环、采集后离线 YOLO。
@@ -262,6 +267,6 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 ## 8. 怎么交接
 
 1. 新对话首条：`d:\Desktop\T\test\CONTEXT_HANDOFF.md`，并打开 `FSM_DESIGN.txt`。  
-2. 边打边调开打/捡物/前进。txt 没改就不要推翻核心。范围异常仍然释放，不要发明接近。  
+2. 边打边调。叠图对不齐先查路径再动坐标。txt 没改就不要推翻核心。范围异常仍然释放，不要发明接近。  
 3. 发键只在 FSM测试（默认开）；不要写进回放 / `fsm_core`。开打技能范围 = 快捷栏单键 / space。连按不要塞回 `FsmParams`。  
 4. `blueprint.txt` = 长期意图；本文件 = 当天状态。磁盘代码才是真相。回复简体中文。

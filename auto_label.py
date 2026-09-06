@@ -64,6 +64,26 @@ def ensure_classes_txt(folder: Path, names: list[str]) -> None:
         path.write_text("\n".join(names) + "\n", encoding="utf-8")
 
 
+def class_aware_nms(xyxy, confs, clses, iou_thres: float) -> list[int]:
+    """YOLO26 predict 常不跑 NMS，iou 参数等于没进；写出前自己按类做一遍。"""
+    if not xyxy:
+        return []
+    import torch
+    from torchvision.ops import nms as tv_nms
+
+    boxes = torch.tensor(xyxy, dtype=torch.float32)
+    scores = torch.tensor(confs, dtype=torch.float32)
+    classes = torch.tensor(clses, dtype=torch.int64)
+    kept: list[torch.Tensor] = []
+    for c in classes.unique():
+        idx = (classes == c).nonzero(as_tuple=True)[0]
+        k = tv_nms(boxes[idx], scores[idx], float(iou_thres))
+        kept.append(idx[k])
+    if not kept:
+        return []
+    return torch.cat(kept).tolist()
+
+
 def yolo_xywhn_to_xyxy(cx: float, cy: float, w: float, h: float, iw: int, ih: int) -> list[list[float]]:
     x1 = (cx - w * 0.5) * iw
     y1 = (cy - h * 0.5) * ih
@@ -163,6 +183,7 @@ def label_folder(
 
     print(f"图片: {image_dir}  ({len(images)})")
     print(f"标签: 与 png 同目录 .json")
+    print(f"conf={conf} iou={iou}（写出前按类 NMS）")
     print(f"已有 json 跳过 {skipped}，待推理 {len(todo)}")
     if not todo:
         return len(images), skipped, 0, 0
@@ -184,10 +205,15 @@ def label_folder(
         iw, ih = png_size(path)
         shapes: list[dict] = []
         if r.boxes is not None and len(r.boxes):
-            for cls_id, xywhn in zip(r.boxes.cls.tolist(), r.boxes.xywhn.tolist()):
-                cid = int(cls_id)
+            xyxy = r.boxes.xyxy.tolist()
+            xywhn = r.boxes.xywhn.tolist()
+            clses = [int(c) for c in r.boxes.cls.tolist()]
+            confs = r.boxes.conf.tolist()
+            keep = class_aware_nms(xyxy, confs, clses, iou)
+            for i in keep:
+                cid = clses[i]
                 label = names[cid] if 0 <= cid < len(names) else str(cid)
-                cx, cy, bw, bh = (float(v) for v in xywhn)
+                cx, cy, bw, bh = (float(v) for v in xywhn[i])
                 shapes.append(
                     {
                         "label": label,

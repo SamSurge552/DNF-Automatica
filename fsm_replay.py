@@ -131,7 +131,8 @@ HELP_EXTRACT = (
     "持续结束后杀 MON 数 > E → 群，否则为单。\n"
     "杀 MON 效率 < F% → 假释放（不进序列 / 范围 / CD）。\n"
     "怪物分布按按下那一帧现算，不沿用 FSM 当时的状态。\n"
-    "地图【CD重置】：提取发现短于 CD 的间隔后写入；运行时击败 BOSS +1 才清 CD。"
+    "地图【CD重置】：提取发现短于 CD 的间隔后写入；运行时击败 BOSS +1 才清 CD。\n"
+    "「提取同地下城全部 / 重新提取本图」默认只扫 recordings/ 采集段。勾「含FSM测试」才并入 FSM_TEST。提取本段始终用当前这一段。"
 )
 
 
@@ -773,6 +774,7 @@ class FsmReplayApp(tk.Tk):
         self._corr_prev = (0, 0, 0, 0)
         self.e_var = tk.StringVar(value="3")
         self.f_var = tk.StringVar(value=str(DEFAULT_F))
+        self.extract_fsm_var = tk.BooleanVar(value=False)
         self._extract_busy = False
         self._feature_cache = None
         self._last_session_path: Path | None = None
@@ -788,8 +790,66 @@ class FsmReplayApp(tk.Tk):
         self._load_ui_settings()
         self.source_combo.bind("<<ComboboxSelected>>", lambda e: self._on_source())
 
-        params = ttk.LabelFrame(count_wrap, text="参数", padding=8)
-        params.pack(side=tk.BOTTOM, fill=tk.X, pady=(8, 0))
+        feat = ttk.LabelFrame(count_wrap, text="过图技能特征（快捷栏技能段）", padding=6)
+        feat.pack(side=tk.TOP, fill=tk.X, pady=(0, 8))
+        feat_r = ttk.Frame(feat)
+        feat_r.pack(fill=tk.X)
+        ttk.Label(feat_r, text="E").pack(side=tk.LEFT)
+        self._e_spin = ttk.Spinbox(feat_r, from_=0, to=40, width=4, textvariable=self.e_var)
+        self._e_spin.pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(feat_r, text="F%").pack(side=tk.LEFT)
+        ttk.Spinbox(feat_r, from_=0, to=100, width=4, textvariable=self.f_var).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Checkbutton(
+            feat_r,
+            text="含FSM测试",
+            variable=self.extract_fsm_var,
+            command=self._save_ui_settings,
+        ).pack(side=tk.LEFT, padx=(8, 0))
+        self._help_btn(feat_r, "过图技能特征说明", HELP_EXTRACT).pack(side=tk.RIGHT)
+        feat_btns = ttk.Frame(feat)
+        feat_btns.pack(fill=tk.X, pady=(4, 0))
+        self.extract_one_btn = ttk.Button(feat_btns, text="提取本段", command=lambda: self._start_extract(False))
+        self.extract_one_btn.pack(side=tk.LEFT)
+        self.extract_all_btn = ttk.Button(feat_btns, text="提取同地下城全部", command=lambda: self._start_extract(True))
+        self.extract_all_btn.pack(side=tk.LEFT, padx=(4, 0))
+        feat_btns2 = ttk.Frame(feat)
+        feat_btns2.pack(fill=tk.X, pady=(4, 0))
+        self.extract_reset_btn = ttk.Button(
+            feat_btns2, text="重新提取本图", command=lambda: self._start_extract(True, wipe=True)
+        )
+        self.extract_reset_btn.pack(side=tk.LEFT)
+        self.rollback_btn = ttk.Button(feat_btns2, text="回退上次叠加", command=self._rollback_extract)
+        self.rollback_btn.pack(side=tk.LEFT, padx=(4, 0))
+        self.map_reset_host = ttk.Frame(feat)
+        self.map_reset_host.pack(fill=tk.X, pady=(4, 0))
+        feat_p = ttk.Frame(feat)
+        feat_p.pack(fill=tk.X, pady=(4, 0))
+        self.extract_prog_var = tk.StringVar(value="")
+        ttk.Label(feat_p, textvariable=self.extract_prog_var, width=18).pack(side=tk.LEFT)
+        self.extract_prog = ttk.Progressbar(feat_p, mode="determinate")
+        self.extract_prog.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        self.extract_result = tk.Text(feat, height=4, state=tk.DISABLED, font=("Consolas", 9), wrap=tk.WORD)
+        self.extract_result.pack(fill=tk.X, pady=(4, 0))
+        self.e_var.trace_add("write", lambda *_: self._save_ui_settings())
+        self.f_var.trace_add("write", lambda *_: self._save_ui_settings())
+
+        scroll_host = tk.Frame(count_wrap)
+        scroll_host.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self._right_canvas = tk.Canvas(scroll_host, highlightthickness=0, borderwidth=0)
+        right_vsb = ttk.Scrollbar(scroll_host, orient=tk.VERTICAL, command=self._right_canvas.yview)
+        self._right_inner = tk.Frame(self._right_canvas)
+        self._right_inner.bind(
+            "<Configure>",
+            lambda e: self._right_canvas.configure(scrollregion=self._right_canvas.bbox("all")),
+        )
+        self._right_win = self._right_canvas.create_window((0, 0), window=self._right_inner, anchor="nw")
+        self._right_canvas.configure(yscrollcommand=right_vsb.set)
+        self._right_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        right_vsb.pack(side=tk.RIGHT, fill=tk.Y)
+        self._right_canvas.bind("<Configure>", self._on_right_canvas_cfg)
+        self._bind_right_wheel(scroll_host)
+
+        params = ttk.LabelFrame(self._right_inner, text="参数", padding=8)
         r_mlg = ttk.Frame(params)
         r_mlg.pack(fill=tk.X)
         ttk.Label(r_mlg, text="判定 M").pack(side=tk.LEFT)
@@ -899,8 +959,8 @@ class FsmReplayApp(tk.Tk):
             command=lambda _=None: self._on_overlay_opts(),
         ).pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-        skill_box = ttk.LabelFrame(count_wrap, text="技能表", padding=6)
-        skill_box.pack(side=tk.BOTTOM, fill=tk.X, pady=(8, 0))
+        skill_box = ttk.LabelFrame(self._right_inner, text="技能表", padding=6)
+        skill_box.pack(side=tk.TOP, fill=tk.X, pady=(0, 8))
         skill_head = ttk.Frame(skill_box)
         skill_head.pack(fill=tk.X)
         self.skill_bind_label = ttk.Label(skill_head, text="技能表: —", foreground="#668")
@@ -918,43 +978,7 @@ class FsmReplayApp(tk.Tk):
         ttk.Label(skill_cols, text="连按", width=4).pack(side=tk.LEFT)
         self.skill_hold_host = ttk.Frame(skill_box)
         self.skill_hold_host.pack(fill=tk.X)
-
-        feat = ttk.LabelFrame(count_wrap, text="过图技能特征（快捷栏技能段）", padding=6)
-        feat.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
-        feat_r = ttk.Frame(feat)
-        feat_r.pack(fill=tk.X)
-        ttk.Label(feat_r, text="E").pack(side=tk.LEFT)
-        self._e_spin = ttk.Spinbox(feat_r, from_=0, to=40, width=4, textvariable=self.e_var)
-        self._e_spin.pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(feat_r, text="F%").pack(side=tk.LEFT)
-        ttk.Spinbox(feat_r, from_=0, to=100, width=4, textvariable=self.f_var).pack(side=tk.LEFT, padx=(2, 8))
-        self._help_btn(feat_r, "过图技能特征说明", HELP_EXTRACT).pack(side=tk.RIGHT)
-        feat_btns = ttk.Frame(feat)
-        feat_btns.pack(fill=tk.X, pady=(4, 0))
-        self.extract_one_btn = ttk.Button(feat_btns, text="提取本段", command=lambda: self._start_extract(False))
-        self.extract_one_btn.pack(side=tk.LEFT)
-        self.extract_all_btn = ttk.Button(feat_btns, text="提取同地下城全部", command=lambda: self._start_extract(True))
-        self.extract_all_btn.pack(side=tk.LEFT, padx=(4, 0))
-        feat_btns2 = ttk.Frame(feat)
-        feat_btns2.pack(fill=tk.X, pady=(4, 0))
-        self.extract_reset_btn = ttk.Button(
-            feat_btns2, text="重新提取本图", command=lambda: self._start_extract(True, wipe=True)
-        )
-        self.extract_reset_btn.pack(side=tk.LEFT)
-        self.rollback_btn = ttk.Button(feat_btns2, text="回退上次叠加", command=self._rollback_extract)
-        self.rollback_btn.pack(side=tk.LEFT, padx=(4, 0))
-        self.map_reset_host = ttk.Frame(feat)
-        self.map_reset_host.pack(fill=tk.X, pady=(4, 0))
-        feat_p = ttk.Frame(feat)
-        feat_p.pack(fill=tk.X, pady=(4, 0))
-        self.extract_prog_var = tk.StringVar(value="")
-        ttk.Label(feat_p, textvariable=self.extract_prog_var, width=18).pack(side=tk.LEFT)
-        self.extract_prog = ttk.Progressbar(feat_p, mode="determinate")
-        self.extract_prog.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        self.extract_result = tk.Text(feat, height=6, state=tk.DISABLED, font=("Consolas", 9), wrap=tk.WORD)
-        self.extract_result.pack(fill=tk.BOTH, expand=True, pady=(4, 0))
-        self.e_var.trace_add("write", lambda *_: self._save_ui_settings())
-        self.f_var.trace_add("write", lambda *_: self._save_ui_settings())
+        params.pack(side=tk.TOP, fill=tk.X, pady=(0, 8))
 
         left = ttk.Frame(body)
         left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -1209,6 +1233,24 @@ class FsmReplayApp(tk.Tk):
         w = max(min(sw - 20, 1680), min(sw - 20, 980))
         h = max(sh - 72, 560)
         self.geometry(f"{w}x{h}+6+6")
+
+    def _on_right_canvas_cfg(self, event):
+        self._right_canvas.itemconfigure(self._right_win, width=event.width)
+
+    def _bind_right_wheel(self, host):
+        def _wheel(event):
+            if event.delta:
+                self._right_canvas.yview_scroll(int(-event.delta / 120), "units")
+            return "break"
+
+        def _enter(_):
+            self.bind_all("<MouseWheel>", _wheel)
+
+        def _leave(_):
+            self.unbind_all("<MouseWheel>")
+
+        host.bind("<Enter>", _enter)
+        host.bind("<Leave>", _leave)
 
     def _draw_flow(self, state, method_steps, method_hit: int):
         c = getattr(self, "flow_canvas", None)
@@ -1533,6 +1575,8 @@ class FsmReplayApp(tk.Tk):
         src = str(data.get("session_source") or "").strip()
         if src in ("全部", "采集", "FSM测试"):
             self.source_var.set(src)
+        if "extract_include_fsm" in data:
+            self.extract_fsm_var.set(bool(data["extract_include_fsm"]))
         last = str(data.get("last_session") or "").strip()
         if last:
             p = Path(last)
@@ -1604,6 +1648,7 @@ class FsmReplayApp(tk.Tk):
             "overlay_alpha": max(8, min(100, int(self.overlay_alpha_var.get() or 45))),
             "skill_hold_ms": self._skill_hold_saved,
             "session_source": (self.source_var.get() or "全部").strip() or "全部",
+            "extract_include_fsm": bool(self.extract_fsm_var.get()),
             "last_session": (
                 self._session_rel(self.data["session"])
                 if self.data
@@ -2315,8 +2360,9 @@ class FsmReplayApp(tk.Tk):
             return [d["session"]]
         char = self._bind_character
         dun = self._current_dungeon()
+        roots = (RECORDINGS, FSM_TEST_DIR) if bool(self.extract_fsm_var.get()) else (RECORDINGS,)
         out = []
-        for p in list_sessions(RECORDINGS, FSM_TEST_DIR):
+        for p in list_sessions(*roots):
             meta = {}
             mp = p / "meta.json"
             if mp.is_file():
@@ -2327,6 +2373,15 @@ class FsmReplayApp(tk.Tk):
             if character_of_session(p, meta) == char and dungeon_of_session(p, meta) == dun:
                 out.append(p)
         return out
+
+    def _extract_scope_text(self, sessions: list[Path], all_same: bool) -> str:
+        n_fsm = sum(1 for p in sessions if session_kind(p) == "fsm")
+        n_rec = len(sessions) - n_fsm
+        if not all_same:
+            kind = "FSM测试" if n_fsm else "采集"
+            return f"当前这一段（{kind}）"
+        extra = f"采集 {n_rec} 段 + FSM测试 {n_fsm} 段" if bool(self.extract_fsm_var.get()) else f"采集 {n_rec} 段（不含 FSM测试）"
+        return f"同地下城同角色全部 {len(sessions)} 段，{extra}"
 
     def _start_extract(self, all_same: bool, wipe: bool = False):
         if self._extract_busy:
@@ -2358,16 +2413,16 @@ class FsmReplayApp(tk.Tk):
                     existing = None
         have = count_casts(existing)
         e = self._spin_n(self.e_var, 3, lo=0)
+        scope = self._extract_scope_text(sessions, True if wipe else all_same)
         if wipe:
             ok = messagebox.askyesno(
                 "确认重新提取本图",
-                f"将清空\n{dest}\n里现有 {have} 条，再从同地下城同角色全部 {len(sessions)} 段重新提取。\n\n"
+                f"将清空\n{dest}\n里现有 {have} 条，再从{scope}重新提取。\n\n"
                 f"杀MON数>E={e} 记为群。清空前另存一份副本，可用「回退上次叠加」还原（用过即删）。\n\n"
                 f"确定重新提取？",
                 parent=self,
             )
         else:
-            scope = f"同地下城同角色全部 {len(sessions)} 段" if all_same else "当前这一段"
             ok = messagebox.askyesno(
                 "确认提取并叠加",
                 f"从{scope}提取快捷栏技能段（含 SPACE，不要求开打），叠加进\n{dest}\n\n"

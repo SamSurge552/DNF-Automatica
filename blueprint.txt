@@ -32,4 +32,4 @@ YoloEngine / RecordWriter / window_align / cuda_runtime
 - 旧 scripts/*.script 与独立录播工具已移除
 - OCR 关键词匹配置信度 >0.95
 - Torch(cu128) 须先于 ORT(CUDA13) 预加载，见 cuda_runtime.py
-- 过图 YOLO 默认 runs/solarwarden_b。Aset/<角色>+Xout/<角色>。runs/varien_t 是自动标注（单类 player），勿用于录制
+- 过图 YOLO 运行时默认仍是 runs/solarwarden_b。训练标签在 Aset/.../labels。runs/varien_t 仅自动标注，勿用于录制

@@ -11,75 +11,66 @@ from ultralytics import YOLO
 
 ROOT = Path(r"D:/Atrain")
 PROJECT_DIR = ROOT / "runs"
-# 角色专模：Aset/<name> 图片 + Xout/<name> 标签，run 名与角色目录名相同。
-# 过图五类：runs/solarwarden_b。自动标注小模型另开 runs/<角色>（现 varien_t）。
+# 过图集：Aset/solarwarden/<name>/*.png + labels/*.txt。Xout 只给 X-AnyLabeling 导出。
+# GUI 过图默认权重仍是 solarwarden_b，未切到 d。
 CHARACTER = "varien_t"
-RUN_NAME = "solarwarden_b"
-# None = 从 yolo26n 预训练重训；暖启动可填上次 best.pt
+RUN_NAME = "solarwarden_d"
 RESUME_WEIGHTS = None
 CLASS_NAMES = ["boss", "gate", "loot", "mon", "player"]
 CHAR_CLASS_NAMES = ["player"]
-# 小数据默认冻骨架（YOLO26 前 10 层）；--freeze 0 关闭
-FREEZE = 10
+FREEZE = 0
+MOSAIC = 0.0
+# 训练/val 用；实机推理下次再问，不要当长期默认写进 GUI
+TRAIN_CONF = 0.15
+TRAIN_IOU = 0.5
 # 上限轮数 + early stop：val mAP 连续 PATIENCE 轮不升就停，best.pt 仍是峰值
 EPOCHS = 100
 PATIENCE = 20
 SPLIT_SEED = 0
 
 
+def _pngs(image_dir: Path) -> list[Path]:
+    if not image_dir.is_dir():
+        return []
+    return list(image_dir.glob("*.png"))
+
+
+def _txts(label_dir: Path) -> list[Path]:
+    if not label_dir.is_dir():
+        return []
+    return [t for t in label_dir.glob("*.txt") if t.name.lower() != "classes.txt"]
+
+
 def resolve_dataset_dirs(root: Path, character: str | None) -> tuple[Path, Path, str]:
-    """返回 (图片目录, 标签目录, run 名)。"""
+    """返回 (图片目录, 标签目录, run 名)。过图优先 Aset/.../labels，不再默认 Xout。"""
     if character:
         name = character.strip()
-        image_dir = root / "Aset" / name
-        label_dir = root / "Xout" / name
-        pngs = list(image_dir.glob("*.png")) if image_dir.is_dir() else []
-        txts = (
-            [t for t in label_dir.glob("*.txt") if t.name.lower() != "classes.txt"]
-            if label_dir.is_dir()
-            else []
+        for image_dir, label_dir in (
+            (root / "Aset" / "solarwarden" / name, root / "Aset" / "solarwarden" / name / "labels"),
+            (root / "Aset" / name, root / "Aset" / name / "labels"),
+        ):
+            if len(_pngs(image_dir)) >= 10 and len(_txts(label_dir)) >= 10:
+                return image_dir, label_dir, name
+        raise FileNotFoundError(
+            f"未找到 {name}：需要 png + labels/*.txt（例如 Aset/solarwarden/{name}）"
         )
-        if len(pngs) < 10 or len(txts) < 10:
-            raise FileNotFoundError(
-                f"角色数据集不足: {image_dir} png={len(pngs)}, {label_dir} txt={len(txts)}"
-            )
-        return image_dir, label_dir, name
     return (*discover_image_and_label_dirs(root), RUN_NAME)
 
 
 def discover_image_and_label_dirs(root: Path) -> tuple[Path, Path]:
-    """扫描 D:/Atrain：优先 Aset/<角色> + Xout/<角色>；不再假设 PNG 堆在 Aset 根目录。"""
+    """优先 Aset/solarwarden/<集>/labels，其次 Aset/<集>/labels。"""
     aset = root / "Aset"
-    xout = root / "Xout"
-    if aset.is_dir() and xout.is_dir():
-        for sub in sorted(p for p in aset.iterdir() if p.is_dir()):
-            labels = xout / sub.name
-            pngs = list(sub.glob("*.png"))
-            txts = (
-                [t for t in labels.glob("*.txt") if t.name.lower() != "classes.txt"]
-                if labels.is_dir()
-                else []
-            )
-            if len(pngs) >= 10 and len(txts) >= 10:
-                return sub, labels
-    image_dir = None
-    label_dir = None
-    skip = {"runs", "aset", "xout"}
-    for p in sorted(root.iterdir()):
-        if not p.is_dir() or p.name.lower() in skip:
-            continue
-        pngs = list(p.glob("*.png"))
-        txts = [t for t in p.glob("*.txt") if t.name.lower() != "classes.txt"]
-        if image_dir is None and len(pngs) >= 10:
-            image_dir = p
-        if label_dir is None and len(txts) >= 10:
-            label_dir = p
-    if image_dir is None or label_dir is None:
-        raise FileNotFoundError(
-            f"在 {root} 下未找到图片目录(*.png) 或标签目录(*.txt)。"
-            f" image={image_dir} label={label_dir}"
-        )
-    return image_dir, label_dir
+    search: list[Path] = []
+    sw = aset / "solarwarden"
+    if sw.is_dir():
+        search.extend(sorted(p for p in sw.iterdir() if p.is_dir()))
+    if aset.is_dir():
+        search.extend(sorted(p for p in aset.iterdir() if p.is_dir() and p.name.lower() != "solarwarden"))
+    for image_dir in search:
+        label_dir = image_dir / "labels"
+        if len(_pngs(image_dir)) >= 10 and len(_txts(label_dir)) >= 10:
+            return image_dir, label_dir
+    raise FileNotFoundError(f"在 {root}/Aset 下未找到 png + labels/*.txt")
 
 
 def load_class_names(image_dir: Path, label_dir: Path, character: str | None) -> list[str]:
@@ -193,7 +184,7 @@ def parse_args():
     p.add_argument(
         "--char",
         default=CHARACTER,
-        help="主集目录名（Aset/<name> + Xout/<name>，val/test 只来自这里）",
+        help="主集目录名（Aset/solarwarden/<name> 或 Aset/<name>，标签在 labels/）",
     )
     p.add_argument(
         "--extra",
@@ -208,11 +199,118 @@ def parse_args():
         help="冻前 N 层（YOLO26 骨架约 10）。0=不冻",
     )
     p.add_argument(
+        "--mosaic",
+        type=float,
+        default=MOSAIC,
+        help="mosaic 概率。默认 0=关",
+    )
+    p.add_argument(
+        "--images",
+        default="",
+        help="图片目录。空则 Aset/<char>",
+    )
+    p.add_argument(
+        "--labels",
+        default="",
+        help="YOLO txt 目录。空则 <图片目录>/labels",
+    )
+    p.add_argument(
         "--weights",
         default="",
         help="初始权重。空则 yolo26n.pt；续训填 runs/.../best.pt",
     )
+    p.add_argument(
+        "--suite",
+        default="",
+        help="solarwarden_c = 同一拆分连训 A/B/C",
+    )
     return p.parse_args()
+
+
+def resolve_start_weights(weights: str) -> str:
+    weights_arg = (weights or "").strip()
+    if weights_arg and Path(weights_arg).is_file():
+        return weights_arg
+    if RESUME_WEIGHTS and Path(RESUME_WEIGHTS).is_file():
+        return str(RESUME_WEIGHTS)
+    return "yolo26n.pt"
+
+
+def run_ultralytics_train(
+    data_yaml: Path,
+    run_name: str,
+    freeze: int,
+    mosaic: float,
+    weights: str = "",
+    n_train_png: int | None = None,
+    conf: float = TRAIN_CONF,
+    iou: float = TRAIN_IOU,
+):
+    if not torch.cuda.is_available():
+        print("未检测到 CUDA，请先安装 GPU 版 PyTorch。")
+        return None
+
+    print(f"GPU: {torch.cuda.get_device_name(0)}")
+    print(f"data: {data_yaml}")
+    print(f"run: {run_name}  freeze={freeze}  mosaic={mosaic}")
+    weights_path = resolve_start_weights(weights)
+    print(f"weights: {weights_path}")
+    model = YOLO(weights_path)
+
+    if n_train_png is None:
+        n_train_png = len(list((data_yaml.parent / "images" / "train").glob("*.png")))
+    batch = 16 if n_train_png < 120 else 32
+
+    train_kw = dict(
+        data=str(data_yaml),
+        epochs=EPOCHS,
+        patience=PATIENCE,
+        imgsz=640,
+        device=0,
+        batch=batch,
+        workers=4,
+        amp=True,
+        mosaic=float(mosaic),
+        mixup=0.0,
+        conf=float(conf),
+        iou=float(iou),
+        project=str(PROJECT_DIR),
+        name=run_name,
+        exist_ok=True,
+        verbose=True,
+    )
+    if freeze and freeze > 0:
+        train_kw["freeze"] = freeze
+
+    results = model.train(**train_kw)
+    best = Path(results.save_dir) / "weights" / "best.pt"
+    print(f"\n训练完成，最佳权重: {best}")
+    return best
+
+
+def train_solarwarden_c_suite():
+    """同一 7/2/1 拆分、同一 yolo26n 起点，连训 A/B/C。"""
+    image_dir = ROOT / "Aset" / "solarwarden" / "solarwarden_c"
+    label_dir = image_dir / "labels"
+    class_names = load_class_names(image_dir, label_dir, None)
+    print(f"图片目录: {image_dir}")
+    print(f"标签目录: {label_dir}")
+    print(f"类别: {class_names}")
+    n_img = len(list(image_dir.glob("*.png")))
+    print(
+        f"solarwarden_c suite: 主集 {n_img} 张 / YOLO26n / "
+        f"epochs={EPOCHS} 上限, patience={PATIENCE} / conf=0.1 iou=0.7"
+    )
+    stage_dir = ROOT / "yolo_data" / "solarwarden_c"
+    data_yaml = prepare_dataset(image_dir, label_dir, class_names, stage_dir)
+    jobs = [
+        ("solarwarden_c_a", 0, 0.0),
+        ("solarwarden_c_b", 0, 1.0),
+        ("solarwarden_c_c", 10, 0.0),
+    ]
+    for run_name, freeze, mosaic in jobs:
+        print(f"\n======== {run_name} freeze={freeze} mosaic={mosaic} ========")
+        run_ultralytics_train(data_yaml, run_name, freeze, mosaic)
 
 
 def train_my_yolo(
@@ -220,10 +318,18 @@ def train_my_yolo(
     extra: str = "",
     run_name: str = "",
     freeze: int = FREEZE,
+    mosaic: float = MOSAIC,
     weights: str = "",
+    images: str = "",
+    labels: str = "",
 ):
     character = (character or "").strip() or None
-    image_dir, label_dir, default_name = resolve_dataset_dirs(ROOT, character)
+    if images.strip() and labels.strip():
+        image_dir = Path(images)
+        label_dir = Path(labels)
+        default_name = image_dir.name
+    else:
+        image_dir, label_dir, default_name = resolve_dataset_dirs(ROOT, character)
     run_name = (run_name or "").strip() or default_name
     class_names = load_class_names(image_dir, label_dir, character)
     extra_dirs: list[tuple[Path, Path]] = []
@@ -237,70 +343,32 @@ def train_my_yolo(
     print(f"标签目录: {label_dir}")
     print(f"run: {run_name}")
     print(f"类别: {class_names}")
-    print(f"freeze: {freeze}  extra: {[p[0].name for p in extra_dirs] or '(无)'}")
+    print(f"freeze: {freeze}  mosaic: {mosaic}  extra: {[p[0].name for p in extra_dirs] or '(无)'}")
     n_img = len(list(image_dir.glob("*.png")))
     print(
-        f"轮数策略: 主集 {n_img} 张 / YOLO26n / 关 mosaic / freeze={freeze} → "
-        f"epochs={EPOCHS} 上限, patience={PATIENCE}"
+        f"轮数策略: 主集 {n_img} 张 / YOLO26n / mosaic={mosaic} / freeze={freeze} → "
+        f"epochs={EPOCHS} 上限, patience={PATIENCE} / conf={TRAIN_CONF} iou={TRAIN_IOU}"
     )
 
     stage_dir = ROOT / "yolo_data" / run_name
     data_yaml = prepare_dataset(
         image_dir, label_dir, class_names, stage_dir, extra_train=extra_dirs
     )
-    if not torch.cuda.is_available():
-        print("未检测到 CUDA，请先安装 GPU 版 PyTorch。")
-        return
-
-    print(f"GPU: {torch.cuda.get_device_name(0)}")
-    print(f"data: {data_yaml}")
-
-    weights_arg = (weights or "").strip()
-    if weights_arg and Path(weights_arg).is_file():
-        weights_path = weights_arg
-    elif RESUME_WEIGHTS and Path(RESUME_WEIGHTS).is_file():
-        weights_path = str(RESUME_WEIGHTS)
-    else:
-        weights_path = "yolo26n.pt"
-    print(f"weights: {weights_path}")
-    model = YOLO(weights_path)
-
-    n_train_png = len(list((stage_dir / "images" / "train").glob("*.png")))
-    batch = 16 if n_train_png < 120 else 32
-
-    train_kw = dict(
-        data=str(data_yaml),
-        epochs=EPOCHS,
-        patience=PATIENCE,
-        imgsz=640,
-        device=0,
-        batch=batch,
-        workers=4,
-        amp=True,
-        mosaic=0.0,
-        mixup=0.0,
-        conf=0.1,
-        iou=0.7,
-        project=str(PROJECT_DIR),
-        name=run_name,
-        exist_ok=True,
-        verbose=True,
-    )
-    if freeze and freeze > 0:
-        train_kw["freeze"] = freeze
-
-    results = model.train(**train_kw)
-
-    best = Path(results.save_dir) / "weights" / "best.pt"
-    print(f"\n训练完成，最佳权重: {best}")
+    run_ultralytics_train(data_yaml, run_name, freeze, mosaic, weights=weights)
 
 
 if __name__ == "__main__":
     args = parse_args()
-    train_my_yolo(
-        args.char,
-        extra=args.extra,
-        run_name=args.name,
-        freeze=args.freeze,
-        weights=args.weights,
-    )
+    if (args.suite or "").strip().lower() == "solarwarden_c":
+        train_solarwarden_c_suite()
+    else:
+        train_my_yolo(
+            args.char,
+            extra=args.extra,
+            run_name=args.name,
+            freeze=args.freeze,
+            mosaic=args.mosaic,
+            weights=args.weights,
+            images=args.images,
+            labels=args.labels,
+        )

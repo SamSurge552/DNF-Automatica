@@ -25,7 +25,7 @@
   "fill": true,
   "relative": false,
   "overlay": true,
-  "overlay_alpha": 26,
+  "overlay_alpha": 20,
   "skill_hold_ms": {
     "SolarWarden": {
       "1": 10000,
@@ -39,7 +39,8 @@
     }
   },
   "session_source": "全部",
-  "last_session": "FSM_TEST/深渊：最终调律者/20260905_182807_SolarWarden",
+  "extract_include_fsm": true,
+  "last_session": "FSM_TEST/深渊：最终调律者/20260905_182933_SolarWarden",
   "mon_corr_u": 0,
   "mon_corr_d": 0,
   "mon_corr_l": 0,
