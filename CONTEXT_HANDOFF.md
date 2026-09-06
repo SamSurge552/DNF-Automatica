@@ -4,9 +4,9 @@
 > 对齐以 `TRAIN_ALIGN.md` 为准。架构以 `DECISIONS.md` 为准（**当前阶段定性见 §1.0**）。  
 > DECISIONS 第 4 节（并行卡住 / 不对称迟滞 / `gate.x > player.x`）**尚未落地**，也没并进 `FSM_DESIGN.txt`。不要用第 4 节覆盖 txt。
 
-生成时间：2026-09-06 14:05 (UTC+8)  
+生成时间：2026-09-06 16:00 (UTC+8)  
 项目根目录：`d:\Desktop\T\test`  
-本会话已做：提取 press 特征 `i_feat=i0+lag`（默认 1 帧）；回放「参数」拆行防裁切。**请重提 skill_features**。
+本会话已做：A1/A2/A3/A5、提取 lag、t_ns=grab 后、点按 80–120。归档 `ARCHIVE_NOTE_2026-09-06-1.md`。**请重提 skill_features**（补正/lag）。
 
 > **组集脚本与 TRAIN_ALIGN 已确认步骤打架时，问用户改文档还是改代码。**  
 > **新旧想法冲突：用新的，事后告知即可。**  
@@ -17,7 +17,7 @@
 
 ## 1. 下一对话先做
 
-**边打边调，不要另开架构。** 回放勾「叠图对比 PNG」看检测是否压在人/怪/门上；对不齐先确认图文件找到了、再讨论变换。FSM测试调 GX/GY/AX/AY/`th_ms`。txt 没改不要推翻核心。范围异常仍释放，不要发明走近怪。组集 fill/相对未确认。
+**边打边调，不要另开架构。** 改过补正/lag 的图先「重新提取本图」。回放勾「叠图对比 PNG」看检测是否压在人/怪/门上；对不齐先确认图文件找到了、再讨论变换。FSM测试调 GX/GY/AX/AY/`th_ms`、点按 min/max。txt 没改不要推翻核心。范围异常仍释放，不要发明走近怪。组集 fill/相对未确认。
 
 ### 1.0 本会话已做（2026-09-05 晚～09-06）
 
@@ -30,7 +30,9 @@
 - **A3** OCR 无关键词沿用上一帧 raw，再进 `dungeon_deb_step`。
 - **A5** 捡物等停下上限 **PW**（`pw_ms` 默认 3000）；超时蓝字「捡物等待超时 PW」后按当前掉落继续捡。A4 卡住恢复方向未改。
 - 卡住 `x_s` 应大于 max(最长技能持续, AX, AY, PW, 四向 Y)（秒）。
-- 提取分布/最远敌对用 `i_feat`（黄字 onset `i0` + `EXTRACT_PRESS_LAG_FRAMES`，默认 1）；hold/`t0`/`i_end` 仍从 `i0`。改后须重提。
+- 提取分布/最远敌对用 `i_feat`（黄字 onset `i0` + UI `press_lag_frames`，默认 1）；hold/`t0`/`i_end` 仍从 `i0`。黄字整列同样延后，不改 `skill_hold` 轨。改后须重提。
+- frames.jsonl 的 `t_ns`：**grab 后、save/YOLO 前**（`capture` 返回值）；PNG 文件名仍可用墙钟。
+- 点按：uniform[`tap_ms_min`,`tap_ms_max`]（默认 80–120）。移动 TAP / CAST / 连按每次 / PICK 同一路径。HOLD/ATTACK 按住。PICK 节流 = max×5。
 
 回放 `python fsm_replay.py`。推荐段仍 `recordings/深渊：最终调律者/20260902_074831_SolarWarden`（旧 PNG 在 `images/<时间戳>/`）。新采集叠图看 `images/<角色>/`。顶栏来源：全部 / 采集 / FSM测试。
 
@@ -48,7 +50,7 @@
 
 **提取：** 按下快捷栏即收，不要求开打。分布按按下帧现算。范围=最远敌对距离中位数。杀 MON>E → 群。F 默认 20。面板持续毫秒是提取真相，点「重新读取」才跟磁盘。
 
-**发键：** `fsm_execute` + `key_inject`。点按 ms 默认 50。键位表【连按】→ COUNT 次点按 + 间隔 ms（默认 3 次 / 50ms）。一键拾取=左 Alt（VK）。参数在 `_fsm_replay_ui.json`。
+**发键：** `fsm_execute` + `key_inject`。每次点按 uniform[min,max] ms（默认 80–120）：移动 TAP、CAST（含连按每一次）、PICK。HOLD/ATTACK 按住。键位表【连按】→ COUNT 次点按 + mash_gap 间隔。PICK 节流 = tap_ms_max×5。参数 `tap_ms_min`/`tap_ms_max` 在 `_fsm_replay_ui.json`。
 
 **连按分层（已定，见 DECISIONS §1.0）：** 核心 `step` 只出 `skill_slot` / `CAST`，`FsmParams` **没有** `mash_count`/`mash_gap_ms`，`send_label` 只写 `点按 t`。执行层按槽是否勾【连按】+ COUNT 连打。回放红字 / 实机字幕用 `mash_n_for_slot` 再拼 `连按N×`。COUNT/间隔只在 GUI json 与 `FsmExecutor`。mash COUNT 是全局执行参数还是技能表属性仍可再议（属 D）。
 
@@ -75,7 +77,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 |----|------|--------|
 | 核心 | `fsm_core.py` | 纯函数 `step(snapshot, ctx, params) → (decision, new_ctx)` |
 | 回放宿主 | `fsm_replay.py` | jsonl 的 `t_ns` **原样** → `run_track` → 可视化。绿=FSM 状态；蓝=意图（该干什么）；黄=录像真实操作。可叠 PNG 对比检测。过图技能特征写 `skill_features/`，不改 jsonl |
-| 实机宿主 | `status_analysis_module.py` | 截图完成后、YOLO **之前**打 `t_ns` → `step`。不攒整帧队列。YOLO测试只检测不跑 FSM |
+| 实机宿主 | `status_analysis_module.py` | grab 后、save/YOLO **之前**的 `t_ns` → `step`。不攒整帧队列。YOLO测试只检测不跑 FSM |
 
 核心禁止：`time` / `sleep` / 读文件 / 发键 / 截屏 / `random` / 模块级可变状态。ctx 值语义，不就地改。`t_ns` 必须单调不减，否则抛错。回放缺 `t_ns` 禁止用墙钟填充。
 
@@ -102,7 +104,7 @@ GUI：主面板 **FSM设置**；FSM测试无发键勾选（默认发键）。写
 
 | 层 | 路径 | 允许 |
 |----|------|------|
-| 写盘 | 采集：PNG=`images/<角色>/`；jsonl=`recordings/<地下城>/<时间戳>_<角色>/`。FSM测试：`FSM_TEST/<图>/<时间戳>_<角色>/`（OCR 进图后才建段） | 采集当场 YOLO。`t_ns` 在截图完成后、推理前打。FSM_TEST 有同样检测字段即可提特征 |
+| 写盘 | 采集：PNG=`images/<角色>/`；jsonl=`recordings/<地下城>/<时间戳>_<角色>/`。FSM测试：`FSM_TEST/<图>/<时间戳>_<角色>/`（OCR 进图后才建段） | 采集当场 YOLO。`t_ns`=grab 后、save/YOLO 前。FSM_TEST 有同样检测字段即可提特征 |
 | 回放 | `python fsm_replay.py` | 试 fill / 相对 / FSM；可写 `skill_features/`，不改 jsonl |
 | 组集 | `python export_dataset.py` | 仅 TRAIN_ALIGN **已确认**：held_frac、去 dup、丢第一帧、坐标原样 |
 
@@ -171,7 +173,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 ### 过图技能特征
 
 磁盘：`skill_feature_extract.py` 已按 txt。落盘仍是 `skill_features/<地下城>/<角色>.json`。  
-分布/最远敌对快照 = `i_feat`（`i0+lag`，默认 1 帧），不是黄字那一帧画面。补正或 lag 变更后旧表作废，**请重提**。提取与 FSM 用同一 `mon_off`（回放提取前 `apply_mon_boss_corr`）。  
+分布/最远敌对快照 = `i_feat`（`i0+press_lag_frames`，默认 1 帧，回放「lag 帧」）。hold 轨不预平移。补正或 lag 变更后旧表作废，**请重提**。提取与 FSM 用同一 `mon_off`（回放提取前 `apply_mon_boss_corr`）。  
 回放提取按钮在右侧顶栏。「提取同地下城全部 / 重新提取本图」默认只采集；勾「含FSM测试」才扫 `FSM_TEST/`。不要靠顶栏来源下拉过滤提取范围。
 
 ### 主 GUI 模式
@@ -204,23 +206,24 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 | F 默认 50；序列一律次数 | F 默认 **20**；BOSS 房次数、MON 房效率 |
 | 开打距离不够 → 接近；范围异常不放 | **范围异常仍然释放（暂定）** |
 | 提取分组沿用 FSM 当时的怪物分布 | 按下技能那一帧按分布判定现算 |
-| 特征快照用黄字 `i0` 同帧画面 | **`i_feat = i0+lag`（默认 1 帧）**；hold/CD 仍 `i0` |
+| 特征快照用黄字 `i0` 同帧画面 | **`i_feat = i0+press_lag_frames`（UI 可调，默认 1）**；hold/CD 仍 `i0`；黄字显示同步延后 |
 | 全 CD 则空等 | 按住普攻 X，XXX 帧（默认 20） |
 | 前进过坐标后计单个 A；TAP 空帧 | GX/GY 阈值接近（点按→TH→按住）；一次性方向；AX/AY 过门 |
 | 前进用【门坐标快照】，不再跟实时门 | 前进每帧相对**当前门** GX/GY；过门方向仍一次性；**门消失直接过门** |
 | 发键用键位表完整指令（含 +） | 只用快捷栏单键 / space（`bind_hotkey`） |
-| 点按立刻抬起；CAST_STEP_S 写死 | **点按 ms** 默认 50，主面板/回放共用 |
+| 点按立刻抬起；CAST_STEP_S 写死 | **点按 min/max** 默认 80–120 随机，主面板/回放共用 |
 | 左 Alt 扫码瞬点 | VK 左 Alt + 短按 |
 | FSM测试点开始即写 `FSM_TEST/` | **OCR 进图后才写**；回城停录，再进图新开一段 |
 | 同图提取一律扫 `recordings/` + `FSM_TEST/` | 默认只扫采集；勾 **含FSM测试** 才并入 |
 | 回城「TN 帧 / 按帧间隔换算」 | **只 tn_s 秒**（t_ns 差，不换帧） |
+| frames `t_ns` 在 `capture()` 整段返回后打（含 PNG save） | **grab 后立刻打**，再 save、再 YOLO |
 | 补正只给 FSM | FSM / 提取 / 回放逻辑点同一补正；jsonl 原始；改后重提 |
 | OCR 无关键词立刻 false | 沿用上一帧 raw，再跑进图/回城 |
 | 捡物在动无限等 | **PW** 超时后继续步骤 2 |
 
 ### 归档
 
-`archive_notes/`。本交接：`ARCHIVE_NOTE_2026-09-06-0.md`。此前：`2026-09-05-1.md`、`2026-09-05-0.md`、`2026-09-04-1.md`。
+`archive_notes/`。本交接：`ARCHIVE_NOTE_2026-09-06-1.md`。此前：`2026-09-06-0.md`、`2026-09-05-1.md`、`2026-09-05-0.md`、`2026-09-04-1.md`。
 
 ---
 
@@ -232,9 +235,9 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 | `fsm_replay.py` | 回放宿主（采集 + FSM测试）；黄蓝绿；技能特征入口；F / 删【重置】 |
 | `skill_feature_extract.py` | 快捷栏技能段 → `skill_features/`；`apply_f` / `sequences` / `map_tags` |
 | `gui_module.py` | 面板；采集 / YOLO测试 / 自动化 / FSM测试 |
-| `fsm_execute.py` | 意图 → SendInput；`tap_ms` 点按间隔 |
-| `key_inject.py` | SendInput；修饰键走 VK |
-| `_fsm_replay_ui.json` | 回放/测试共用参数（含 E、F、PM、PC、PT、**tap_ms**） |
+| `fsm_execute.py` | 意图 → SendInput；点按 `_tap_down_up` uniform[min,max] |
+| `key_inject.py` | SendInput；`key_tap(name, hold_ms)` 禁止瞬时 down+up |
+| `_fsm_replay_ui.json` | 回放/测试共用参数（含 E、F、PM、PC、PT、**tap_ms_min/max**） |
 | `status_analysis_module.py` | OCR 进图；YOLO测试；FSM测试宿主（可发键） |
 | `record_preview.py` | 采集只开按键窗 |
 | `yolo_engine.py` | 检测；`apply` 复用权重；采集阻塞 `infer_features` |
@@ -270,7 +273,7 @@ held_frac（真实 dt）、去 auto-repeat、相邻特征全同丢后一帧、�
 ## 7. 再往后
 
 1. ~~先修回放启动~~（已修，`skill_feature_extract.py`）。  
-2. 边打边调开打/捡物/前进手感（`th_ms`、`tap_ms`、GX/GY、AX/AY）；回放叠图核对 YOLO。  
+2. 边打边调开打/捡物/前进手感（`th_ms`、点按 min/max、GX/GY、AX/AY）；回放叠图核对 YOLO。  
 3. `meta.json` `completed` 暂缓。OCR 回城关键词已用 debounce，快照字段名以代码为准。
 
 并行未做：组集 fill/相对、自动化闭环、采集后离线 YOLO。

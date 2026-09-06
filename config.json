@@ -1,9 +1,9 @@
 {
-    "interval": 0.1,
+    "interval": 1.0,
     "region": {
         "rect": {
-            "x": 949,
-            "y": 475,
+            "x": 607,
+            "y": 448,
             "width": 1600,
             "height": 900
         },
@@ -15,7 +15,7 @@
         "width": 212,
         "height": 186
     },
-    "ocr_interval": 0.5,
+    "ocr_interval": 1.0,
     "ocr_conf": 0.95,
-    "character": "SolarWarden"
+    "character": "Varien"
 }

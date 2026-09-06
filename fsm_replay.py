@@ -38,7 +38,7 @@ from fsm_core import (
     warn_legacy_key,
     HOLD_MS_KEY,
 )
-from fsm_execute import mash_n_for_slot
+from fsm_execute import mash_n_for_slot, parse_tap_ms_range, DEFAULT_TAP_MS_MIN, DEFAULT_TAP_MS_MAX
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
 from skill_feature_extract import (
@@ -71,6 +71,7 @@ from skill_feature_extract import (
     MAP_RESET,
     DEFAULT_F,
     DEFAULT_MULTI,
+    EXTRACT_PRESS_LAG_FRAMES,
     parse_multi_n,
     cast_is_fake,
 )
@@ -115,7 +116,7 @@ HELP_PARAMS = (
     "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。PW：等停下上限毫秒，超时结束等待并按当前掉落继续捡（蓝字「捡物等待超时 PW」）。数量 > PC 一键拾取，否则挨个捡。\n"
     "卡住：同一流程状态连续 X 秒则改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)（秒）。\n"
     "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
-    "点按 ms：发键层技能/左Alt 按下保持的毫秒，组合键步骤间隔相同。与主面板共用 json。\n"
+    "点按 min/max：发键层每次点按（移动 TAP、技能 CAST/连按每次、左Alt 拾取）按下保持 uniform[min,max] 毫秒。默认 80–120。HOLD/普攻不是点按。PICK 节流 = max×5。与主面板共用 json。\n"
     "连按 COUNT / 间隔 ms：执行层参数（不进核心）。红字由回放按槽是否勾连按 + COUNT 拼出来。\n"
     "MON/BOSS 补正：上下左右滑块。FSM / 提取 / 回放逻辑点用同一偏移；jsonl 与叠图 PNG 仍是原始检测。改补正后旧 skill_features 作废，请重新提取本图。\n"
     "叠图：把该帧 PNG 铺到坐标网上（半透明、最上层）。对齐=截屏像素与 jsonl 同一套；相对坐标时图平移使 player 落在盘面中心。\n"
@@ -133,7 +134,8 @@ HELP_EXTRACT = (
     "按下快捷栏技能（含 SPACE）即提取，不要求开打。\n"
     "持续结束后杀 MON 数 > E → 群，否则为单。\n"
     "杀 MON 效率 < F% → 假释放（不进序列 / 范围 / CD）。\n"
-    "怪物分布按黄字 onset 后 lag 帧快照现算，不沿用 FSM 当时的状态。\n"
+    "怪物分布按 onset 后 press_lag 帧快照现算（与黄字延后同一值），不沿用 FSM 当时的状态。\n"
+    "lag 只延后特征快照和黄字显示；hold/CD 仍按真实按下。改 lag 后须重新提取。\n"
     "MON/BOSS 用当前补正（与 FSM 同一套）；jsonl 不改。改补正后请重新提取本图。\n"
     "地图【CD重置】：提取发现短于 CD 的间隔后写入；运行时击败 BOSS +1 才清 CD。\n"
     "「提取同地下城全部 / 重新提取本图」默认只扫 recordings/ 采集段。勾「含FSM测试」才并入 FSM_TEST。提取本段始终用当前这一段。"
@@ -758,7 +760,8 @@ class FsmReplayApp(tk.Tk):
         self.y_var = tk.StringVar(value="250")
         self.s_var = tk.StringVar(value="20")
         self.xxx_var = tk.StringVar(value="1000")
-        self.tap_ms_var = tk.StringVar(value="50")
+        self.tap_ms_min_var = tk.StringVar(value=str(DEFAULT_TAP_MS_MIN))
+        self.tap_ms_max_var = tk.StringVar(value=str(DEFAULT_TAP_MS_MAX))
         self.mash_count_var = tk.StringVar(value="3")
         self.mash_gap_var = tk.StringVar(value="50")
         self.th_var = tk.StringVar(value="50")
@@ -777,6 +780,7 @@ class FsmReplayApp(tk.Tk):
         self._corr_prev = (0, 0, 0, 0)
         self.e_var = tk.StringVar(value="3")
         self.f_var = tk.StringVar(value=str(DEFAULT_F))
+        self.press_lag_var = tk.StringVar(value=str(EXTRACT_PRESS_LAG_FRAMES))
         self.extract_fsm_var = tk.BooleanVar(value=False)
         self._extract_busy = False
         self._feature_cache = None
@@ -809,6 +813,10 @@ class FsmReplayApp(tk.Tk):
             command=self._save_ui_settings,
         ).pack(side=tk.LEFT, padx=(8, 0))
         self._help_btn(feat_r, "过图技能特征说明", HELP_EXTRACT).pack(side=tk.RIGHT)
+        feat_lag = ttk.Frame(feat)
+        feat_lag.pack(fill=tk.X, pady=(4, 0))
+        ttk.Label(feat_lag, text="lag 帧").pack(side=tk.LEFT)
+        self._spin(feat_lag, self.press_lag_var, frm=0, to=30).pack(side=tk.LEFT, padx=(2, 0))
         feat_btns = ttk.Frame(feat)
         feat_btns.pack(fill=tk.X, pady=(4, 0))
         self.extract_one_btn = ttk.Button(feat_btns, text="提取本段", command=lambda: self._start_extract(False))
@@ -852,84 +860,88 @@ class FsmReplayApp(tk.Tk):
         self._right_canvas.bind("<Configure>", self._on_right_canvas_cfg)
         self._bind_right_wheel(scroll_host)
 
-        params = ttk.LabelFrame(self._right_inner, text="参数", padding=8)
-        r_mlg = ttk.Frame(params)
-        r_mlg.pack(fill=tk.X)
-        ttk.Label(r_mlg, text="判定 M").pack(side=tk.LEFT)
+        def _pf(title: str) -> ttk.LabelFrame:
+            return ttk.LabelFrame(self._right_inner, text=title, padding=6)
+
+        def _prow(parent) -> ttk.Frame:
+            row = ttk.Frame(parent)
+            row.pack(fill=tk.X, pady=(2, 0))
+            return row
+
+        box_judge = _pf("判定")
+        r_mlg = _prow(box_judge)
+        ttk.Label(r_mlg, text="M").pack(side=tk.LEFT)
         self._spin(r_mlg, self.m_var).pack(side=tk.LEFT, padx=(2, 6))
         ttk.Label(r_mlg, text="L").pack(side=tk.LEFT)
         self._spin(r_mlg, self.l_var).pack(side=tk.LEFT, padx=(2, 6))
         ttk.Label(r_mlg, text="G").pack(side=tk.LEFT)
-        self._spin(r_mlg, self.g_var).pack(side=tk.LEFT, padx=(2, 6))
+        self._spin(r_mlg, self.g_var).pack(side=tk.LEFT, padx=(2, 0))
         self._help_btn(r_mlg, "参数说明", HELP_PARAMS).pack(side=tk.RIGHT)
-        r_x = ttk.Frame(params)
-        r_x.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_x, text="卡住 X秒").pack(side=tk.LEFT)
+        box_stuck = _pf("卡住")
+        r_x = _prow(box_stuck)
+        ttk.Label(r_x, text="X秒").pack(side=tk.LEFT)
         self._spin(r_x, self.x_var, to=120, frm=0.05, width=5).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_x, text="恢复 Y ms").pack(side=tk.LEFT)
+        ttk.Label(r_x, text="Y ms").pack(side=tk.LEFT)
         self._spin(r_x, self.y_var, to=20000, frm=1, width=6).pack(side=tk.LEFT, padx=(2, 0))
-        r_gate = ttk.Frame(params)
-        r_gate.pack(fill=tk.X, pady=(4, 0))
+        box_gate = _pf("过门")
+        r_gate = _prow(box_gate)
         ttk.Label(r_gate, text="GX").pack(side=tk.LEFT)
         self._spin(r_gate, self.gx_var, frm=0, to=400).pack(side=tk.LEFT, padx=(2, 6))
         ttk.Label(r_gate, text="GY").pack(side=tk.LEFT)
         self._spin(r_gate, self.gy_var, frm=0, to=400).pack(side=tk.LEFT, padx=(2, 0))
-        r_ax = ttk.Frame(params)
-        r_ax.pack(fill=tk.X, pady=(4, 0))
+        r_ax = _prow(box_gate)
         ttk.Label(r_ax, text="AX ms").pack(side=tk.LEFT)
         self._spin(r_ax, self.ax_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 6))
         ttk.Label(r_ax, text="AY ms").pack(side=tk.LEFT)
         self._spin(r_ax, self.ay_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
-        r_sf = ttk.Frame(params)
-        r_sf.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_sf, text="相似 S%").pack(side=tk.LEFT)
+        box_fight = _pf("开打")
+        r_sf = _prow(box_fight)
+        ttk.Label(r_sf, text="S%").pack(side=tk.LEFT)
         self._spin(r_sf, self.s_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_sf, text="假释放 F%").pack(side=tk.LEFT)
+        ttk.Label(r_sf, text="F%").pack(side=tk.LEFT)
         self._spin(r_sf, self.f_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 0))
-        r_xxx = ttk.Frame(params)
-        r_xxx.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_xxx, text="普攻 XXX ms").pack(side=tk.LEFT)
-        self._spin(r_xxx, self.xxx_var, frm=1, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_xxx, text="点按 ms").pack(side=tk.LEFT)
-        self._spin(r_xxx, self.tap_ms_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 0))
-        r_mash = ttk.Frame(params)
-        r_mash.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_mash, text="连按 COUNT").pack(side=tk.LEFT)
+        r_xxx = _prow(box_fight)
+        ttk.Label(r_xxx, text="XXX ms").pack(side=tk.LEFT)
+        self._spin(r_xxx, self.xxx_var, frm=1, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        r_tap = _prow(box_fight)
+        ttk.Label(r_tap, text="点按 min").pack(side=tk.LEFT)
+        self._spin(r_tap, self.tap_ms_min_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_tap, text="max").pack(side=tk.LEFT)
+        self._spin(r_tap, self.tap_ms_max_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 0))
+        box_mash = _pf("连按·移动")
+        r_mash = _prow(box_mash)
+        ttk.Label(r_mash, text="COUNT").pack(side=tk.LEFT)
         self._spin(r_mash, self.mash_count_var, frm=1, to=15).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_mash, text="间隔 ms").pack(side=tk.LEFT)
         self._spin(r_mash, self.mash_gap_var, frm=10, to=300).pack(side=tk.LEFT, padx=(2, 0))
-        r_th = ttk.Frame(params)
-        r_th.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_th, text="移动间隔 ms").pack(side=tk.LEFT)
+        r_th = _prow(box_mash)
+        ttk.Label(r_th, text="th ms").pack(side=tk.LEFT)
         self._spin(r_th, self.th_var, frm=0, to=300).pack(side=tk.LEFT, padx=(2, 0))
-        r_loot_fsm = ttk.Frame(params)
-        r_loot_fsm.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_loot_fsm, text="掉落动 PM").pack(side=tk.LEFT)
+        box_loot = _pf("捡物·回城")
+        r_loot_fsm = _prow(box_loot)
+        ttk.Label(r_loot_fsm, text="PM").pack(side=tk.LEFT)
         self._spin(r_loot_fsm, self.pm_var, frm=0, to=200).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_loot_fsm, text="一键拾取 PC").pack(side=tk.LEFT)
+        ttk.Label(r_loot_fsm, text="PC").pack(side=tk.LEFT)
         self._spin(r_loot_fsm, self.pc_var, frm=0, to=40).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_loot_fsm, text="停下 PT").pack(side=tk.LEFT)
+        ttk.Label(r_loot_fsm, text="PT").pack(side=tk.LEFT)
         self._spin(r_loot_fsm, self.pt_var).pack(side=tk.LEFT, padx=(2, 0))
-        r_pw = ttk.Frame(params)
-        r_pw.pack(fill=tk.X, pady=(4, 0))
+        r_pw = _prow(box_loot)
         ttk.Label(r_pw, text="PW ms").pack(side=tk.LEFT)
         self._spin(r_pw, self.pw_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_pw, text="回城秒").pack(side=tk.LEFT)
         self._spin(r_pw, self.town_s_var, frm=1, to=120).pack(side=tk.LEFT, padx=(2, 0))
-        r_run = ttk.Frame(params)
-        r_run.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_run, text="跑 press>").pack(side=tk.LEFT)
-        self._spin(r_run, self.run_press_var, frm=0, to=30).pack(side=tk.LEFT, padx=(2, 0))
-        r_loot = ttk.Frame(params)
-        r_loot.pack(fill=tk.X, pady=(4, 0))
-        ttk.Label(r_loot, text="捡物持续 ms").pack(side=tk.LEFT)
-        self._spin(r_loot, self.loot_hold_var, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
-        r_corr = ttk.Frame(params)
-        r_corr.pack(fill=tk.X, pady=(6, 0))
-        ttk.Label(r_corr, text="MON/BOSS补正").pack(side=tk.LEFT)
+        box_misc = _pf("其它")
+        r_run = _prow(box_misc)
+        ttk.Label(r_run, text="跑>").pack(side=tk.LEFT)
+        self._spin(r_run, self.run_press_var, frm=0, to=30).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_run, text="捡物 ms").pack(side=tk.LEFT)
+        self._spin(r_run, self.loot_hold_var, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        box_corr = _pf("补正")
+        r_corr = _prow(box_corr)
+        ttk.Label(r_corr, text="MON/BOSS").pack(side=tk.LEFT)
         self.corr_summary = ttk.Label(r_corr, text="X+0 Y+0", foreground="#06c")
         self.corr_summary.pack(side=tk.LEFT, padx=(8, 0))
-        pad = ttk.Frame(params)
+        pad = ttk.Frame(box_corr)
         pad.pack(fill=tk.X, pady=(2, 0))
         mx = MON_CORR_MAX
         tk.Scale(pad, from_=mx, to=0, orient=tk.VERTICAL, length=72, width=10, showvalue=True, variable=self.corr_u, label="上", command=self._on_corr_edit).pack(side=tk.LEFT)
@@ -940,32 +952,31 @@ class FsmReplayApp(tk.Tk):
         tk.Scale(pad, from_=0, to=mx, orient=tk.VERTICAL, length=72, width=10, showvalue=True, variable=self.corr_d, label="下", command=self._on_corr_edit).pack(side=tk.LEFT)
         self._refresh_corr_summary()
         ttk.Checkbutton(
-            params,
+            box_corr,
             text="player 缺失沿用上次",
             variable=self.fill_var,
             command=self._on_view_opts,
-        ).pack(anchor=tk.W, pady=(6, 0))
+        ).pack(anchor=tk.W, pady=(6, 0), fill=tk.X)
         ttk.Checkbutton(
-            params,
+            box_corr,
             text="相对坐标（player 原点）",
             variable=self.rel_var,
             command=self._on_view_opts,
-        ).pack(anchor=tk.W)
+        ).pack(anchor=tk.W, fill=tk.X)
         ttk.Checkbutton(
-            params,
+            box_corr,
             text="叠图对比 PNG",
             variable=self.overlay_var,
             command=self._on_overlay_opts,
-        ).pack(anchor=tk.W)
-        r_ov = ttk.Frame(params)
-        r_ov.pack(fill=tk.X)
+        ).pack(anchor=tk.W, fill=tk.X)
+        r_ov = _prow(box_corr)
         ttk.Label(r_ov, text="透明度").pack(side=tk.LEFT)
         tk.Scale(
             r_ov,
             from_=8,
             to=100,
             orient=tk.HORIZONTAL,
-            length=160,
+            length=120,
             width=10,
             showvalue=True,
             variable=self.overlay_alpha_var,
@@ -991,7 +1002,8 @@ class FsmReplayApp(tk.Tk):
         ttk.Label(skill_cols, text="连按", width=4).pack(side=tk.LEFT)
         self.skill_hold_host = ttk.Frame(skill_box)
         self.skill_hold_host.pack(fill=tk.X)
-        params.pack(side=tk.TOP, fill=tk.X, pady=(0, 8))
+        for box in (box_judge, box_stuck, box_gate, box_fight, box_mash, box_loot, box_misc, box_corr):
+            box.pack(side=tk.TOP, fill=tk.X, pady=(0, 6))
 
         left = ttk.Frame(body)
         left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -1129,6 +1141,9 @@ class FsmReplayApp(tk.Tk):
         sp = ttk.Spinbox(parent, from_=frm, to=to, width=width, textvariable=var, command=self._on_fsm_opts, increment=0.05 if isinstance(frm, float) or (isinstance(to, float)) else 1)
         var.trace_add("write", lambda *_: self._on_fsm_opts())
         return sp
+
+    def _press_lag_frames(self) -> int:
+        return self._spin_n(self.press_lag_var, EXTRACT_PRESS_LAG_FRAMES, lo=0)
 
     def _fsm_track_kwargs(self) -> dict:
         ox, oy = mon_off_from_corr(*self._corr_tuple())
@@ -1539,7 +1554,6 @@ class FsmReplayApp(tk.Tk):
             ("g", self.g_var, 5, 1),
             ("gx", self.gx_var, 50, 0),
             ("gy", self.gy_var, 10, 0),
-            ("tap_ms", self.tap_ms_var, 50, 1),
             ("mash_count", self.mash_count_var, 3, 1),
             ("mash_gap_ms", self.mash_gap_var, 50, 10),
             ("th_ms", self.th_var, 50, 0),
@@ -1552,6 +1566,7 @@ class FsmReplayApp(tk.Tk):
             ("run_press", self.run_press_var, RUN_PRESS_GT, 0),
             ("e", self.e_var, 3, 0),
             ("f", self.f_var, DEFAULT_F, 0),
+            ("press_lag_frames", self.press_lag_var, EXTRACT_PRESS_LAG_FRAMES, 0),
         ):
             if key in data:
                 try:
@@ -1569,6 +1584,9 @@ class FsmReplayApp(tk.Tk):
         if "a" in data:
             warn_legacy_key("a")
         self.xxx_var.set(str(json_ms(data, "xxx_ms", 2000, lo=1)))
+        tap_lo, tap_hi = parse_tap_ms_range(data)
+        self.tap_ms_min_var.set(str(tap_lo))
+        self.tap_ms_max_var.set(str(tap_hi))
         self.y_var.set(str(json_ms(data, "y_ms", 500, lo=1)))
         self.loot_hold_var.set(str(json_ms(data, "loot_hold_ms", 250, lo=1)))
         if "pm" not in data and "lm" in data:
@@ -1646,7 +1664,8 @@ class FsmReplayApp(tk.Tk):
             "ax_ms": self._spin_n(self.ax_var, 250, lo=0),
             "ay_ms": self._spin_n(self.ay_var, 250, lo=0),
             "xxx_ms": self._spin_n(self.xxx_var, 1000),
-            "tap_ms": self._spin_n(self.tap_ms_var, 50),
+            "tap_ms_min": self._spin_n(self.tap_ms_min_var, DEFAULT_TAP_MS_MIN),
+            "tap_ms_max": self._spin_n(self.tap_ms_max_var, DEFAULT_TAP_MS_MAX),
             "mash_count": self._spin_n(self.mash_count_var, 3),
             "mash_gap_ms": self._spin_n(self.mash_gap_var, 50, lo=10),
             "th_ms": self._spin_n(self.th_var, 50, lo=0),
@@ -1661,6 +1680,7 @@ class FsmReplayApp(tk.Tk):
             "loot_hold_ms": self._spin_n(self.loot_hold_var, LOOT_HOLD_DEFAULT),
             "e": self._spin_n(self.e_var, 3, lo=0),
             "f": self._spin_n(self.f_var, DEFAULT_F, lo=0),
+            "press_lag_frames": self._press_lag_frames(),
             "fill": bool(self.fill_var.get()),
             "relative": bool(self.rel_var.get()),
             "overlay": bool(self.overlay_var.get()),
@@ -1679,6 +1699,11 @@ class FsmReplayApp(tk.Tk):
         data["mon_corr_d"] = dwn
         data["mon_corr_l"] = left
         data["mon_corr_r"] = right
+        lo = int(data["tap_ms_min"])
+        hi = int(data["tap_ms_max"])
+        if lo > hi:
+            data["tap_ms_min"], data["tap_ms_max"] = hi, lo
+        data.pop("tap_ms", None)
         try:
             SETTINGS_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         except Exception:
@@ -1976,6 +2001,7 @@ class FsmReplayApp(tk.Tk):
             dist_table=dist_table_from_features(self._feature_cache),
             s=self._spin_n(self.s_var, 20, lo=0),
             slot_durs=self._slot_durs(),
+            press_lag_frames=self._press_lag_frames(),
         )
         skip_ids = {str(c["id"]) for c in live_casts if c.get("id") and cast_is_fake(c, f)}
         d["cd_resets"] = detect_cd_resets(
@@ -2067,6 +2093,8 @@ class FsmReplayApp(tk.Tk):
         draft_rows = d.get("draft") or []
         dr = draft_rows[i] if i < len(draft_rows) else None
         x_lim = self._spin_f(self.x_var, 1.5, lo=0.05)
+        lag = self._press_lag_frames()
+        yi = i - lag
         run_on = False
         move_on = False
         edges: list[dict] = []
@@ -2075,18 +2103,28 @@ class FsmReplayApp(tk.Tk):
             t_prev = int(d["frames"][i - 1]["t_ns"]) if i > 0 else int(fr["t_ns"]) - 1
             edges = events_in_range(d["keys"], t_prev, int(fr["t_ns"]))
             held = rebuild_held_at(d["keys"], int(fr["t_ns"]), d.get("held_at_start"))
-            gt = self._spin_n(self.run_press_var, RUN_PRESS_GT, lo=0)
-            run_on = run_burst_active(edges, gt=gt)
-            move_on = (not run_on) and move_active(edges, held)
         loot_on = False
-        loot_hold = d.get("loot_hold") or []
-        if i < len(loot_hold):
-            loot_on = bool(loot_hold[i])
         skill_hit = None
-        skill_hold = d.get("skill_hold") or []
-        if i < len(skill_hold):
-            skill_hit = skill_hold[i]
-        x_atk = basic_attack_active(edges, held)
+        y_edges: list[dict] = []
+        y_held: list[str] = []
+        if yi >= 0:
+            fr_y = d["frames"][yi]
+            loot_hold = d.get("loot_hold") or []
+            if yi < len(loot_hold):
+                loot_on = bool(loot_hold[yi])
+            skill_hold = d.get("skill_hold") or []
+            if yi < len(skill_hold):
+                skill_hit = skill_hold[yi]
+            if d.get("keys_path_exists") and (d["keys"] or d.get("held_at_start")):
+                t_prev_y = int(d["frames"][yi - 1]["t_ns"]) if yi > 0 else int(fr_y["t_ns"]) - 1
+                y_edges = events_in_range(d["keys"], t_prev_y, int(fr_y["t_ns"]))
+                y_held = rebuild_held_at(d["keys"], int(fr_y["t_ns"]), d.get("held_at_start"))
+            gt = self._spin_n(self.run_press_var, RUN_PRESS_GT, lo=0)
+            run_on = run_burst_active(y_edges, gt=gt)
+            move_on = (not run_on) and move_active(y_edges, y_held)
+            x_atk = basic_attack_active(y_edges, y_held)
+        else:
+            x_atk = False
         if skill_hit:
             action_s = f"技能{skill_hit[0]}：{skill_hit[1]}"
         else:
@@ -2478,6 +2516,7 @@ class FsmReplayApp(tk.Tk):
             if slot in slot_durs:
                 sk[HOLD_FRAMES_KEY] = slot_durs[slot]
         f = self._spin_n(self.f_var, DEFAULT_F, lo=0)
+        lag = self._press_lag_frames()
         self._extract_busy = True
         self.extract_one_btn.config(state=tk.DISABLED)
         self.extract_all_btn.config(state=tk.DISABLED)
@@ -2488,7 +2527,7 @@ class FsmReplayApp(tk.Tk):
         self.extract_prog_var.set("提取 0/" + str(len(sessions)))
         threading.Thread(
             target=self._extract_worker,
-            args=(char, dun, sessions, e, wipe, set(self._combo_slots_from_ui()), dict(self._multi_n_from_ui()), slot_durs, f),
+            args=(char, dun, sessions, e, wipe, set(self._combo_slots_from_ui()), dict(self._multi_n_from_ui()), slot_durs, f, lag),
             daemon=True,
         ).start()
 
@@ -2503,6 +2542,7 @@ class FsmReplayApp(tk.Tk):
         multi_n=None,
         slot_durs=None,
         f: int = DEFAULT_F,
+        press_lag_frames: int = EXTRACT_PRESS_LAG_FRAMES,
     ):
         all_casts = []
         all_resets = []
@@ -2538,6 +2578,7 @@ class FsmReplayApp(tk.Tk):
                     s=s_pct,
                     extra_sigs=extra_sigs,
                     slot_durs=slot_durs,
+                    press_lag_frames=press_lag_frames,
                 )
                 all_casts.extend(casts)
                 skip_ids = {str(c["id"]) for c in casts if c.get("id") and cast_is_fake(c, f)}

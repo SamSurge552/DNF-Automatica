@@ -26,10 +26,11 @@ from fsm_core import (
 )
 from fsm_execute import (
     FsmExecutor,
-    DEFAULT_TAP_MS,
+    DEFAULT_TAP_MS_MIN,
+    DEFAULT_TAP_MS_MAX,
     DEFAULT_MASH_COUNT,
     DEFAULT_MASH_GAP_MS,
-    clamp_tap_ms,
+    parse_tap_ms_range,
     clamp_mash_count,
     clamp_mash_gap_ms,
     mash_n_for_slot,
@@ -251,7 +252,11 @@ class StatusAnalysisModule:
         self._fsm_record_config = config if self.fsm_test else None
         self._stop_fsm_record()
         if self.fsm_test:
-            self._executor = FsmExecutor(log=self.gui.log, tap_ms=getattr(self, "_tap_ms", DEFAULT_TAP_MS))
+            self._executor = FsmExecutor(
+                log=self.gui.log,
+                tap_ms_min=getattr(self, "_tap_ms_min", DEFAULT_TAP_MS_MIN),
+                tap_ms_max=getattr(self, "_tap_ms_max", DEFAULT_TAP_MS_MAX),
+            )
             self._sync_executor_mash()
             self._want_game_fg = True
             self._want_game_fg_until = time.time() + 2.0
@@ -295,7 +300,7 @@ class StatusAnalysisModule:
             self.gui.log(
                 f"状态分析模块: 已启动【FSM测试】（YOLO+FSM+发键；进图后写盘 FSM_TEST）。"
                 f"M={p.m} L={p.l} G={p.g} X={p.x_s:g}s GX={p.gx} GY={p.gy} AX={p.ax_ms}ms AY={p.ay_ms}ms Y={p.y_ms}ms S={p.s}% "
-                f"点按{getattr(self, '_tap_ms', DEFAULT_TAP_MS)}ms 连按COUNT={getattr(self, '_mash_count', DEFAULT_MASH_COUNT)} "
+                f"点按{getattr(self, '_tap_ms_min', DEFAULT_TAP_MS_MIN)}-{getattr(self, '_tap_ms_max', DEFAULT_TAP_MS_MAX)}ms 连按COUNT={getattr(self, '_mash_count', DEFAULT_MASH_COUNT)} "
                 f"间隔{getattr(self, '_mash_gap_ms', DEFAULT_MASH_GAP_MS)}ms TH={p.th_ms}ms  开打序列{len(p.fight_plan)}分布 发键开"
             )
         elif self.yolo_test:
@@ -351,16 +356,16 @@ class StatusAnalysisModule:
                 interval = float(getattr(self, "ocr_interval", 0.3) or 0.3)
             if current_time - self.last_capture_time >= interval:
                 self.last_capture_time = current_time
-                frame = self._capture_frame(config.get("region_coords"))
-                if frame is None:
+                grabbed = self._capture_frame(config.get("region_coords"))
+                if grabbed is None:
                     pass
                 elif self.yolo_test:
-                    t_ns = time.time_ns()
+                    frame, t_ns = grabbed
                     self._submit_ocr(frame)
                     self._run_yolo_frame(frame, t_ns)
                     self._tick_dungeon_gui()
                 elif not self.capture_only:
-                    self._submit_ocr(frame)
+                    self._submit_ocr(grabbed[0])
                     self._tick_dungeon_gui()
             time.sleep(0.02)
         self.gui.log("状态分析模块: 退出截图循环。")
@@ -492,7 +497,8 @@ class StatusAnalysisModule:
             "dungeon": self.current_dungeon_name or "",
             "yolo_conf": self.yolo_conf,
             "yolo_iou": self.yolo_iou,
-            "tap_ms": getattr(self, "_tap_ms", DEFAULT_TAP_MS),
+            "tap_ms_min": getattr(self, "_tap_ms_min", DEFAULT_TAP_MS_MIN),
+            "tap_ms_max": getattr(self, "_tap_ms_max", DEFAULT_TAP_MS_MAX),
             "mash_count": getattr(self, "_mash_count", DEFAULT_MASH_COUNT),
             "mash_gap_ms": getattr(self, "_mash_gap_ms", DEFAULT_MASH_GAP_MS),
             "mash_slots": sorted({int(sk.slot) for sk in (p.hotbar or ()) if sk.mash}),
@@ -599,6 +605,9 @@ class StatusAnalysisModule:
                 pass
         writer = self._writer
         self._writer = None
+        flush = getattr(self.capture_module, "flush_saves", None)
+        if callable(flush):
+            flush()
         if writer is not None:
             try:
                 self._write_fsm_params_file()
@@ -639,7 +648,7 @@ class StatusAnalysisModule:
 
     def _load_fsm_params(self) -> FsmParams:
         path = self._fsm_ui_path()
-        m, l, g, gx, gy, s, f, pm, pc, pt, tap_ms = 5, 5, 5, 50, 10, 20, DEFAULT_F, 10, 5, 3, DEFAULT_TAP_MS
+        m, l, g, gx, gy, s, f, pm, pc, pt = 5, 5, 5, 50, 10, 20, DEFAULT_F, 10, 5, 3
         mash_count, mash_gap = DEFAULT_MASH_COUNT, DEFAULT_MASH_GAP_MS
         town_s = DEFAULT_TOWN_S
         ox, oy = 0, 0
@@ -657,7 +666,6 @@ class StatusAnalysisModule:
                 pm = max(0, int(data.get("pm", data.get("lm", pm))))
                 pc = max(0, int(data.get("pc", data.get("lc", pc))))
                 pt = max(1, int(data.get("pt", pt)))
-                tap_ms = clamp_tap_ms(data.get("tap_ms", tap_ms))
                 mash_count = clamp_mash_count(data.get("mash_count", mash_count))
                 mash_gap = clamp_mash_gap_ms(data.get("mash_gap_ms", mash_gap))
                 town_s = float(data.get("town_s", town_s))
@@ -677,13 +685,15 @@ class StatusAnalysisModule:
             pw_ms = max(0, int(data.get("pw_ms", DEFAULT_PW_MS)))
         except (TypeError, ValueError):
             pw_ms = DEFAULT_PW_MS
+        tap_lo, tap_hi = parse_tap_ms_range(data)
         self._f = f
         self._town_s = town_s
-        self._tap_ms = tap_ms
+        self._tap_ms_min = tap_lo
+        self._tap_ms_max = tap_hi
         self._mash_count = mash_count
         self._mash_gap_ms = mash_gap
         if self._executor is not None:
-            self._executor.set_tap_ms(tap_ms)
+            self._executor.set_tap_range(tap_lo, tap_hi)
             self._sync_executor_mash()
         char = ""
         try:
@@ -970,11 +980,12 @@ class StatusAnalysisModule:
             gui=None if self.fsm_test else self.gui,
             save=bool(self.fsm_test and self._fsm_session_dir),
         )
-        if not result:
+        if not result or result.get("frame") is None:
             self.gui.log("  - 游戏窗口截图失败。")
             return None
         self.frame_index += 1
         frame = result["frame"]
+        t_ns = int(result["t_ns"])
         path = result.get("path")
         self._last_png_name = Path(path).name if path else ""
         h, w = frame.shape[:2]
@@ -989,7 +1000,7 @@ class StatusAnalysisModule:
                 self.gui.log(f"  - 截图#{self.frame_index}: {w}x{h} -> {os.path.basename(path)}")
         elif self.frame_index == 1:
             self.gui.log(f"  - 截图#{self.frame_index}: {w}x{h}（不落盘；后续截图不再刷日志）")
-        return frame
+        return frame, t_ns
 
     def _match_keywords(self, pairs, keywords):
         hits = []

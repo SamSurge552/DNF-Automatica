@@ -67,9 +67,9 @@ recordings/<地下城>/<时间戳>[_角色]/
 | 流 | 何时打 `t_ns` |
 |----|----------------|
 | keys | pynput 回调里立刻打（误差可忽略） |
-| frames | `capture()` **整段返回之后**才打：**不含** YOLO 推理 |
+| frames | **grab 得到像素后立刻打**（`screen_capture.capture` 返回 `t_ns`）；**之后**才 save PNG、再 YOLO。jsonl 必须用该戳，禁止等 `capture()` 整段返回后再打 |
 
-本机 1600×900，`capture(save=False)` 墙钟（warmup 后；脚本 `measure_capture_latency.py`）：
+本机 1600×900，`capture(save=False)` 墙钟（warmup 后；脚本 `measure_capture_latency.py`）测的是 **grab** 耗时，不含 PNG 写盘：
 
 | 后端 | 中位 | 范围 | 备注 |
 |------|------|------|------|
@@ -81,7 +81,7 @@ dxcam 墙钟已落在约 10ms 量级，**对齐仍用磁盘 `t_ns`，不做补�
 这在 **jsonl 里要留下来**（连续相同特征 = 画面没动 / 可能卡住，给 FSM 用）。  
 **已确认的导出清洗**：丢掉相邻且特征完全一致的后一帧，计入 `dup_skipped`；按键用剩下帧的真实 dt 对齐。录制模块禁止按特征去重。独占全屏失败回退 Pillow 时墙钟又回到 ~40ms。
 
-YOLO `infer_ms`（约 10–20ms，首帧可达数百 ms）**不进入** `t_ns`，不影响键-帧对齐。
+YOLO `infer_ms`（约 10–20ms，首帧可达数百 ms）**不进入** `t_ns`，不影响键-帧对齐。PNG save 在戳之后后台写，**不进** `t_ns`，也不挡下一帧 grab（停录会 `flush_saves`）。
 
 若再压误差：在 grab **之前**打 `t_ns`，或打戳后减去本次 grab 耗时。未改之前不要在训练里自行减 40ms（那是旧 Grab 数）。
 
@@ -172,7 +172,7 @@ space: held_frac=0.20   # 点一下
 3. 键按 4.1 重建 hold（去 repeat；`keys_held_at_start` 初始化）。
 4. 坐标字段从 jsonl **原样拷贝**（含 `player_xy: null`）。
 5. 每帧按真实 dt 写 `held_frac`；无左端点的第一帧丢掉。
-6. 帧戳：磁盘 `t_ns` 原样用。dxcam 打戳前墙钟中位 ~8ms；旧 Grab ~40ms。暂不补偿。
+6. 帧戳：磁盘 `t_ns` 原样用。t_ns=grab 后、save/YOLO 前。dxcam grab 墙钟中位 ~8ms；旧 Grab ~40ms。暂不补偿。
 7. 忙帧 / 导出去重后：dt 用实际时间差。
 8. 太短的段不要进训练集。
 

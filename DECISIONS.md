@@ -71,7 +71,7 @@
 
 **核心层 / 双宿主（覆盖「单独三个 EXE」和把执行塞进回放）：**
 
-- **核心（FSM + 决策）只有一份，必须是纯函数。** 文件：`fsm_core.py` 的 `step(snapshot, ctx, params)`。输入 = 检测快照 + context；输出 = `FsmDecision` + 新 context。卡住是状态 `卡住`（全局最高优先级，打断方法）；预热仍在 flags。不截屏、不发键、不读文件、不 `sleep`、不调墙钟。`t_ns` 必须单调不减（核心校验）；回放用 jsonl 原值，实机用截图完成时刻（推理前）。ctx 值语义，不就地改。
+- **核心（FSM + 决策）只有一份，必须是纯函数。** 文件：`fsm_core.py` 的 `step(snapshot, ctx, params)`。输入 = 检测快照 + context；输出 = `FsmDecision` + 新 context。卡住是状态 `卡住`（全局最高优先级，打断方法）；预热仍在 flags。不截屏、不发键、不读文件、不 `sleep`、不调墙钟。`t_ns` 必须单调不减（核心校验）；回放用 jsonl 原值，实机用 grab 后、save/YOLO 前的戳。ctx 值语义，不就地改。
   - **决策输出（执行要消费）至少含：** `state` / `flags` / `action` / `move_dir` / `move_dirs` / `skill_slot` / `skill_key`。`skill_slot` / `skill_key` 是决策输出，供 CAST 等执行，**不是**展示字段。
   - **方向双轨：** 宿主（`fsm_execute.apply`）优先 `move_dirs`；为空则回退 `move_dir`。
   - **诊断展示字段（另列）：** `why` / `chain` / `intent_label` / `send_label` / `skill_cds` / 分布计数 / `flow_steps` 等。核心侧 `send_label` 不拼「连按N×」。

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ctypes
+import time
 
 user32 = ctypes.windll.user32
 
@@ -148,8 +149,16 @@ def key_up(name: str) -> bool:
     return True
 
 
-def key_tap(name: str) -> bool:
+def key_tap(name: str, hold_ms: int) -> bool:
+    """按下 → 保持 hold_ms 毫秒 → 抬起。禁止瞬时 down+up。"""
+    try:
+        ms = int(hold_ms)
+    except (TypeError, ValueError):
+        return False
+    if ms < 1:
+        return False
     if not key_down(name):
         return False
+    time.sleep(ms / 1000.0)
     key_up(name)
     return True

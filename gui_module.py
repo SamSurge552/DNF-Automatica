@@ -26,6 +26,7 @@ from window_align import enable_dpi_awareness, get_virtual_screen, get_window_at
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
 from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_PW_MS, DEFAULT_TOWN_S, json_ms, json_s
+from fsm_execute import DEFAULT_TAP_MS_MIN, DEFAULT_TAP_MS_MAX, parse_tap_ms_range, clamp_tap_ms
 from skill_feature_extract import DEFAULT_E, DEFAULT_F, skill_table_missing
 
 
@@ -343,7 +344,8 @@ class App(tk.Tk):
         self.fsm_e_var = tk.StringVar(value=str(DEFAULT_E))
         self.fsm_f_var = tk.StringVar(value=str(DEFAULT_F))
         self.fsm_town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
-        self.fsm_tap_ms_var = tk.StringVar(value="50")
+        self.fsm_tap_ms_min_var = tk.StringVar(value=str(DEFAULT_TAP_MS_MIN))
+        self.fsm_tap_ms_max_var = tk.StringVar(value=str(DEFAULT_TAP_MS_MAX))
         self.fsm_mash_count_var = tk.StringVar(value="3")
         self.fsm_mash_gap_var = tk.StringVar(value="50")
         self.fsm_th_var = tk.StringVar(value="50")
@@ -378,7 +380,8 @@ class App(tk.Tk):
             self.fsm_e_var,
             self.fsm_f_var,
             self.fsm_town_s_var,
-            self.fsm_tap_ms_var,
+            self.fsm_tap_ms_min_var,
+            self.fsm_tap_ms_max_var,
             self.fsm_mash_count_var,
             self.fsm_mash_gap_var,
             self.fsm_th_var,
@@ -1061,7 +1064,11 @@ class App(tk.Tk):
         spin(r3, "恢复 Y ms", self.fsm_y_var, 1, 20000, 6)
         spin(r3, "相似 S%", self.fsm_s_var, 0, 100)
         spin(r3, "普攻 XXX ms", self.fsm_xxx_var, 1, 20000, 6)
-        spin(r3, "点按 ms", self.fsm_tap_ms_var, 1, 200)
+
+        r_tap = ttk.Frame(body)
+        r_tap.pack(fill=tk.X, pady=(6, 0))
+        spin(r_tap, "点按 min", self.fsm_tap_ms_min_var, 1, 200)
+        spin(r_tap, "max", self.fsm_tap_ms_max_var, 1, 200)
 
         r_mash = ttk.Frame(body)
         r_mash.pack(fill=tk.X, pady=(6, 0))
@@ -1140,7 +1147,7 @@ class App(tk.Tk):
 
         ttk.Label(
             body,
-            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒 tn_s：连续无地下城关键词达该秒数即回城（不换帧）。OCR 无关键词则沿用上一帧再进进图/回城。前进接近与捡物：点按 → TH 毫秒 → 按住。距门 >GX/>GY 才接近；两轴停或门没了再 AX/AY 毫秒。卡住后 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)。S=分布相似百分比。PM/PT=掉落在动；PW=等停下上限毫秒，超时按当前掉落继续捡。数量>PC 一键拾取。E/F=提取。XXX=全 CD 普攻毫秒。点按 ms=技能/左Alt。连按 COUNT 在执行层。MON/BOSS 补正用于 FSM/提取/回放逻辑点，jsonl 仍原始，改后请重提。与回放共用 json：改完立刻写入；点开始会先读文件。",
+            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒 tn_s：连续无地下城关键词达该秒数即回城（不换帧）。OCR 无关键词则沿用上一帧再进进图/回城。前进接近与捡物：点按 → TH 毫秒 → 按住。距门 >GX/>GY 才接近；两轴停或门没了再 AX/AY 毫秒。卡住后 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)。S=分布相似百分比。PM/PT=掉落在动；PW=等停下上限毫秒，超时按当前掉落继续捡。数量>PC 一键拾取。E/F=提取。XXX=全 CD 普攻毫秒。点按 min/max=每次点按按下保持（默认 80–120，含移动 TAP）。连按 COUNT 在执行层。MON/BOSS 补正用于 FSM/提取/回放逻辑点，jsonl 仍原始，改后请重提。与回放共用 json：改完立刻写入；点开始会先读文件。",
             foreground="#666",
             wraplength=460,
             justify=tk.LEFT,
@@ -1235,7 +1242,6 @@ class App(tk.Tk):
         mash_count, mash_gap = 3, 50
         th_ms = 50
         e, f, town_s = DEFAULT_E, DEFAULT_F, float(DEFAULT_TOWN_S)
-        tap_ms = 50
         pw_ms = DEFAULT_PW_MS
         data = {}
         if FSM_UI_PATH.is_file():
@@ -1254,7 +1260,6 @@ class App(tk.Tk):
                     pw_ms = max(0, int(data.get("pw_ms", pw_ms)))
                 except (TypeError, ValueError):
                     pw_ms = DEFAULT_PW_MS
-                tap_ms = max(1, min(200, int(data.get("tap_ms", tap_ms))))
                 mash_count = max(1, min(15, int(data.get("mash_count", mash_count))))
                 mash_gap = max(10, min(300, int(data.get("mash_gap_ms", mash_gap))))
                 th_ms = max(0, min(300, int(data.get("th_ms", mash_gap))))
@@ -1263,6 +1268,7 @@ class App(tk.Tk):
                 town_s = float(data.get("town_s", town_s))
             except Exception:
                 data = {}
+        tap_lo, tap_hi = parse_tap_ms_range(data)
         x_s = json_s(data, "x_s", 30.0)
         ax_ms = json_ms(data, "ax_ms", 1000)
         ay_ms = json_ms(data, "ay_ms", 1000)
@@ -1290,7 +1296,8 @@ class App(tk.Tk):
         self.fsm_e_var.set(str(e))
         self.fsm_f_var.set(str(f))
         self.fsm_town_s_var.set(str(town_s))
-        self.fsm_tap_ms_var.set(str(tap_ms))
+        self.fsm_tap_ms_min_var.set(str(tap_lo))
+        self.fsm_tap_ms_max_var.set(str(tap_hi))
         self.fsm_mash_count_var.set(str(mash_count))
         self.fsm_mash_gap_var.set(str(mash_gap))
         self.fsm_th_var.set(str(th_ms))
@@ -1337,9 +1344,16 @@ class App(tk.Tk):
         except (TypeError, ValueError):
             data["xxx_ms"] = 1000
         try:
-            data["tap_ms"] = max(1, min(200, int(str(self.fsm_tap_ms_var.get()).strip() or 50)))
+            lo = clamp_tap_ms(str(self.fsm_tap_ms_min_var.get()).strip() or DEFAULT_TAP_MS_MIN, DEFAULT_TAP_MS_MIN)
+            hi = clamp_tap_ms(str(self.fsm_tap_ms_max_var.get()).strip() or DEFAULT_TAP_MS_MAX, DEFAULT_TAP_MS_MAX)
+            if lo > hi:
+                lo, hi = hi, lo
+            data["tap_ms_min"] = lo
+            data["tap_ms_max"] = hi
         except (TypeError, ValueError):
-            data["tap_ms"] = 50
+            data["tap_ms_min"] = DEFAULT_TAP_MS_MIN
+            data["tap_ms_max"] = DEFAULT_TAP_MS_MAX
+        data.pop("tap_ms", None)
         try:
             data["mash_count"] = max(1, min(15, int(str(self.fsm_mash_count_var.get()).strip() or 3)))
         except (TypeError, ValueError):

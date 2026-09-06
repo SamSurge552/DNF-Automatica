@@ -1,4 +1,4 @@
-"""重测 capture() 打戳前耗时（TRAIN_ALIGN.md 第 2 节）。不改录制打戳逻辑。"""
+"""测 grab 墙钟（TRAIN_ALIGN.md 第 2 节）。录制 t_ns 在 grab 后、save 前，由 capture() 返回。"""
 from __future__ import annotations
 
 import json
@@ -44,7 +44,7 @@ def main(n: int = 40, warmup: int = 8):
         f"capture() wall (warmup={warmup}): median={s['median_ms']}ms "
         f"mean={s['mean_ms']}ms range={s['min_ms']}-{s['max_ms']} p90={s['p90_ms']} n={s['n']}"
     )
-    print("说明: 录制仍在 capture() 返回后打 t_ns；本数是打戳前墙钟，不是帧内容的采集时刻。")
+    print("说明: 录制 t_ns 在 grab 后立刻打（save/YOLO 之前）；本数是 capture(save=False) 的 grab 墙钟。")
     print("dxcam get_latest_frame 可能返回已缓冲的上一帧，墙钟短 ≠ 画面更新延迟小。")
 
 

@@ -91,4 +91,10 @@
 -
 11：30 交接归档；下一对话继续边打边调（叠图核对YOLO、调TH/GX）
 12：50 A1/A2/A3/A5 已裁定并落地；A4 卡住恢复暂挂。请重提 skill_features。
+14：05 提取 i_feat=i0+lag（默认1）；回放参数拆行防裁切
+14：25 press_lag 可调；黄字与 i_feat 同步；参数分类 LabelFrame
+15：10 t_ns 改在 grab 后、save/YOLO 前；PNG 后台写
+15：55 点按统一 80–120 随机（min/max）；HOLD/普攻仍按住
+16：00 交接归档 ARCHIVE_NOTE_2026-09-06-1
+16：22 Varien 图集 solarwarden_d 自动标 conf=0.15 iou=0.5（93 张 / 276 框）
 -

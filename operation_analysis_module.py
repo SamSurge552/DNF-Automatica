@@ -294,7 +294,7 @@ class OperationAnalysisModule:
                 continue
             if not result or result.get("frame") is None:
                 continue
-            t_ns = time.time_ns()
+            t_ns = int(result["t_ns"])
             png_path = result.get("path") or ""
             png_name = Path(png_path).name if png_path else f"{t_ns}.png"
             engine = getattr(self.controller, "yolo_engine", None)
@@ -376,6 +376,9 @@ class OperationAnalysisModule:
         self.vision_thread = None
         self.infer_thread = None
         self.frame_queue = None
+        flush = getattr(self.controller.capture_module, "flush_saves", None)
+        if callable(flush):
+            flush()
 
         if self.writer:
             self.writer.stop(timeout=5.0)

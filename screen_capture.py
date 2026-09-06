@@ -31,6 +31,7 @@ class ScreenCaptureModule:
         self._use_dxcam = _dxcam is not None
         self._logged_backend = False
         self._session_files = []
+        self._save_threads: list[threading.Thread] = []
         os.makedirs(self.base_output_dir, exist_ok=True)
 
     @staticmethod
@@ -49,6 +50,7 @@ class ScreenCaptureModule:
 
     def discard_session_pngs(self):
         """只删本段写下的 PNG，不删角色目录里其它段。"""
+        self.flush_saves()
         for fp in list(self._session_files or []):
             try:
                 if os.path.isfile(fp):
@@ -119,6 +121,17 @@ class ScreenCaptureModule:
             self._stop_camera()
             self._use_dxcam = False
             return None
+
+    def flush_saves(self, timeout: float = 8.0):
+        """等本段未写完的 PNG 落盘（异步 save 用）。"""
+        threads = list(self._save_threads)
+        self._save_threads = []
+        deadline = time.time() + max(0.1, float(timeout))
+        for th in threads:
+            remain = deadline - time.time()
+            if remain <= 0:
+                break
+            th.join(remain)
 
     def _grab_hdr(self, region: tuple[int, int, int, int]):
         left, top, right, bottom = region
@@ -197,6 +210,8 @@ class ScreenCaptureModule:
                 self._log(gui, "错误: 截图失败（空帧）。")
                 return None
 
+            t_ns = time.time_ns()
+
             if not self._logged_backend:
                 self._logged_backend = True
                 extra = f"（dxcam 不可用: {_dxcam_import_error}）" if _dxcam_import_error else ""
@@ -207,13 +222,26 @@ class ScreenCaptureModule:
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                 filename = f"{timestamp}.png"
                 filepath = os.path.join(self.session_dir, filename)
-                Image.fromarray(frame[:, :, ::-1]).save(filepath)
+                rgb = np.ascontiguousarray(frame[:, :, ::-1])
+                th = threading.Thread(
+                    target=self._save_png,
+                    args=(rgb, filepath),
+                    name="png-save",
+                    daemon=True,
+                )
+                self._save_threads = [t for t in self._save_threads if t.is_alive()]
+                self._save_threads.append(th)
                 self._session_files.append(filepath)
+                th.start()
 
-            return {"frame": frame, "path": filepath, "backend": backend}
+            return {"frame": frame, "path": filepath, "backend": backend, "t_ns": t_ns}
         except Exception as e:
             self._log(gui, f"错误: 截图失败 - {e}")
             return None
+
+    @staticmethod
+    def _save_png(rgb, filepath: str) -> None:
+        Image.fromarray(rgb).save(filepath)
 
     def _log(self, gui, message):
         if gui:

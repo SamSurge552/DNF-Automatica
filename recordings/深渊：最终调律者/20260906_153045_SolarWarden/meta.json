@@ -1,11 +1,11 @@
 {
   "dungeon": "深渊：最终调律者",
-  "started_at": "20260906_132820",
-  "started_t_ns": 1788672500737407600,
-  "interval": 0.05,
+  "started_at": "20260906_153045",
+  "started_t_ns": 1788679845806569400,
+  "interval": 0.1,
   "region": {
-    "x": 949,
-    "y": 475,
+    "x": 607,
+    "y": 448,
     "width": 1600,
     "height": 900
   },
@@ -23,10 +23,10 @@
     "conf": 0.1,
     "iou": 0.7
   },
-  "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260906_132820_SolarWarden",
+  "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260906_153045_SolarWarden",
   "png_dir": "D:\\Desktop\\T\\test\\images\\solarwarden",
   "character": "SolarWarden",
   "keys_held_at_start": [],
-  "keys_count": 1022,
-  "frames_count": 593
+  "keys_count": 586,
+  "frames_count": 503
 }

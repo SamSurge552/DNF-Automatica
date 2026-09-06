@@ -29,7 +29,7 @@ COMBO_CD_S = 270.0
 DEFAULT_F = 20
 DEFAULT_MULTI = 2
 MULTI_N_MAX = 9
-EXTRACT_PRESS_LAG_FRAMES = 1  # 特征快照相对黄字 onset 延后的帧数；hold/CD 仍用 i0
+EXTRACT_PRESS_LAG_FRAMES = 1  # 仅默认；提取 i_feat 与回放黄字共用 UI 传入的 press_lag_frames
 
 
 def _now_iso() -> str:
@@ -253,7 +253,8 @@ def casts_from_tracks(
     slot_durs: dict[int, int] | None = None,
     press_lag_frames: int = EXTRACT_PRESS_LAG_FRAMES,
 ) -> tuple[list[dict], tuple[DistSig, ...]]:
-    """快捷栏技能（含 SPACE）。分布/最远敌对按 onset+lag 帧快照；hold 窗口仍从黄字 i0 起算。"""
+    """快捷栏技能（含 SPACE）。skill_hold 必须是真实 press onset，不要预先平移。
+    分布/最远敌对用 views[i_feat]；t0/hold/i_end/CD 仍从黄字 i0 起算。"""
     e = max(0, int(e))
     s_pct = max(0.0, float(s))
     lag = max(0, int(press_lag_frames))

@@ -1,15 +1,19 @@
 """FSM 意图 → 按键。核心只出 TAP/HOLD/CAST/PICK；这里查名注入。"""
 from __future__ import annotations
 
+import random
 import time
 
 from fsm_core import FsmAction, FsmDecision, FsmDir
 from key_inject import key_down, key_tap, key_up, vk_of
 
 PICK_KEY = "alt_l"
-DEFAULT_TAP_MS = 50
+DEFAULT_TAP_MS_MIN = 80
+DEFAULT_TAP_MS_MAX = 120
+DEFAULT_TAP_MS = DEFAULT_TAP_MS_MIN  # 旧单值入口；点按实际抽 [min,max]
 TAP_MS_MIN = 1
 TAP_MS_MAX = 200
+PICK_THROTTLE_MULT = 5  # 节流 = tap_ms_max × 5，避免连发比最长点按还密
 DEFAULT_MASH_COUNT = 3
 MASH_COUNT_MIN = 1
 MASH_COUNT_MAX = 15
@@ -24,6 +28,18 @@ def clamp_tap_ms(raw, default: int = DEFAULT_TAP_MS) -> int:
     except (TypeError, ValueError):
         n = default
     return max(TAP_MS_MIN, min(TAP_MS_MAX, n))
+
+
+def parse_tap_ms_range(data: dict | None) -> tuple[int, int]:
+    """优先 tap_ms_min/max。旧 tap_ms 忽略（不再当 50ms 点按）。都没有则 80–120。固定时长请写 min=max。"""
+    data = data if isinstance(data, dict) else {}
+    if "tap_ms_min" not in data and "tap_ms_max" not in data:
+        return DEFAULT_TAP_MS_MIN, DEFAULT_TAP_MS_MAX
+    lo = clamp_tap_ms(data.get("tap_ms_min"), DEFAULT_TAP_MS_MIN)
+    hi = clamp_tap_ms(data.get("tap_ms_max"), DEFAULT_TAP_MS_MAX)
+    if lo > hi:
+        lo, hi = hi, lo
+    return lo, hi
 
 
 def clamp_mash_count(raw, default: int = DEFAULT_MASH_COUNT) -> int:
@@ -73,20 +89,46 @@ def mash_n_for_slot(slot, mash_slots, mash_count: int) -> int:
 
 
 class FsmExecutor:
-    def __init__(self, log=None, tap_ms: int = DEFAULT_TAP_MS):
+    def __init__(self, log=None, tap_ms: int | None = None, tap_ms_min: int | None = None, tap_ms_max: int | None = None):
         self.log = log
         self._on = True
         self._held: set[str] = set()
         self._bad: set[str] = set()
         self._last_pick_t = 0.0
         self._mash_slots: set[int] = set()
-        self.set_tap_ms(tap_ms)
+        if tap_ms_min is None and tap_ms_max is None and tap_ms is not None:
+            self.set_tap_ms(tap_ms)
+        else:
+            self.set_tap_range(
+                DEFAULT_TAP_MS_MIN if tap_ms_min is None else tap_ms_min,
+                DEFAULT_TAP_MS_MAX if tap_ms_max is None else tap_ms_max,
+            )
         self.set_mash(DEFAULT_MASH_COUNT, DEFAULT_MASH_GAP_MS)
 
     def set_tap_ms(self, tap_ms: int) -> None:
-        ms = clamp_tap_ms(tap_ms)
-        self.tap_ms = ms
-        self._tap_s = ms / 1000.0
+        n = clamp_tap_ms(tap_ms)
+        self.set_tap_range(n, n)
+
+    def set_tap_range(self, lo, hi) -> None:
+        a = clamp_tap_ms(lo, DEFAULT_TAP_MS_MIN)
+        b = clamp_tap_ms(hi, DEFAULT_TAP_MS_MAX)
+        if a > b:
+            a, b = b, a
+        self.tap_ms_min = a
+        self.tap_ms_max = b
+        self.tap_ms = (a + b) // 2
+
+    def _tap_hold_s(self) -> float:
+        return random.randint(self.tap_ms_min, self.tap_ms_max) / 1000.0
+
+    def _tap_down_up(self, name: str) -> None:
+        if vk_of(name) is None:
+            self._warn(name)
+            return
+        if name in self._held:
+            key_up(name)
+            self._held.discard(name)
+        key_tap(name, random.randint(self.tap_ms_min, self.tap_ms_max))
 
     def set_mash(self, count: int, gap_ms: int, slots=None) -> None:
         self.mash_count = clamp_mash_count(count)
@@ -148,42 +190,18 @@ class FsmExecutor:
         return key_down(name)
 
     def _cast_tap(self, name: str) -> None:
-        if vk_of(name) is None:
-            self._warn(name)
-            return
-        if name in self._held:
-            key_up(name)
-            self._held.discard(name)
-        if not key_down(name):
-            return
-        time.sleep(self._tap_s)
-        key_up(name)
+        self._tap_down_up(name)
 
     def _pick(self) -> None:
         now = time.monotonic()
-        gap = max(self._tap_s * 5.0, self._tap_s)
+        gap = (self.tap_ms_max / 1000.0) * PICK_THROTTLE_MULT
         if now - self._last_pick_t < gap:
             return
         self._last_pick_t = now
-        if vk_of(PICK_KEY) is None:
-            self._warn(PICK_KEY)
-            return
-        if PICK_KEY in self._held:
-            key_up(PICK_KEY)
-            self._held.discard(PICK_KEY)
-        if not key_down(PICK_KEY):
-            return
-        time.sleep(self._tap_s)
-        key_up(PICK_KEY)
+        self._tap_down_up(PICK_KEY)
 
     def _tap(self, name: str) -> None:
-        if vk_of(name) is None:
-            self._warn(name)
-            return
-        if name in self._held:
-            key_up(name)
-            self._held.discard(name)
-        key_tap(name)
+        self._tap_down_up(name)
 
     def _cast(self, cmd: str, mash: bool = False) -> None:
         n = self.mash_count if mash else 1
@@ -204,7 +222,7 @@ class FsmExecutor:
                 last = i == len(steps) - 1
                 if last:
                     if held:
-                        time.sleep(self._tap_s)
+                        time.sleep(self._tap_hold_s())
                     for name in keys:
                         self._cast_tap(name)
                 else:

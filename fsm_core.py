@@ -1,7 +1,7 @@
 """FSM 核心：纯函数。step(snapshot, ctx, params) → (decision, new_ctx)
 
 禁止：time / sleep / 读文件 / 发按键 / 截屏 / random / 模块级可变状态。
-t_ns 只信快照：回放必须用 jsonl 原值；实机必须用采样时刻（截图完成、推理之前）。
+t_ns 只信快照：回放必须用 jsonl 原值；实机必须用 grab 后、save/YOLO 前的采样戳。
 防抖是因果的：只看当前帧和 ctx，不向后看。「与旧批量等价」是断言不是实测，见 DECISIONS §8。
 """
 from __future__ import annotations
