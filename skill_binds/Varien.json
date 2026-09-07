@@ -1,0 +1,97 @@
+{
+  "character": "Varien",
+  "updated_at": "2026-09-07 22:49:09",
+  "source": "dnf_combat_stats",
+  "region": {
+    "x": 973,
+    "y": 470,
+    "width": 625,
+    "height": 576
+  },
+  "hover": {
+    "x": 66,
+    "y": 115,
+    "dy": 43,
+    "count": 4,
+    "dwell_s": 0.5
+  },
+  "skills": [
+    {
+      "slot": 1,
+      "command": "q",
+      "hotbar": true,
+      "cooldown_s": 10.6,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "hold_ms": 5000
+    },
+    {
+      "slot": 2,
+      "command": "w",
+      "hotbar": true,
+      "cooldown_s": 26.6,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "hold_ms": 1500
+    },
+    {
+      "slot": 3,
+      "command": "t",
+      "hotbar": true,
+      "cooldown_s": 34,
+      "combo": false,
+      "multi": true,
+      "multi_n": 2,
+      "mash": false,
+      "hold_ms": 5000
+    },
+    {
+      "slot": 4,
+      "command": "a",
+      "hotbar": true,
+      "cooldown_s": 38.2,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "hold_ms": 99999
+    },
+    {
+      "slot": 5,
+      "command": "f",
+      "hotbar": true,
+      "cooldown_s": 51,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "hold_ms": 250
+    },
+    {
+      "slot": 6,
+      "command": "h",
+      "hotbar": true,
+      "cooldown_s": 12.8,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "hold_ms": 5000
+    },
+    {
+      "slot": 7,
+      "command": "e",
+      "hotbar": true,
+      "cooldown_s": 12.8,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "hold_ms": 1000
+    }
+  ]
+}

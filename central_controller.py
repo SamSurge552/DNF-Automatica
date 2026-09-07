@@ -34,8 +34,10 @@ class CentralController:
             self.operation_analyzer.handle_dungeon_entry(self.current_dungeon, mode)
             self.gui.log(f"中央控制器: [回调] 检测到地下城变更为 -> {self.current_dungeon}，模式: {mode}")
         else:
-            # 回城：结束本段录制/自动化（通关数据按「一图一段」切分）
-            self.operation_analyzer.stop_all_operations()
+            if mode in ("collect", "record"):
+                self.operation_analyzer.close_segment()
+            else:
+                self.operation_analyzer.stop_all_operations()
             self.gui.log("中央控制器: [回调] 已退出地下城，返回城镇。")
 
     def load_config(self):
@@ -121,7 +123,7 @@ class CentralController:
                 self.gui.log("错误: 采集必须先以管理员身份启动。")
                 self.gui.stop()
                 return
-            if not self.operation_analyzer.start_collect("采集"):
+            if not self.operation_analyzer.arm_collect():
                 self.gui.stop()
                 return
             ocr_cfg = dict(config)
@@ -129,8 +131,8 @@ class CentralController:
             ocr_cfg["fsm_test"] = False
             ocr_cfg["yolo_test"] = False
             self.status_analyzer.start(ocr_cfg)
-            self.gui.update_runtime_status(state_text="采集")
-            self.gui.log("中央控制器: 采集已启动 — 截图 + 键盘 + YOLO + OCR 进图判定。")
+            self.gui.update_runtime_status(state_text="城镇")
+            self.gui.log("中央控制器: 采集已待命 — YOLO + 键钩 + OCR；进图后才写 recordings。")
             return
 
         self.status_analyzer.start(config)

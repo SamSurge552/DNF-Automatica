@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 import threading
@@ -74,6 +75,7 @@ from skill_feature_extract import (
     EXTRACT_PRESS_LAG_FRAMES,
     parse_multi_n,
     cast_is_fake,
+    fake_member_ids,
 )
 
 ROOT = Path(__file__).resolve().parent
@@ -83,6 +85,7 @@ IMAGES = ROOT / "images"
 ICON_DIR = ROOT / "fsm_icons"
 SETTINGS_PATH = ROOT / "_fsm_replay_ui.json"
 BINDS_DIR = ROOT / "skill_binds"
+FEATURES_DIR = ROOT / "skill_features"
 CLASSES = ("player", "mon", "loot", "gate", "boss")
 CLASS_CN = {
     "player": "玩家",
@@ -111,11 +114,11 @@ STATUS_VALUE_H = 52
 HELP_PARAMS = (
     "M/L/G：连续同值才改判定。BOSS 暂与 MON 共用 M。\n"
     "回城秒：连续无地下城关键词达该秒数即回城（核心直接用秒，不换帧）。回放 jsonl 无 OCR 时默认已进图。\n"
-    "S%：开打出现时 MON 群相似。\n"
+    "S_pos%：分布中心相似。S_size%：多 MON 范围框尺寸相似。全表取最相似再过阈值。\n"
     "F%：杀 MON 效率低于该百分比记假释放（不进序列 / 范围 / CD）。\n"
     "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。PW：等停下上限毫秒，超时结束等待并按当前掉落继续捡（蓝字「捡物等待超时 PW」）。数量 > PC 一键拾取，否则挨个捡。\n"
     "卡住：同一流程状态连续 X 秒则改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)（秒）。\n"
-    "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
+    "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。开打范围外同样走近（朝分布中心）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
     "点按 min/max：发键层每次点按（移动 TAP、技能 CAST/连按每次、左Alt 拾取）按下保持 uniform[min,max] 毫秒。默认 80–120。HOLD/普攻不是点按。PICK 节流 = max×5。与主面板共用 json。\n"
     "连按 COUNT / 间隔 ms：执行层参数（不进核心）。红字由回放按槽是否勾连按 + COUNT 拼出来。\n"
     "MON/BOSS 补正：上下左右滑块。FSM / 提取 / 回放逻辑点用同一偏移；jsonl 与叠图 PNG 仍是原始检测。改补正后旧 skill_features 作废，请重新提取本图。\n"
@@ -131,7 +134,8 @@ HELP_SKILLS = (
     "勾选或改次数后点「保存技能表」写入键位表。键位工具改完后点「重新读取」。"
 )
 HELP_EXTRACT = (
-    "按下快捷栏技能（含 SPACE）即提取，不要求开打。\n"
+    "按下快捷栏技能（含 SPACE）即提取，不要求开打。hold_ms 未结束又按下下一个 → 技能组（group_key 如 a>b）。\n"
+    "组结束 = 组内 (按下+hold_ms) 最大。组间隔 gaps_ms 取中位数，FSM 按间隔复现。起始数量 = 按下时 MON+BOSS。效率 100% 才记范围框；不足不计范围。该分布对已记范围取最大值。\n"
     "持续结束后杀 MON 数 > E → 群，否则为单。\n"
     "杀 MON 效率 < F% → 假释放（不进序列 / 范围 / CD）。\n"
     "怪物分布按 onset 后 press_lag 帧快照现算（与黄字延后同一值），不沿用 FSM 当时的状态。\n"
@@ -208,6 +212,111 @@ def png_file_of(session: Path, meta: dict | None, png_name: str) -> Path | None:
     return None
 
 
+def session_storage_root(session: Path) -> Path | None:
+    """仅允许删 recordings/ 或 FSM_TEST/ 下的段目录，不能是根目录本身。"""
+    try:
+        cur = Path(session).resolve()
+    except OSError:
+        return None
+    for root in (RECORDINGS, FSM_TEST_DIR):
+        try:
+            rr = root.resolve()
+        except OSError:
+            continue
+        if cur == rr:
+            return None
+        if rr in cur.parents:
+            return rr
+    return None
+
+
+def _png_name_list(raw) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def add(val) -> None:
+        s = str(val or "").strip()
+        if not s:
+            return
+        name = Path(s).name
+        if name and name not in seen:
+            seen.add(name)
+            out.append(name)
+
+    if isinstance(raw, str):
+        add(raw)
+    elif isinstance(raw, list):
+        for item in raw:
+            add(item)
+    return out
+
+
+def png_names_of_session(session: Path, meta: dict | None = None, frames: list[dict] | None = None) -> list[str]:
+    session = Path(session)
+    if frames is None:
+        frames = load_jsonl(session / "frames.jsonl")
+    if meta is None:
+        mp = session / "meta.json"
+        meta = json.loads(mp.read_text(encoding="utf-8")) if mp.is_file() else {}
+    names: list[str] = []
+    seen: set[str] = set()
+    for fr in frames or []:
+        for n in _png_name_list(fr.get("png")):
+            if n not in seen:
+                seen.add(n)
+                names.append(n)
+    for key in ("png", "pngs", "png_files"):
+        for n in _png_name_list((meta or {}).get(key)):
+            if n not in seen:
+                seen.add(n)
+                names.append(n)
+    return names
+
+
+def _path_under(child: Path, parent: Path) -> bool:
+    try:
+        cr = child.resolve()
+        pr = parent.resolve()
+    except OSError:
+        return False
+    return cr == pr or pr in cr.parents
+
+
+def resolve_session_pngs(
+    session: Path,
+    meta: dict | None = None,
+    frames: list[dict] | None = None,
+    log=None,
+) -> list[Path]:
+    """本段点名的 PNG 文件；缺文件跳过。不返回目录，不进 skill_features / skill_binds。"""
+    def _log(msg: str) -> None:
+        if callable(log):
+            log(msg)
+        else:
+            print(msg)
+
+    session = Path(session)
+    found: list[Path] = []
+    seen: set[str] = set()
+    for name in png_names_of_session(session, meta, frames):
+        hit = png_file_of(session, meta, name)
+        if hit is None:
+            _log(f"[replay] 缺 PNG，跳过: {name}")
+            continue
+        if not hit.is_file():
+            _log(f"[replay] 不是文件，跳过: {hit}")
+            continue
+        if _path_under(hit, FEATURES_DIR) or _path_under(hit, BINDS_DIR):
+            _log(f"[replay] 禁止路径，跳过: {hit}")
+            continue
+        key = str(hit.resolve())
+        if key in seen:
+            continue
+        seen.add(key)
+        found.append(hit)
+    return found
+
+
 def load_jsonl(path: Path) -> list[dict]:
     rows = []
     if not path.is_file():
@@ -278,6 +387,8 @@ def compute_draft_track(
     ay_ms: int = 250,
     y_ms: int = 250,
     s: int = 20,
+    s_pos: int | None = None,
+    s_size: int | None = None,
     pm: int = 10,
     pc: int = 5,
     pt: int = 3,
@@ -306,6 +417,8 @@ def compute_draft_track(
             ay_ms=ay_ms,
             y_ms=y_ms,
             s=s,
+            s_pos=s_pos,
+            s_size=s_size,
             pm=pm,
             pc=pc,
             pt=pt,
@@ -736,6 +849,9 @@ class FsmReplayApp(tk.Tk):
         self.session_combo.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=6)
         self.session_combo.bind("<<ComboboxSelected>>", lambda e: self._open_selected())
         ttk.Button(top, text="刷新", width=6, command=self._refresh_sessions).pack(side=tk.LEFT)
+        ttk.Button(top, text="删除本段", width=10, command=self._delete_current_session).pack(
+            side=tk.LEFT, padx=(6, 0)
+        )
         ttk.Button(top, text="打开技能绑定工具", command=self._open_skill_bind_tool).pack(side=tk.LEFT, padx=(8, 0))
 
         body = ttk.Frame(self, padding=(8, 0))
@@ -759,6 +875,7 @@ class FsmReplayApp(tk.Tk):
         self.ay_var = tk.StringVar(value="250")
         self.y_var = tk.StringVar(value="250")
         self.s_var = tk.StringVar(value="20")
+        self.s_size_var = tk.StringVar(value="20")
         self.xxx_var = tk.StringVar(value="1000")
         self.tap_ms_min_var = tk.StringVar(value=str(DEFAULT_TAP_MS_MIN))
         self.tap_ms_max_var = tk.StringVar(value=str(DEFAULT_TAP_MS_MAX))
@@ -896,8 +1013,10 @@ class FsmReplayApp(tk.Tk):
         self._spin(r_ax, self.ay_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         box_fight = _pf("开打")
         r_sf = _prow(box_fight)
-        ttk.Label(r_sf, text="S%").pack(side=tk.LEFT)
+        ttk.Label(r_sf, text="S_pos%").pack(side=tk.LEFT)
         self._spin(r_sf, self.s_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_sf, text="S_size%").pack(side=tk.LEFT)
+        self._spin(r_sf, self.s_size_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(r_sf, text="F%").pack(side=tk.LEFT)
         self._spin(r_sf, self.f_var, frm=0, to=100).pack(side=tk.LEFT, padx=(2, 0))
         r_xxx = _prow(box_fight)
@@ -1158,6 +1277,8 @@ class FsmReplayApp(tk.Tk):
             "ay_ms": self._spin_n(self.ay_var, 250, lo=0),
             "y_ms": self._spin_n(self.y_var, 250),
             "s": self._spin_n(self.s_var, 20, lo=0),
+            "s_pos": self._spin_n(self.s_var, 20, lo=0),
+            "s_size": self._spin_n(self.s_size_var, 20, lo=0),
             "pm": self._spin_n(self.pm_var, DEFAULT_PM, lo=0),
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
@@ -1420,7 +1541,7 @@ class FsmReplayApp(tk.Tk):
         self._clear_session()
         self._save_ui_settings()
 
-    def _refresh_sessions(self):
+    def _refresh_sessions(self, *, select_first: bool = True):
         keep = None
         if self.data:
             keep = self.data["session"]
@@ -1431,12 +1552,20 @@ class FsmReplayApp(tk.Tk):
         self._session_paths = {lab: p for lab, p in zip(labels, sessions)}
         self.session_combo["values"] = labels
         if keep:
-            for lab, p in self._session_paths.items():
-                if p.resolve() == keep.resolve():
-                    self.session_var.set(lab)
-                    return
+            try:
+                keep_r = Path(keep).resolve()
+            except OSError:
+                keep_r = None
+            if keep_r is not None:
+                for lab, p in self._session_paths.items():
+                    try:
+                        if p.resolve() == keep_r:
+                            self.session_var.set(lab)
+                            return
+                    except OSError:
+                        continue
         if labels:
-            if not self.session_var.get().strip():
+            if select_first and not self.session_var.get().strip():
                 self.session_combo.current(0)
         else:
             self.session_var.set("")
@@ -1474,6 +1603,21 @@ class FsmReplayApp(tk.Tk):
         self.idx = 0
         self.scale.config(to=1)
         self.frame_var.set("0 / 0")
+        self._photos.clear()
+        self._stack_photos.clear()
+        self._player_photo = None
+        self._count_overlay_photo = None
+        self._frame_overlay_photo = None
+        self._frame_overlay_key = None
+        self._feature_cache = None
+        try:
+            self.canvas.delete("all")
+        except Exception:
+            pass
+        self._draw_flow(None, (), -1)
+        self.keys_all_var.set("本段键: —")
+        self.keys_var.set("按住: —")
+        self.keys_edge_var.set("本帧沿(上一帧→本帧]: —")
         src = (self.source_var.get() or "全部").strip()
         if src == "FSM测试":
             self.info_var.set("没有 FSM_TEST 段。FSM测试写盘后点刷新；目录还不存在时这里是空的。")
@@ -1481,6 +1625,103 @@ class FsmReplayApp(tk.Tk):
             self.info_var.set("没有采集段（recordings/*/frames.jsonl）。")
         else:
             self.info_var.set("没有可回放的段。")
+
+    def _selected_session_path(self) -> Path | None:
+        if self.data and self.data.get("session"):
+            return Path(self.data["session"])
+        lab = self.session_var.get().strip()
+        p = self._session_paths.get(lab)
+        return Path(p) if p else None
+
+    def _delete_current_session(self):
+        session = self._selected_session_path()
+        if session is None:
+            messagebox.showinfo("删除本段", "先选中一段录像。", parent=self)
+            return
+        session = session.resolve() if session.exists() else session
+        root = session_storage_root(session)
+        if root is None:
+            messagebox.showerror(
+                "删除本段",
+                f"只能删除 recordings/ 或 FSM_TEST/ 下的段目录，当前不是：\n{session}",
+                parent=self,
+            )
+            return
+        meta = (self.data or {}).get("meta") if self.data and Path(self.data["session"]).resolve() == session else None
+        frames = (self.data or {}).get("frames") if self.data and Path(self.data["session"]).resolve() == session else None
+        if meta is None or frames is None:
+            meta = {}
+            mp = session / "meta.json"
+            if mp.is_file():
+                try:
+                    meta = json.loads(mp.read_text(encoding="utf-8"))
+                except Exception:
+                    meta = {}
+            frames = load_jsonl(session / "frames.jsonl")
+        skipped: list[str] = []
+
+        def _log(msg: str) -> None:
+            print(msg)
+            if msg.startswith("[replay] 缺 PNG"):
+                skipped.append(msg)
+
+        pngs = resolve_session_pngs(session, meta, frames, log=_log)
+        char_dir = None
+        ch = character_from_session(session, meta)
+        if ch:
+            char_dir = (IMAGES / _safe_folder_name(ch)).resolve()
+        outside = []
+        for p in pngs:
+            try:
+                pr = p.resolve()
+            except OSError:
+                continue
+            if char_dir is not None and pr == char_dir:
+                _log(f"[replay] 拒绝删除角色图目录: {pr}")
+                continue
+            if _path_under(pr, session):
+                continue
+            outside.append(p)
+        msg = (
+            "确定删除当前录像段？此操作不能撤销。\n\n"
+            f"{session}\n\n"
+            "将删除该目录（keys/frames/meta 等），以及本段 frames.jsonl / meta 点名的 PNG。\n"
+            "不会删除整个 images/<角色>/，也不会改 skill_features / skill_binds。"
+        )
+        if not messagebox.askyesno("删除本段", msg, parent=self, default=messagebox.NO):
+            return
+        self.playing = False
+        n_png = 0
+        for p in outside:
+            try:
+                if p.is_file():
+                    p.unlink()
+                    n_png += 1
+            except OSError as e:
+                print(f"[replay] 删 PNG 失败，跳过: {p} ({e})")
+        try:
+            shutil.rmtree(session)
+        except OSError as e:
+            messagebox.showerror("删除本段", f"删除目录失败：\n{session}\n{e}", parent=self)
+            return
+        if self._last_session_path is not None:
+            try:
+                if self._last_session_path.resolve() == session:
+                    self._last_session_path = None
+            except OSError:
+                self._last_session_path = None
+        self.data = None
+        self.session_var.set("")
+        self._refresh_sessions(select_first=False)
+        self.session_var.set("")
+        self._clear_session()
+        self._save_ui_settings()
+        note = f"已删除 {session}"
+        if n_png:
+            note += f"；另删段外 PNG {n_png} 个"
+        if skipped:
+            note += f"；缺图跳过 {len(skipped)} 个"
+        self.info_var.set(note)
 
     def _open_selected(self):
         lab = self.session_var.get().strip()
@@ -1558,6 +1799,7 @@ class FsmReplayApp(tk.Tk):
             ("mash_gap_ms", self.mash_gap_var, 50, 10),
             ("th_ms", self.th_var, 50, 0),
             ("s", self.s_var, 20, 0),
+            ("s_size", self.s_size_var, 20, 0),
             ("pm", self.pm_var, DEFAULT_PM, 0),
             ("pc", self.pc_var, DEFAULT_PC, 0),
             ("pt", self.pt_var, DEFAULT_PT, 1),
@@ -1573,6 +1815,13 @@ class FsmReplayApp(tk.Tk):
                     var.set(str(max(lo, int(data[key]))))
                 except (TypeError, ValueError):
                     var.set(str(default))
+        if "s_pos" in data:
+            try:
+                self.s_var.set(str(max(0, int(data["s_pos"]))))
+            except (TypeError, ValueError):
+                pass
+        if "s_size" not in data:
+            self.s_size_var.set(self.s_var.get())
         if "th_ms" not in data:
             try:
                 self.th_var.set(str(max(0, int(str(self.mash_gap_var.get() or 50)))))
@@ -1671,6 +1920,8 @@ class FsmReplayApp(tk.Tk):
             "th_ms": self._spin_n(self.th_var, 50, lo=0),
             "y_ms": self._spin_n(self.y_var, 250),
             "s": self._spin_n(self.s_var, 20, lo=0),
+            "s_pos": self._spin_n(self.s_var, 20, lo=0),
+            "s_size": self._spin_n(self.s_size_var, 20, lo=0),
             "pm": self._spin_n(self.pm_var, DEFAULT_PM, lo=0),
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
@@ -2000,10 +2251,12 @@ class FsmReplayApp(tk.Tk):
             self._bind_skills,
             dist_table=dist_table_from_features(self._feature_cache),
             s=self._spin_n(self.s_var, 20, lo=0),
+            s_pos=self._spin_n(self.s_var, 20, lo=0),
+            s_size=self._spin_n(self.s_size_var, 20, lo=0),
             slot_durs=self._slot_durs(),
             press_lag_frames=self._press_lag_frames(),
         )
-        skip_ids = {str(c["id"]) for c in live_casts if c.get("id") and cast_is_fake(c, f)}
+        skip_ids = fake_member_ids(live_casts, f)
         d["cd_resets"] = detect_cd_resets(
             self._session_rel(d["session"]),
             d["frames"],
@@ -2554,6 +2807,7 @@ class FsmReplayApp(tk.Tk):
         multi_slots = set(multi_n)
         table = () if wipe else dist_table_from_features(self._feature_cache)
         s_pct = self._spin_n(self.s_var, 20, lo=0)
+        s_size = self._spin_n(self.s_size_var, 20, lo=0)
         extra_sigs = ()
         try:
             for i, path in enumerate(sessions):
@@ -2576,12 +2830,14 @@ class FsmReplayApp(tk.Tk):
                     self._bind_skills,
                     dist_table=table,
                     s=s_pct,
+                    s_pos=s_pct,
+                    s_size=s_size,
                     extra_sigs=extra_sigs,
                     slot_durs=slot_durs,
                     press_lag_frames=press_lag_frames,
                 )
                 all_casts.extend(casts)
-                skip_ids = {str(c["id"]) for c in casts if c.get("id") and cast_is_fake(c, f)}
+                skip_ids = fake_member_ids(casts, f)
                 all_resets.extend(
                     detect_cd_resets(
                         rel,

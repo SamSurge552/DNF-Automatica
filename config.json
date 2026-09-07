@@ -1,21 +1,21 @@
 {
-    "interval": 1.0,
+    "interval": 0.1,
     "region": {
         "rect": {
-            "x": 607,
-            "y": 448,
+            "x": 934,
+            "y": 467,
             "width": 1600,
             "height": 900
         },
         "window_title": "\u5730\u4e0b\u57ce\u4e0e\u52c7\u58eb\uff1a\u521b\u65b0\u4e16\u7eaa"
     },
     "ocr_region": {
-        "x": 1358,
+        "x": 1389,
         "y": 4,
-        "width": 212,
-        "height": 186
+        "width": 195,
+        "height": 77
     },
     "ocr_interval": 1.0,
     "ocr_conf": 0.95,
-    "character": "Varien"
+    "character": "Sam1ra"
 }

@@ -51,12 +51,16 @@ recordings/<地下城>/<时间戳>[_角色]/
   meta.json
   keys.jsonl     {"t_ns","type":"press|release","key"}
   frames.jsonl   {"t_ns","png","player_xy","mon_xy","loot_xy","gate_xy","boss_xy","mon","loot","gate","boss","infer_ms"}
+
+FSM_TEST/<地下城>/<时间戳>[_角色]/
+  frames.jsonl / keys.jsonl / meta.json / fsm_params.json
+  states.jsonl   仅 FSM测试。state 变了写刚结束那段；回城或结束 flush。t_ns=帧戳。采集段不写。
 ```
 
 - 坐标（旧段 / 离线 YOLO 之后）是检测框中心，相对**截屏图**（与 YOLO 一致；图左上、y 向下）。player 只留置信度最高的一个；其它类是点列表。旧段可能没有 `*_xy`。
 - **采集：PNG 进 `images/<角色>/`，jsonl 进 `recordings/<地下城>/<时间戳>_<角色>/`。采集当场跑 YOLO，frames 与旧段同一套检测字段。** 组集仍只应用已确认清洗。
 - 采集点「开始」即写盘，不经 OCR 进图。角色名来自 GUI 下拉（`character_names_custom.txt`），不是 OCR。
-- 采集必须管理员启动；3 秒内无新按键则删段。
+- 采集必须管理员启动；点开始不建 recordings；OCR 进图才建段；**建段后** 3 秒内无新按键则删本段。
 
 ---
 

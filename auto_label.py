@@ -6,6 +6,9 @@ Xout 只给 X-AnyLabeling「导出」YOLO txt 用，自动标不要往那里写�
 用法:
   python auto_label.py --images D:\\Atrain\\Aset\\solarwarden\\深渊 --weights D:\\Atrain\\runs\\solarwarden_b\\weights\\best.pt --conf 0.1
   python auto_label.py --convert-txt
+
+默认 --save-conf：json 每个框写 score（X-AnyLabeling 置信度）。
+Ultralytics 的 save_conf 只给 YOLO txt；本脚本不写 txt / 不写 Xout。
 """
 from __future__ import annotations
 
@@ -104,16 +107,17 @@ def parse_yolo_txt(text: str, names: list[str], iw: int, ih: int) -> list[dict]:
         cls_id = int(float(parts[0]))
         cx, cy, bw, bh = (float(parts[i]) for i in range(1, 5))
         label = names[cls_id] if 0 <= cls_id < len(names) else str(cls_id)
-        shapes.append(
-            {
-                "label": label,
-                "text": "",
-                "points": yolo_xywhn_to_xyxy(cx, cy, bw, bh, iw, ih),
-                "group_id": None,
-                "shape_type": "rectangle",
-                "flags": {},
-            }
-        )
+        shape = {
+            "label": label,
+            "text": "",
+            "points": yolo_xywhn_to_xyxy(cx, cy, bw, bh, iw, ih),
+            "group_id": None,
+            "shape_type": "rectangle",
+            "flags": {},
+        }
+        if len(parts) >= 6:
+            shape["score"] = float(parts[5])
+        shapes.append(shape)
     return shapes
 
 
@@ -165,6 +169,7 @@ def label_folder(
     iou: float,
     overwrite: bool,
     recursive: bool = True,
+    save_conf: bool = True,
 ) -> tuple[int, int, int, int]:
     images = iter_images(image_dir, recursive=recursive)
     if not images:
@@ -183,7 +188,7 @@ def label_folder(
 
     print(f"图片: {image_dir}  ({len(images)})")
     print(f"标签: 与 png 同目录 .json")
-    print(f"conf={conf} iou={iou}（写出前按类 NMS）")
+    print(f"conf={conf} iou={iou} save_conf={save_conf}（写出前按类 NMS）")
     print(f"已有 json 跳过 {skipped}，待推理 {len(todo)}")
     if not todo:
         return len(images), skipped, 0, 0
@@ -201,6 +206,8 @@ def label_folder(
             device=0,
             verbose=False,
             save=False,
+            save_txt=False,
+            save_conf=save_conf,
         )[0]
         iw, ih = png_size(path)
         shapes: list[dict] = []
@@ -214,16 +221,17 @@ def label_folder(
                 cid = clses[i]
                 label = names[cid] if 0 <= cid < len(names) else str(cid)
                 cx, cy, bw, bh = (float(v) for v in xywhn[i])
-                shapes.append(
-                    {
-                        "label": label,
-                        "text": "",
-                        "points": yolo_xywhn_to_xyxy(cx, cy, bw, bh, iw, ih),
-                        "group_id": None,
-                        "shape_type": "rectangle",
-                        "flags": {},
-                    }
-                )
+                shape = {
+                    "label": label,
+                    "text": "",
+                    "points": yolo_xywhn_to_xyxy(cx, cy, bw, bh, iw, ih),
+                    "group_id": None,
+                    "shape_type": "rectangle",
+                    "flags": {},
+                }
+                if save_conf:
+                    shape["score"] = float(confs[i])
+                shapes.append(shape)
         write_xal_json(path.with_suffix(".json"), xal_payload(path.name, iw, ih, shapes))
         ensure_classes_txt(path.parent, names)
         wrote += 1
@@ -249,6 +257,12 @@ def parse_args():
     p.add_argument("--weights", default="", help="默认 solarwarden_b/best.pt")
     p.add_argument("--conf", type=float, default=0.1)
     p.add_argument("--iou", type=float, default=0.7)
+    p.add_argument(
+        "--save-conf",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="json 每个框写 score；默认开。--no-save-conf 关闭",
+    )
     p.add_argument("--overwrite", action="store_true", help="覆盖已有 json")
     p.add_argument("--no-recursive", action="store_true")
     p.add_argument(
@@ -284,7 +298,7 @@ def main():
     from ultralytics import YOLO
 
     print(f"权重: {weights}")
-    print(f"conf={args.conf} iou={args.iou}  overwrite={args.overwrite}")
+    print(f"conf={args.conf} iou={args.iou} save_conf={args.save_conf} overwrite={args.overwrite}")
     model = YOLO(str(weights))
     label_folder(
         model,
@@ -293,6 +307,7 @@ def main():
         iou=args.iou,
         overwrite=args.overwrite,
         recursive=not args.no_recursive,
+        save_conf=args.save_conf,
     )
 
 

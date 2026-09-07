@@ -51,6 +51,7 @@ from skill_feature_extract import (
     load_hotbar,
     skill_table_missing,
 )
+from fsm_state_log import FsmStateLogger
 
 YOLO_PREVIEW_WINDOW_FSM = "FSM Test"
 YOLO_PREVIEW_WINDOW_YOLO = "YOLO Test"
@@ -100,6 +101,7 @@ class StatusAnalysisModule:
         self._writer = None
         self._fsm_session_dir = None
         self._fsm_png_dir = None
+        self._state_log = FsmStateLogger()
         self._key_listener = None
         self._last_png_name = ""
         self._fsm_record_config = None
@@ -271,7 +273,7 @@ class StatusAnalysisModule:
         elif self.yolo_test:
             self.gui.log("状态分析模块: YOLO测试模式 — 检测 + OCR 进图判定，不跑 FSM，不落盘。")
         elif self.ocr_only:
-            self.gui.log("状态分析模块: 采集旁路 OCR — 进图判定（不截图）。")
+            self.gui.log("状态分析模块: 采集旁路 OCR — 进图后才写 recordings（城镇不录）。")
         else:
             self.gui.log("状态分析模块: 自动化 — OCR 用内存帧，截图不落盘。")
 
@@ -453,7 +455,7 @@ class StatusAnalysisModule:
             "started_t_ns": started_t_ns,
             "interval": config.get("interval"),
             "region": config.get("region_coords"),
-            "format": "keys.jsonl + frames.jsonl (t_ns absolute)",
+            "format": "keys.jsonl + frames.jsonl + states.jsonl (t_ns from frames)",
             "yolo_weights": str(getattr(engine, "weights", "") or ""),
             "yolo": {
                 "weights": str(getattr(engine, "weights", "") or ""),
@@ -466,6 +468,8 @@ class StatusAnalysisModule:
             "keys_held_at_start": held,
         }
         writer.write_meta(meta)
+        self._state_log.reset()
+        self._state_log.set_names(dun, char)
         self._write_fsm_params_file()
         self._start_key_listener()
         for key_name in held:
@@ -513,6 +517,8 @@ class StatusAnalysisModule:
                 "ay_ms": p.ay_ms,
                 "y_ms": p.y_ms,
                 "s": p.s,
+                "s_pos": p.s if p.s_pos is None else p.s_pos,
+                "s_size": p.s if p.s_size is None else p.s_size,
                 "pm": p.pm,
                 "pc": p.pc,
                 "pt": p.pt,
@@ -595,6 +601,27 @@ class StatusAnalysisModule:
         item.update({k: v for k, v in (features or {}).items() if k != "_result"})
         writer.enqueue(item)
 
+    def _enqueue_fsm_state(self, rec: dict | None) -> None:
+        if not rec:
+            return
+        writer = self._writer
+        if writer is None:
+            return
+        item = {"stream": "states"}
+        item.update(rec)
+        writer.enqueue(item)
+
+    def _note_fsm_state(self, t_ns: int, decision, features: dict | None = None) -> None:
+        if self._writer is None:
+            return
+        try:
+            char = (self.gui.character_var.get() or "").strip()
+        except Exception:
+            char = self._state_log.char_name
+        self._state_log.set_names(self.current_dungeon_name or self._state_log.map_name, char)
+        rec = self._state_log.observe(int(t_ns), decision, self._fsm_ctx, features)
+        self._enqueue_fsm_state(rec)
+
     def _stop_fsm_record(self) -> None:
         lis = self._key_listener
         self._key_listener = None
@@ -604,6 +631,8 @@ class StatusAnalysisModule:
             except Exception:
                 pass
         writer = self._writer
+        rec = self._state_log.flush()
+        self._enqueue_fsm_state(rec)
         self._writer = None
         flush = getattr(self.capture_module, "flush_saves", None)
         if callable(flush):
@@ -618,7 +647,8 @@ class StatusAnalysisModule:
             if session:
                 self.gui.log(
                     f"  - FSM_TEST 已停止: {Path(session).resolve()} "
-                    f"(keys={writer.keys_count}, frames={writer.frames_count})"
+                    f"(keys={writer.keys_count}, frames={writer.frames_count}"
+                    f"{f', states={writer.states_count}' if writer.states_count else ''})"
                 )
         self._fsm_session_dir = None
         self._fsm_png_dir = None
@@ -648,7 +678,7 @@ class StatusAnalysisModule:
 
     def _load_fsm_params(self) -> FsmParams:
         path = self._fsm_ui_path()
-        m, l, g, gx, gy, s, f, pm, pc, pt = 5, 5, 5, 50, 10, 20, DEFAULT_F, 10, 5, 3
+        m, l, g, gx, gy, s, s_size, f, pm, pc, pt = 5, 5, 5, 50, 10, 20, 20, DEFAULT_F, 10, 5, 3
         mash_count, mash_gap = DEFAULT_MASH_COUNT, DEFAULT_MASH_GAP_MS
         town_s = DEFAULT_TOWN_S
         ox, oy = 0, 0
@@ -662,6 +692,9 @@ class StatusAnalysisModule:
                 gx = max(0, int(data.get("gx", gx)))
                 gy = max(0, int(data.get("gy", gy)))
                 s = max(0, min(100, int(data.get("s", s))))
+                s_pos = max(0, min(100, int(data.get("s_pos", s))))
+                s_size = max(0, min(100, int(data.get("s_size", s))))
+                s = s_pos
                 f = max(0, min(100, int(data.get("f", f))))
                 pm = max(0, int(data.get("pm", data.get("lm", pm))))
                 pc = max(0, int(data.get("pc", data.get("lc", pc))))
@@ -716,6 +749,8 @@ class StatusAnalysisModule:
             ay_ms=ay_ms,
             y_ms=y_ms,
             s=s,
+            s_pos=s,
+            s_size=s_size,
             pm=pm,
             pc=pc,
             pt=pt,
@@ -860,6 +895,7 @@ class StatusAnalysisModule:
                         self._executor.apply(decision)
                     except Exception as e:
                         self._log_key_fail(e)
+                self._note_fsm_state(t_ns, decision, features)
                 flag_s = " ".join(sorted((f.value for f in decision.flags), key=lambda s: s))
                 intent = intent_text(decision)
                 send = self._send_text(decision)

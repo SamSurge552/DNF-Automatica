@@ -48,6 +48,10 @@ class ScreenCaptureModule:
         self._log(gui, f"本轮截图目录: {self.session_dir}")
         return self.session_dir
 
+    def mark_segment(self):
+        """新开一段：只清空本段 PNG 列表，不换 images/<角色>/ 目录。"""
+        self._session_files = []
+
     def discard_session_pngs(self):
         """只删本段写下的 PNG，不删角色目录里其它段。"""
         self.flush_saves()

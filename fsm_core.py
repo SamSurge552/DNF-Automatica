@@ -164,7 +164,7 @@ def parse_hold_ms(item, default: int | None = None) -> int | None:
 
 @dataclass(frozen=True)
 class FightSkill:
-    """过图技能序列里的一项。range_px 来自特征表该房（或各房同槽）范围中位。"""
+    """过图技能序列里的一项。range_px 来自特征表该分布范围最大值。"""
 
     slot: int
     key: str
@@ -175,6 +175,11 @@ class FightSkill:
     multi: int = 1
     charge: int = 0
     mash: bool = False  # 键位表【连按】：宿主/执行层用，核心不读
+    group_key: str = ""
+    group_slots: tuple[int, ...] = ()
+    group_keys: tuple[str, ...] = ()
+    group_holds: tuple[int, ...] = ()
+    gaps_ms: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -188,13 +193,15 @@ class DistSkillPlan:
 
 @dataclass(frozen=True)
 class DistSig:
-    """BOSS位置表 / 小怪分布表一项。rel 是相对玩家。"""
+    """BOSS位置表 / 小怪分布表一项。rel 是相对玩家；小怪多目标另存框宽高（单怪为 0）。"""
 
     key: str
     kind: str
     n: int
     rx: float
     ry: float
+    bbox_w: float = 0.0
+    bbox_h: float = 0.0
     reset_point: bool = False
     multi_boss: bool = False
 
@@ -210,7 +217,9 @@ class FsmParams:
     ax_ms: int = 250
     ay_ms: int = 250
     y_ms: int = 250  # 卡住恢复：每向按住毫秒
-    s: int = 20
+    s: int = 20  # 兼容：s_pos/s_size 为空时两者都用它
+    s_pos: int | None = None
+    s_size: int | None = None
     pm: int = 10
     pc: int = 5
     pt: int = 3
@@ -297,6 +306,9 @@ class FsmContext:
     dash_want: tuple[FsmDir, ...] = ()
     dash_phase: int = 0
     dash_left: int = 0
+    fight_rest: tuple[tuple[int, str, int], ...] = ()
+    fight_gaps: tuple[int, ...] = ()
+    fight_tail: int = 0
     dungeon: _Deb = field(default_factory=_Deb)
     saw_dungeon: bool = False
     watch_state: FsmState | None = None
@@ -436,6 +448,18 @@ def _parse_xy_list(raw) -> tuple[tuple[float, float], ...]:
     return tuple(out)
 
 
+def _s_pos_size(params: FsmParams | None = None, s: float | None = None, s_pos: float | None = None, s_size: float | None = None) -> tuple[float, float]:
+    if params is not None:
+        base = float(params.s)
+        sp = base if params.s_pos is None else float(params.s_pos)
+        ss = base if params.s_size is None else float(params.s_size)
+        return max(0.0, sp), max(0.0, ss)
+    base = 0.0 if s is None else float(s)
+    sp = base if s_pos is None else float(s_pos)
+    ss = base if s_size is None else float(s_size)
+    return max(0.0, sp), max(0.0, ss)
+
+
 def _pack_center(pts: tuple[tuple[float, float], ...]) -> tuple[float, float] | None:
     if not pts:
         return None
@@ -445,8 +469,54 @@ def _pack_center(pts: tuple[tuple[float, float], ...]) -> tuple[float, float] | 
     )
 
 
+def bbox_wh_rel(
+    player: tuple[float, float] | None, pts: tuple[tuple[float, float], ...]
+) -> tuple[float, float]:
+    """多目标相对玩家的范围框宽高；单点或无人则为 0。"""
+    if player is None or len(pts) <= 1:
+        return 0.0, 0.0
+    xs = [p[0] - player[0] for p in pts]
+    ys = [p[1] - player[1] for p in pts]
+    return float(max(xs) - min(xs)), float(max(ys) - min(ys))
+
+
+def bbox_rel(
+    player: tuple[float, float] | None, pts: tuple[tuple[float, float], ...]
+) -> tuple[float, float, float, float] | None:
+    """相对玩家的 minx,miny,maxx,maxy；单点为 None（框尺寸 0）。"""
+    if player is None or len(pts) <= 1:
+        return None
+    xs = [p[0] - player[0] for p in pts]
+    ys = [p[1] - player[1] for p in pts]
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def bbox_range_px(box: tuple[float, float, float, float] | None) -> float | None:
+    if box is None or len(box) < 4:
+        return None
+    x0, y0, x1, y1 = box
+    return round(
+        max(math.hypot(x, y) for x, y in ((x0, y0), (x0, y1), (x1, y0), (x1, y1))),
+        2,
+    )
+
+
 def _count_pct(a: float, b: float) -> float:
     return abs(a - b) / max(abs(a), abs(b), 1.0) * 100.0
+
+
+def _pos_err_pct(
+    a: tuple[float, float] | None, b: tuple[float, float] | None
+) -> float:
+    if a is None and b is None:
+        return 0.0
+    if a is None or b is None:
+        return 1e9
+    return max(abs(a[0] - b[0]) / _REF_W, abs(a[1] - b[1]) / _REF_H) * 100.0
+
+
+def _size_err_pct(w1: float, h1: float, w2: float, h2: float) -> float:
+    return max(abs(w1 - w2) / _REF_W, abs(h1 - h2) / _REF_H) * 100.0
 
 
 def rooms_similar(
@@ -456,7 +526,7 @@ def rooms_similar(
     c2: tuple[float, float] | None,
     s: float,
 ) -> bool:
-    """数量相对差、相对坐标两项都不超过 S%。"""
+    """旧接口：数量+中心都不超过 S%。新匹配走 _match_dist（最相似 + S_pos/S_size）。"""
     s = max(0.0, float(s))
     if _count_pct(n1, n2) > s:
         return False
@@ -506,18 +576,40 @@ def _match_dist(
     kind: str,
     n: int,
     rel: tuple[float, float] | None,
-    s: float,
+    s_pos: float,
+    s_size: float,
     *,
+    bbox_w: float = 0.0,
+    bbox_h: float = 0.0,
     multi_boss: bool = False,
 ) -> tuple[str, tuple[DistSig, ...], str, bool]:
+    """全表取最相似一条，再过 S_pos（中心）/ S_size（多怪框）。过则视为同一分布。"""
     combined = table + extra
+    s_pos = max(0.0, float(s_pos))
+    s_size = max(0.0, float(s_size))
+    bw, bh = float(bbox_w), float(bbox_h)
+    best: tuple[float, DistSig] | None = None
     for e in combined:
         if e.kind != kind:
             continue
+        pe = _pos_err_pct((e.rx, e.ry), rel)
         if kind == "boss":
-            ok = _rel_similar((e.rx, e.ry), rel, s)
+            score = pe
+        elif int(n) <= 1 and int(e.n) <= 1:
+            score = pe
         else:
-            ok = rooms_similar(n, rel, e.n, (e.rx, e.ry), s)
+            score = pe + _size_err_pct(bw, bh, e.bbox_w, e.bbox_h)
+        if best is None or score < best[0]:
+            best = (score, e)
+    if best is not None:
+        e = best[1]
+        if kind == "boss" or int(n) <= 1:
+            ok = _pos_err_pct((e.rx, e.ry), rel) <= s_pos + 1e-9
+        else:
+            ok = (
+                _pos_err_pct((e.rx, e.ry), rel) <= s_pos + 1e-9
+                and _size_err_pct(bw, bh, e.bbox_w, e.bbox_h) <= s_size + 1e-9
+            )
         if ok:
             return e.key, extra, "similar", e.reset_point
     if rel is None:
@@ -529,6 +621,8 @@ def _match_dist(
         n=n,
         rx=rel[0],
         ry=rel[1],
+        bbox_w=0.0 if int(n) <= 1 else bw,
+        bbox_h=0.0 if int(n) <= 1 else bh,
         multi_boss=multi_boss,
     )
     return key, extra + (sig,), "new", False
@@ -543,8 +637,11 @@ def classify_dist(
     table: tuple[DistSig, ...],
     extra: tuple[DistSig, ...],
     s: float,
+    s_pos: float | None = None,
+    s_size: float | None = None,
 ) -> tuple[str, str, tuple[DistSig, ...], str]:
     """按「关于怪物分布判定」现算：有 BOSS → BOSS 表，否则有 MON → 小怪表，否则异常。"""
+    sp, ss = _s_pos_size(s=s, s_pos=s_pos, s_size=s_size)
     if int(boss_n) > 0 or boss_xy:
         rel = _rel_of(pos, tuple(boss_xy))
         multi = len(boss_xy) > 1
@@ -554,19 +651,26 @@ def classify_dist(
             "boss",
             len(boss_xy) or int(boss_n),
             rel,
-            s,
+            sp,
+            ss,
             multi_boss=multi,
         )
         return key, "boss", extra, room_kind
     if int(mon_n) > 0 or mon_xy:
-        rel = _rel_of(pos, tuple(mon_xy))
+        pts = tuple(mon_xy)
+        rel = _rel_of(pos, pts)
+        n = int(mon_n) or len(pts)
+        bw, bh = bbox_wh_rel(pos, pts)
         key, extra, room_kind, _rp = _match_dist(
             table,
             extra,
             "mob",
-            int(mon_n) or len(mon_xy),
+            n,
             rel,
-            s,
+            sp,
+            ss,
+            bbox_w=bw,
+            bbox_h=bh,
         )
         return key, "mob", extra, room_kind
     return "X", "abnormal", extra, "new"
@@ -854,40 +958,35 @@ def _skills_for_dist(plan: tuple[DistSkillPlan, ...], key: str) -> tuple[FightSk
     return ()
 
 
+def _copy_fight_skill(sk: FightSkill, *, charge: int | None = None, multi: int | None = None) -> FightSkill:
+    return FightSkill(
+        slot=sk.slot,
+        key=sk.key,
+        cooldown_s=sk.cooldown_s,
+        range_px=sk.range_px,
+        combo=sk.combo,
+        hold_ms=sk.hold_ms,
+        multi=sk.multi if multi is None else multi,
+        charge=sk.charge if charge is None else charge,
+        mash=bool(sk.mash),
+        group_key=sk.group_key,
+        group_slots=sk.group_slots,
+        group_keys=sk.group_keys,
+        group_holds=sk.group_holds,
+        gaps_ms=sk.gaps_ms,
+    )
+
+
 def expand_fight_skills(skills: tuple[FightSkill, ...]) -> tuple[FightSkill, ...]:
     """多次释放：拆成 MULTI 份相同技能，charge 分开计 CD。"""
     out: list[FightSkill] = []
     for sk in skills:
         n = max(1, int(sk.multi or 1))
         if n <= 1:
-            out.append(
-                FightSkill(
-                    slot=sk.slot,
-                    key=sk.key,
-                    cooldown_s=sk.cooldown_s,
-                    range_px=sk.range_px,
-                    combo=sk.combo,
-                    hold_ms=sk.hold_ms,
-                    multi=1,
-                    charge=0,
-                    mash=bool(sk.mash),
-                )
-            )
+            out.append(_copy_fight_skill(sk, charge=0, multi=1))
             continue
         for i in range(n):
-            out.append(
-                FightSkill(
-                    slot=sk.slot,
-                    key=sk.key,
-                    cooldown_s=sk.cooldown_s,
-                    range_px=sk.range_px,
-                    combo=sk.combo,
-                    hold_ms=sk.hold_ms,
-                    multi=n,
-                    charge=i,
-                    mash=bool(sk.mash),
-                )
-            )
+            out.append(_copy_fight_skill(sk, charge=i, multi=n))
     return tuple(out)
 
 
@@ -916,20 +1015,100 @@ def _ready_skills(skills: tuple[FightSkill, ...], ready: dict[tuple[int, int], i
     return out
 
 
+def _slot_ready(slot: int, ready: dict[tuple[int, int], int], t: int) -> bool:
+    hits = [until for (s, _c), until in ready.items() if s == slot]
+    if not hits:
+        return True
+    return any(t >= until for until in hits)
+
+
 def _first_file_ready(
     seq: tuple[FightSkill, ...], ready: dict[tuple[int, int], int], t: int
 ) -> FightSkill | None:
-    """排除 CD 后，过图文件序列里第 1 个就绪技能（多次释放各份按序列顺序）。"""
+    """排除 CD 后，过图文件序列里第 1 个就绪项。技能组 = 组内所有技能均就绪。"""
     for sk in seq:
+        slots = sk.group_slots
+        if slots:
+            if all(_slot_ready(int(sl), ready, t) for sl in slots):
+                return sk
+            continue
         until = ready.get((sk.slot, sk.charge))
         if until is None or t >= until:
             return sk
     return None
 
 
+def _group_members(sk: FightSkill) -> tuple[tuple[int, str, int], ...]:
+    slots = sk.group_slots or (sk.slot,)
+    n = len(slots)
+    keys = sk.group_keys or ((sk.key,) * n)
+    holds = sk.group_holds or ((sk.hold_ms,) * n)
+    out: list[tuple[int, str, int]] = []
+    for i, slot in enumerate(slots):
+        key = keys[i] if i < len(keys) else sk.key
+        hold = holds[i] if i < len(holds) else sk.hold_ms
+        out.append((int(slot), str(key or sk.key), max(0, int(hold))))
+    return tuple(out)
+
+
+def _group_tail_ms(holds: tuple[int, ...], gaps: tuple[int, ...]) -> int:
+    hs = [max(0, int(x)) for x in (holds or (0,))]
+    gs = [max(0, int(x)) for x in (gaps or ())]
+    times = [0]
+    t = 0
+    for g in gs:
+        t += g
+        times.append(t)
+    while len(hs) < len(times):
+        hs.append(hs[-1] if hs else 0)
+    end = max(times[i] + hs[i] for i in range(len(times)))
+    return max(0, end - times[-1])
+
+
+def _in_skill_range(
+    pos: tuple[float, float] | None,
+    enemy_xy: tuple[tuple[float, float], ...],
+    rng: float | None,
+) -> tuple[bool, float | None]:
+    dist = _farthest_dist(pos, enemy_xy)
+    if rng is None or dist is None:
+        return True, dist
+    return dist <= float(rng) + 1e-9, dist
+
+
+def _dist_center(
+    pos: tuple[float, float] | None,
+    dist_key: str,
+    table: tuple[DistSig, ...],
+    extra: tuple[DistSig, ...],
+    enemy_xy: tuple[tuple[float, float], ...],
+) -> tuple[float, float] | None:
+    for e in extra + table:
+        if e.key == dist_key:
+            if pos is None:
+                return None
+            return (pos[0] + float(e.rx), pos[1] + float(e.ry))
+    return _pack_center(enemy_xy)
+
+
 def _start_attack(xxx_ms: int, step_ms: int) -> tuple:
     n = max(1, int(xxx_ms))
-    return FsmAction.ATTACK, None, None, None, "x", None, None, (), "普攻X", 0, max(0, n - max(0, int(step_ms)))
+    return (
+        FsmAction.ATTACK,
+        None,
+        None,
+        None,
+        "x",
+        None,
+        None,
+        (),
+        "普攻X",
+        0,
+        max(0, n - max(0, int(step_ms))),
+        (),
+        (),
+        0,
+    )
 
 
 def _fight_intent(
@@ -947,24 +1126,22 @@ def _fight_intent(
     dt_ms: int,
     last_slot: int | None = None,
     last_key: str | None = None,
-) -> tuple[
-    FsmAction,
-    FsmDir | None,
-    FsmDir | None,
-    int | None,
-    str | None,
-    float | None,
-    float | None,
-    tuple[tuple[int, int, int], ...],
-    str,
-    int,
-    int,
-]:
-    """action, move_dir, fight_dir, slot, key, range, dist, new_cd, note, cast_wait_left, attack_left。"""
+    dist_table: tuple[DistSig, ...] = (),
+    extra_sigs: tuple[DistSig, ...] = (),
+    fight_rest: tuple[tuple[int, str, int], ...] = (),
+    fight_gaps: tuple[int, ...] = (),
+    fight_tail: int = 0,
+) -> tuple:
+    """action, move_dir, fight_dir, slot, key, range, dist, new_cd, note, wait, atk, rest, gaps, tail。"""
     wait = max(0, int(cast_wait_left))
     atk = max(0, int(attack_left))
     step_ms = max(0, int(dt_ms))
-    if wait > 0:
+    rest = tuple(fight_rest or ())
+    gaps = tuple(int(x) for x in (fight_gaps or ()))
+    tail = max(0, int(fight_tail))
+    empty_q = ((), (), 0)
+
+    def _idle_wait(note: str, left: int):
         return (
             FsmAction.NONE,
             None,
@@ -974,10 +1151,16 @@ def _fight_intent(
             None,
             None,
             skill_cd,
-            "等待释放",
-            max(0, wait - step_ms),
+            note,
+            max(0, left),
             0,
+            rest,
+            gaps,
+            tail,
         )
+
+    if wait > 0:
+        return _idle_wait("等待释放", wait - step_ms)
     if atk > 0:
         return (
             FsmAction.ATTACK,
@@ -991,54 +1174,98 @@ def _fight_intent(
             "普攻X",
             0,
             max(0, atk - step_ms),
+            *empty_q,
         )
+    if rest:
+        slot, key, _hold = rest[0]
+        ready = _cd_map(skill_cd)
+        cd_s = 0.0
+        charge = 0
+        for sk in _skills_for_dist(plan, dist_key) + hotbar:
+            if sk.slot == int(slot):
+                cd_s = max(0.0, float(sk.cooldown_s))
+                charge = int(sk.charge)
+                break
+        ready[(int(slot), charge)] = t + int(round(cd_s * 1e9))
+        new_rest = rest[1:]
+        new_gaps = gaps[1:] if len(gaps) > 1 else ()
+        new_wait = int(new_gaps[0]) if new_rest else tail
+        return (
+            FsmAction.CAST,
+            None,
+            None,
+            int(slot),
+            key,
+            None,
+            _farthest_dist(pos, enemy_xy),
+            _cd_tuple(ready),
+            "",
+            max(0, new_wait),
+            0,
+            new_rest,
+            new_gaps,
+            tail if new_rest else 0,
+        )
+
     file_seq = _skills_for_dist(plan, dist_key)
     ready = _cd_map(skill_cd)
     file_first = _first_file_ready(file_seq, ready, t)
     bar_ready = _ready_skills(hotbar, ready, t)
-    if file_first is not None:
-        picked = file_first
-        dist = _farthest_dist(pos, enemy_xy)
-        rng = picked.range_px
-        in_range = rng is None or dist is None or dist <= rng
-        cd_s = max(0.0, float(picked.cooldown_s))
-        ready[(picked.slot, picked.charge)] = t + int(round(cd_s * 1e9))
-        new_cd = _cd_tuple(ready)
-        hold = max(0, int(picked.hold_ms))
-        return (
-            FsmAction.CAST,
-            None,
-            None,
-            picked.slot,
-            picked.key,
-            rng,
-            dist,
-            new_cd,
-            "" if in_range else "范围异常",
-            hold,
-            0,
-        )
-    if bar_ready:
+    picked = file_first
+    note_prefix = ""
+    if picked is None and bar_ready:
         picked = min(bar_ready, key=lambda sk: (max(0, int(sk.hold_ms)), sk.slot, sk.charge))
+        note_prefix = "无技能可放"
+    if picked is not None:
+        in_range, dist = _in_skill_range(pos, enemy_xy, picked.range_px)
+        if not in_range:
+            tgt = _dist_center(pos, dist_key, dist_table, extra_sigs, enemy_xy)
+            md = _axis_dir(pos, tgt) if pos is not None and tgt is not None else None
+            return (
+                FsmAction.HOLD if md is not None else FsmAction.NONE,
+                md,
+                md,
+                picked.slot,
+                picked.key,
+                picked.range_px,
+                dist,
+                skill_cd,
+                "范围异常" if not note_prefix else f"{note_prefix} 范围异常",
+                0,
+                0,
+                *empty_q,
+            )
+        members = _group_members(picked)
+        first_slot, first_key, _first_hold = members[0]
+        rest_m = members[1:]
+        gaps_m = tuple(max(0, int(x)) for x in (picked.gaps_ms or ()))
+        if len(gaps_m) < len(rest_m):
+            gaps_m = gaps_m + (0,) * (len(rest_m) - len(gaps_m))
+        elif len(gaps_m) > len(rest_m):
+            gaps_m = gaps_m[: len(rest_m)]
+        holds = tuple(h for _s, _k, h in members)
+        tail_m = _group_tail_ms(holds, gaps_m)
         cd_s = max(0.0, float(picked.cooldown_s))
         ready[(picked.slot, picked.charge)] = t + int(round(cd_s * 1e9))
-        new_cd = _cd_tuple(ready)
-        hold = max(0, int(picked.hold_ms))
+        wait_m = int(gaps_m[0]) if rest_m else tail_m
         return (
             FsmAction.CAST,
             None,
             None,
-            picked.slot,
-            picked.key,
+            first_slot,
+            first_key,
             picked.range_px,
-            _farthest_dist(pos, enemy_xy),
-            new_cd,
-            "无技能可放",  # 不再看过图文件；快捷栏最短持续
-            hold,
+            dist,
+            _cd_tuple(ready),
+            note_prefix,
+            max(0, wait_m),
             0,
+            rest_m,
+            gaps_m,
+            tail_m if rest_m else 0,
         )
-    act, md, fd, slot, key, rng, dist, cd, note, cw, aw = _start_attack(xxx_ms, step_ms)
-    return act, md, fd, slot, key, rng, dist, skill_cd, note, cw, aw
+    act, md, fd, slot, key, rng, dist, cd, note, cw, aw, r, g, tl = _start_attack(xxx_ms, step_ms)
+    return act, md, fd, slot, key, rng, dist, skill_cd, note, cw, aw, r, g, tl
 
 
 def _xy_dist(a: tuple[float, float], b: tuple[float, float]) -> float:
@@ -1144,9 +1371,11 @@ def _intent_label(
         if fight_note == "等待释放":
             left = max(1, int(cast_wait_left))
             return f"{head} 等待释放 {sk} 剩{left}ms".replace("  ", " ").strip()
-        if fight_note == "范围异常":
+        if fight_note == "范围异常" or fight_note.endswith("范围异常"):
             if action is FsmAction.CAST:
                 return f"{head} 范围异常 仍然释放 {sk}".strip()
+            if action in (FsmAction.HOLD, FsmAction.TAP):
+                return f"{head} 范围异常 走近 {sk}".strip()
             return f"{head} 范围异常"
         if action is FsmAction.ATTACK:
             return f"{head} 普攻X"
@@ -1350,7 +1579,9 @@ def _method_hold(
         if drafted is not FsmState.ADVANCE:
             return FsmState.ADVANCE, "方法未完·前进"
         return None, ""
-    if prev is FsmState.FIGHT and (ctx.cast_wait_left > 0 or ctx.attack_left > 0):
+    if prev is FsmState.FIGHT and (
+        ctx.cast_wait_left > 0 or ctx.attack_left > 0 or ctx.fight_rest
+    ):
         if drafted is not FsmState.FIGHT:
             return FsmState.FIGHT, "方法未完·开打"
         return None, ""
@@ -1377,7 +1608,7 @@ def step(
     gx, gy = max(0, int(params.gx)), max(0, int(params.gy))
     ax_ms, ay_ms = max(0, int(params.ax_ms)), max(0, int(params.ay_ms))
     y_ms = max(1, int(params.y_ms))
-    s = max(0, int(params.s))
+    s_pos, s_size = _s_pos_size(params)
     pm = max(0, int(params.pm))
     pc = max(0, int(params.pc))
     pt = max(1, int(params.pt))
@@ -1505,19 +1736,24 @@ def step(
                 "boss",
                 len(snap.boss_xy),
                 rel,
-                s,
+                s_pos,
+                s_size,
                 multi_boss=multi,
             )
         elif mon.judged or snap.mon_xy:
             rel = _rel_of(pos, tuple(snap.mon_xy))
             dist_kind = "mob"
+            bw, bh = bbox_wh_rel(pos, tuple(snap.mon_xy))
             dist_key, extra_sigs, room_kind, _reset_pt = _match_dist(
                 params.dist_table,
                 extra_sigs,
                 "mob",
                 int(snap.mon),
                 rel,
-                s,
+                s_pos,
+                s_size,
+                bbox_w=bw,
+                bbox_h=bh,
             )
         else:
             dist_kind = "abnormal"
@@ -1554,6 +1790,9 @@ def step(
     fight_dir = None
     cast_wait_left = 0
     attack_left = 0
+    fight_rest: tuple[tuple[int, str, int], ...] = ()
+    fight_gaps: tuple[int, ...] = ()
+    fight_tail = 0
     loot_targets: tuple[tuple[float, float], ...] = ()
     loot_dir = None
     loot_stop = _Deb()
@@ -1613,6 +1852,9 @@ def step(
             fight_note,
             cast_wait_left,
             attack_left,
+            fight_rest,
+            fight_gaps,
+            fight_tail,
         ) = _fight_intent(
             t=t,
             pos=pos,
@@ -1627,6 +1869,11 @@ def step(
             dt_ms=step_ms,
             last_slot=ctx.cast_slot if ctx.state is FsmState.FIGHT else None,
             last_key=ctx.cast_key if ctx.state is FsmState.FIGHT else None,
+            dist_table=params.dist_table,
+            extra_sigs=extra_sigs,
+            fight_rest=ctx.fight_rest if ctx.state is FsmState.FIGHT else (),
+            fight_gaps=ctx.fight_gaps if ctx.state is FsmState.FIGHT else (),
+            fight_tail=ctx.fight_tail if ctx.state is FsmState.FIGHT else 0,
         )
         if fight_note:
             why += f"  {fight_note}"
@@ -1692,11 +1939,12 @@ def step(
         and (
             (state is FsmState.ADVANCE and adv_phase == 0)
             or state is FsmState.LOOT
+            or state is FsmState.FIGHT
         )
     )
     if approaching:
         want = _norm_dirs(move_dirs or ((move_dir,) if move_dir else ()))
-        same_move = ctx.state in (FsmState.ADVANCE, FsmState.LOOT)
+        same_move = ctx.state in (FsmState.ADVANCE, FsmState.LOOT, FsmState.FIGHT)
         action, move_dirs, dash_want, dash_phase, dash_left = _tap_hold(
             want,
             ctx.dash_want if same_move else (),
@@ -1786,6 +2034,9 @@ def step(
         dash_want=dash_want,
         dash_phase=dash_phase,
         dash_left=dash_left,
+        fight_rest=fight_rest if state is FsmState.FIGHT else (),
+        fight_gaps=fight_gaps if state is FsmState.FIGHT else (),
+        fight_tail=fight_tail if state is FsmState.FIGHT else 0,
         dungeon=dun,
         saw_dungeon=saw_dungeon if state not in (FsmState.WAIT,) else False,
         watch_state=flow,

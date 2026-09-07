@@ -1,4 +1,4 @@
-"""共享 YOLO 检测引擎（默认 solarwarden_b：旧五类 + blank，未冻）。"""
+"""共享 YOLO 检测引擎（默认 mix_a：混合角色过图权重）。"""
 from __future__ import annotations
 
 import threading
@@ -7,7 +7,8 @@ from pathlib import Path
 
 from cuda_runtime import ensure_cuda_runtime
 
-DEFAULT_YOLO_WEIGHTS = Path(r"D:/Atrain/runs/solarwarden_b/weights/best.pt")
+DEFAULT_YOLO_RUN = "mix_a"
+DEFAULT_YOLO_WEIGHTS = Path(r"D:/Atrain/runs/mix_a/weights/best.pt")
 
 
 class YoloEngine:

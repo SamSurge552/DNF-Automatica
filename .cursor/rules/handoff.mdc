@@ -1,0 +1,27 @@
+---
+description: 薄交接 CONTEXT_HANDOFF；设计/决策分文件；禁止往 HANDOFF 复述 txt/DECISIONS
+alwaysApply: true
+---
+
+# 薄交接与文档分工
+
+## 读什么
+- 新开对话：先读 `CONTEXT_HANDOFF.md`（薄），需要细则再打开它指路的文件。
+- **通关草案 / 可调行为** → 只改、只信 `FSM_DESIGN.txt`（现行）。
+- **为什么 / 长期意图 / 已撤销** → `DECISIONS.md`（§1.0 当前阶段；§4 未落地勿覆盖 txt）。
+- **组集清洗** → `TRAIN_ALIGN.md`；与代码打架先问用户改文档还是改代码。
+- **磁盘代码才是实现真相。**
+
+## `CONTEXT_HANDOFF.md` 只能有
+1. 生成时间
+2. **本会话已做**（增量，宜短）
+3. **下一对话先做**（宜短）
+4. **路径**（工程 / 推荐段 / 权重等一行级）
+
+禁止：把 `FSM_DESIGN.txt`、`DECISIONS.md`、`TRAIN_ALIGN.md` 的整段设计、架构表、方法细则再抄进 HANDOFF。
+会话结束若需交接：只更新上述四块；长文进 `archive_notes/`，不要撑回厚报告。
+
+## 其它
+- 新旧想法冲突：用新的，事后告知（见 `new-idea-wins`）。
+- 发键只在 FSM测试；不要写进回放 / `fsm_core`。
+- 回复简体中文。

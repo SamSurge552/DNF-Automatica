@@ -97,4 +97,23 @@
 15：55 点按统一 80–120 随机（min/max）；HOLD/普攻仍按住
 16：00 交接归档 ARCHIVE_NOTE_2026-09-06-1
 16：22 Varien 图集 solarwarden_d 自动标 conf=0.15 iou=0.5（93 张 / 276 框）
+17：45 auto_label 默认写 score；Sam1ra conf=0.1 iou=0.7
+19：53 mix_a 分层重训（三角色 7/2/1 + blank 12/5；训后 best/last 分角色评估）
+20：10 mix_a 300 轮重训；blank 结案；Sam1ra loot/player 拆 P/R
+20：31 Sam1ra 两张 loot「漏检」定为标注错误；停 300 轮；images/Sam1ra 已空
+20：36 Aset Sam1ra txt 已重导对齐；重开 mix_a 300 轮
+20：44 mix_a 300 轮早停于 84（best=64）；分角色评估已写
+20：51 mix_a 关早停跑满 300（最终版）；e84 早停备份
+21：13 mix_a 最终版 300/300 完成
+21：43 采集：点开始待命，OCR 进图建 recordings，回城停段
+21：53 回放器可删当前段（目录 + 本段点名 PNG）
+-
+
+26/9/7
+-
+18：57 FSM测试段写 states.jsonl（state 变化/回城 flush；采集不写）
+20：26 对照当时 FSM_DESIGN：分布 S_pos/S_size+框、提取技能组/范围 max
+21：40 交接归档；txt 再改（走近范围 / 不足100%不计范围 / gaps_ms）。新对话做
+21：50 默认 YOLO mix_a；开打走近、gaps_ms、不足100%不计范围已落地。请重提
+22：35 归档本对话 ARCHIVE_NOTE_2026-09-07-1
 -

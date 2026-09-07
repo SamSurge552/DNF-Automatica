@@ -336,6 +336,7 @@ class App(tk.Tk):
         self.fsm_ay_var = tk.StringVar(value="250")
         self.fsm_y_var = tk.StringVar(value="250")
         self.fsm_s_var = tk.StringVar(value="20")
+        self.fsm_s_size_var = tk.StringVar(value="20")
         self.fsm_xxx_var = tk.StringVar(value="1000")
         self.fsm_pm_var = tk.StringVar(value="10")
         self.fsm_pc_var = tk.StringVar(value="5")
@@ -372,6 +373,7 @@ class App(tk.Tk):
             self.fsm_ay_var,
             self.fsm_y_var,
             self.fsm_s_var,
+            self.fsm_s_size_var,
             self.fsm_xxx_var,
             self.fsm_pm_var,
             self.fsm_pc_var,
@@ -462,7 +464,7 @@ class App(tk.Tk):
         log_group.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
 
         self._yolo_weight_map = {}
-        self._refresh_yolo_versions(select_default="solarwarden_b")
+        self._refresh_yolo_versions(select_default="mix_a")
         self._refresh_characters()
 
         self.controller.load_config()
@@ -564,12 +566,13 @@ class App(tk.Tk):
         elif names:
             skip_default = {n.lower() for n in names if n.lower().startswith("varien")}
             preferred = (
-                [n for n in names if n.lower() == "solarwarden_b"]
+                [n for n in names if n.lower() == "mix_a"]
+                or [n for n in names if n.lower() == "solarwarden_b"]
                 or [n for n in names if n.lower() == "solarwarden"]
                 or [n for n in names if n.lower() not in skip_default]
                 or names
             )
-            self.yolo_version_var.set(preferred[-1] if preferred else names[-1])
+            self.yolo_version_var.set(preferred[0] if preferred else names[-1])
         else:
             self.yolo_version_var.set("")
 
@@ -645,13 +648,15 @@ class App(tk.Tk):
             ver = self.yolo_version_var.get() or "(未选择)"
             self.log("已开启「FSM测试」：实时 YOLO + FSM + 发键；进图后写盘到 FSM_TEST（YOLO jsonl + 键盘 + 截图 + 当时参数）。城镇不录。")
             self.log(f"提示: 采集间隔默认 0.05s；调 debounce 请与采集同档，不要放到 0.2～0.5。当前版本 {ver}。")
-            if ver.lower() != "solarwarden_b":
-                self.log("过图检测请点「刷新」后选 solarwarden_b；varien_t 仅自动标注，不要当过图 YOLO。")
+            if ver.lower().startswith("varien"):
+                self.log("varien_t 仅自动标注，不要当过图 YOLO。过图请选 mix_a。")
+            elif ver.lower() != "mix_a":
+                self.log("过图检测默认 mix_a；当前不是 mix_a，确认后再开始。")
         else:
             if self.is_yolo_test_mode():
                 ver = self.yolo_version_var.get() or "(未选择)"
                 self.log("已选「YOLO测试」：只看检测框和新图识别，不跑 FSM、不存图、不采集键盘。")
-                self.log(f"当前模型 {ver}。过图请用 solarwarden_b。")
+                self.log(f"当前模型 {ver}。过图默认 mix_a。")
             elif self.is_collect_mode():
                 self.log("采集模式：截图 + 键盘 + YOLO。开始时必须已是管理员，并选过图权重。")
             else:
@@ -943,7 +948,7 @@ class App(tk.Tk):
             if not self._selected_yolo_weights():
                 messagebox.showerror(
                     "采集需要 YOLO",
-                    "采集必须先在「YOLO 设置」里选过图权重（solarwarden_b）。\n"
+                    "采集必须先在「YOLO 设置」里选过图权重（默认 mix_a）。\n"
                     "frames.jsonl 要带检测框，否则回放/技能特征提不出来。",
                     parent=self,
                 )
@@ -1062,7 +1067,8 @@ class App(tk.Tk):
         r3 = ttk.Frame(body)
         r3.pack(fill=tk.X, pady=(6, 0))
         spin(r3, "恢复 Y ms", self.fsm_y_var, 1, 20000, 6)
-        spin(r3, "相似 S%", self.fsm_s_var, 0, 100)
+        spin(r3, "S_pos%", self.fsm_s_var, 0, 100)
+        spin(r3, "S_size%", self.fsm_s_size_var, 0, 100)
         spin(r3, "普攻 XXX ms", self.fsm_xxx_var, 1, 20000, 6)
 
         r_tap = ttk.Frame(body)
@@ -1238,7 +1244,7 @@ class App(tk.Tk):
             return float(default)
 
     def _load_fsm_mlg_vars(self):
-        m, l, g, gx, gy, s, pm, pc, pt = 5, 5, 5, 50, 10, 20, 10, 5, 3
+        m, l, g, gx, gy, s, s_size, pm, pc, pt = 5, 5, 5, 50, 10, 20, 20, 10, 5, 3
         mash_count, mash_gap = 3, 50
         th_ms = 50
         e, f, town_s = DEFAULT_E, DEFAULT_F, float(DEFAULT_TOWN_S)
@@ -1253,6 +1259,9 @@ class App(tk.Tk):
                 gx = max(0, int(data.get("gx", gx)))
                 gy = max(0, int(data.get("gy", gy)))
                 s = max(0, min(100, int(data.get("s", s))))
+                s_pos = max(0, min(100, int(data.get("s_pos", s))))
+                s_size = max(0, min(100, int(data.get("s_size", s))))
+                s = s_pos
                 pm = max(0, int(data.get("pm", data.get("lm", pm))))
                 pc = max(0, int(data.get("pc", data.get("lc", pc))))
                 pt = max(1, int(data.get("pt", pt)))
@@ -1284,6 +1293,7 @@ class App(tk.Tk):
         self.fsm_ay_var.set(str(ay_ms))
         self.fsm_y_var.set(str(y_ms))
         self.fsm_s_var.set(str(s))
+        self.fsm_s_size_var.set(str(s_size))
         self.fsm_xxx_var.set(str(xxx_ms))
         cu, cd, cl, cr = mon_corr_from_dict(data)
         prev = self._fsm_mlg_persist
@@ -1371,6 +1381,11 @@ class App(tk.Tk):
             data["s"] = max(0, min(100, int(str(self.fsm_s_var.get()).strip() or 20)))
         except (TypeError, ValueError):
             data["s"] = 20
+        data["s_pos"] = data["s"]
+        try:
+            data["s_size"] = max(0, min(100, int(str(self.fsm_s_size_var.get()).strip() or data["s"])))
+        except (TypeError, ValueError):
+            data["s_size"] = data["s"]
         try:
             data["pm"] = max(0, int(str(self.fsm_pm_var.get()).strip() or 10))
         except (TypeError, ValueError):

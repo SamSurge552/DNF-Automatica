@@ -13,7 +13,16 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from statistics import median
 
-from fsm_core import DistSig, DistSkillPlan, FightSkill, classify_dist, expand_fight_skills, parse_hold_ms
+from fsm_core import (
+    DistSig,
+    DistSkillPlan,
+    FightSkill,
+    bbox_range_px,
+    bbox_rel,
+    classify_dist,
+    expand_fight_skills,
+    parse_hold_ms,
+)
 
 FEATURES_DIR = Path(__file__).resolve().parent / "skill_features"
 BINDS_DIR = Path(__file__).resolve().parent / "skill_binds"
@@ -252,9 +261,12 @@ def casts_from_tracks(
     extra_sigs: tuple[DistSig, ...] = (),
     slot_durs: dict[int, int] | None = None,
     press_lag_frames: int = EXTRACT_PRESS_LAG_FRAMES,
+    s_pos: int | None = None,
+    s_size: int | None = None,
 ) -> tuple[list[dict], tuple[DistSig, ...]]:
     """快捷栏技能（含 SPACE）。skill_hold 必须是真实 press onset，不要预先平移。
-    分布/最远敌对用 views[i_feat]；t0/hold/i_end/CD 仍从黄字 i0 起算。"""
+    前一个 hold_ms 未结束就按下下一个 → 合并技能组。分布/范围用组内第一技能的 i_feat；
+    结束时刻 = 组内 (按下+hold_ms) 最大。"""
     e = max(0, int(e))
     s_pct = max(0.0, float(s))
     lag = max(0, int(press_lag_frames))
@@ -264,33 +276,61 @@ def casts_from_tracks(
             hold_of[int(slot)] = max(0, int(hf))
         except (TypeError, ValueError):
             continue
-    n = len(skill_hold)
     extra = extra_sigs
     out = []
     n_views = len(views)
+    last_v = max(n_views - 1, 0)
+
+    groups: list[dict] = []
     for i0, i1, slot, key in skill_spans(skill_hold):
-        if i0 >= len(draft):
+        if i0 >= n_views and i0 >= len(draft):
             continue
         hold = max(0, int(hold_of.get(slot, 0)))
-        t0 = int((views[i0] if i0 < n_views else {}).get("t_ns") or (draft[i0] or {}).get("t_ns") or 0)
+        row0 = views[i0] if i0 < n_views else (draft[i0] if i0 < len(draft) else {})
+        t0 = int(row0.get("t_ns") or 0)
+        end_t = t0 + hold * 1_000_000
+        member = {
+            "i0": i0,
+            "i1": i1,
+            "slot": slot,
+            "key": str(key or "").strip().lower(),
+            "t0": t0,
+            "hold": hold,
+            "end_t": end_t,
+        }
+        if groups and t0 < int(groups[-1]["end_t"]):
+            g = groups[-1]
+            g["members"].append(member)
+            g["end_t"] = max(int(g["end_t"]), end_t)
+        else:
+            groups.append({"members": [member], "end_t": end_t})
+
+    for g in groups:
+        members = g["members"]
+        first = members[0]
+        i0 = int(first["i0"])
+        hold_end_t = int(g["end_t"])
         end_i = i0
-        lim = n if n else n_views
+        lim = n_views if n_views else len(draft)
         for j in range(i0, lim):
             row = views[j] if j < n_views else (draft[j] if j < len(draft) else {})
-            tj = int(row.get("t_ns") or t0)
+            tj = int(row.get("t_ns") or first["t0"])
             end_i = j
-            if (tj - t0) / 1e6 >= hold:
+            if tj >= hold_end_t:
                 break
-        last_v = max(n_views - 1, 0)
         i_feat = min(i0 + lag, end_i, last_v)
         v_feat = views[i_feat] if i_feat < n_views else {}
         v1 = views[end_i] if end_i < n_views else {}
         a = farthest_enemy(v_feat)
         b = farthest_enemy(v1)
-        killed_mon = a["mon"] - b["mon"]
-        killed_enemy = a["enemy"] - b["enemy"]
+        player = _view_player(v_feat)
+        enemy_xy = _xy_tuples(v_feat, "mon") + _xy_tuples(v_feat, "boss")
+        box = bbox_rel(player, enemy_xy)
+        start_n = a["mon"] + a["boss"]
+        remain_mon = b["mon"]
+        killed_mon = start_n - remain_mon
         dist_key, dist_kind, extra, _rk = classify_dist(
-            _view_player(v_feat),
+            player,
             _xy_tuples(v_feat, "mon"),
             _xy_tuples(v_feat, "boss"),
             int(v_feat.get("mon") or a["mon"] or 0),
@@ -298,27 +338,60 @@ def casts_from_tracks(
             dist_table,
             extra,
             s_pct,
+            s_pos=s_pos,
+            s_size=s_size,
         )
         is_boss = dist_kind == "boss"
         kind = None if is_boss else ("群" if killed_mon > e else "单")
+        kill_ratio = None if is_boss else _ratio(killed_mon, start_n)
+        if not is_boss and kill_ratio is not None and float(kill_ratio) >= 0.999:
+            range_px = bbox_range_px(box)
+        else:
+            range_px = None
+        keys = [m["key"] for m in members if m["key"]]
+        group_key = ">".join(keys) if keys else str(first["key"] or first["slot"])
+        member_ids = [f"{session}|{m['i0']}|{m['slot']}" for m in members]
+        gaps_ms = []
+        for i in range(1, len(members)):
+            dt = int(members[i]["t0"]) - int(members[i - 1]["t0"])
+            gaps_ms.append(max(0, int(round(dt / 1e6))))
+        rel = None
+        if player is not None and a.get("center"):
+            rel = a["center"]
+        elif dist_key:
+            for sig in extra:
+                if sig.key == dist_key:
+                    rel = [sig.rx, sig.ry]
+                    break
         out.append(
             {
-                "id": f"{session}|{i0}|{slot}",
+                "id": f"{session}|{i0}|{group_key}",
                 "session": session,
                 "dist_key": dist_key,
                 "dist_kind": dist_kind,
                 "room": dist_key or "X",
-                "slot": slot,
-                "key": key,
+                "slot": int(first["slot"]),
+                "key": first["key"],
+                "group_key": group_key,
+                "group_slots": [int(m["slot"]) for m in members],
+                "group_keys": keys,
+                "member_ids": member_ids,
                 "i0": i0,
                 "i_feat": i_feat,
-                "i1": i1,
+                "i1": int(members[-1]["i1"]),
                 "i_end": end_i,
                 "mon": a["mon"],
                 "boss": a["boss"],
                 "enemy": a["enemy"],
+                "start_n": start_n,
                 "center": a["center"],
+                "rel": rel,
+                "bbox": None if box is None else [round(x, 2) for x in box],
+                "bbox_w": 0.0 if box is None else round(box[2] - box[0], 2),
+                "bbox_h": 0.0 if box is None else round(box[3] - box[1], 2),
                 "dist": a["dist"],
+                "range_px": range_px,
+                "gaps_ms": gaps_ms,
                 "dir": a["dir"],
                 "kind": kind,
                 "boss_room": is_boss,
@@ -326,9 +399,9 @@ def casts_from_tracks(
                 "boss_end": b["boss"],
                 "enemy_end": b["enemy"],
                 "killed_mon": killed_mon,
-                "killed_enemy": None if is_boss else killed_enemy,
-                "kill_ratio": None if is_boss else _ratio(killed_mon, a["mon"]),
-                "kill_ratio_enemy": None if is_boss else _ratio(killed_enemy, a["enemy"]),
+                "killed_enemy": None if is_boss else (a["enemy"] - b["enemy"]),
+                "kill_ratio": kill_ratio,
+                "kill_ratio_enemy": None if is_boss else _ratio(a["enemy"] - b["enemy"], a["enemy"]),
             }
         )
     return out, extra
@@ -706,6 +779,20 @@ def cast_is_fake(c: dict, f: int | float, *, boss_room: bool | None = None) -> b
         return False
 
 
+def fake_member_ids(casts: list[dict], f: int | float) -> set[str]:
+    """假释放技能组：CD 检测跳过组内每个按下 id。"""
+    out: set[str] = set()
+    for c in casts:
+        if not c.get("id"):
+            continue
+        if c.get("fake") or cast_is_fake(c, f):
+            out.add(str(c["id"]))
+            for mid in c.get("member_ids") or ():
+                if mid:
+                    out.add(str(mid))
+    return out
+
+
 def apply_f(data: dict, f: int | float) -> dict:
     """杀MON效率 < F% 标假释放；统计/序列/范围只用真释放。"""
     try:
@@ -806,8 +893,35 @@ def fight_plan_from_features(
             if rng is not None:
                 slot_range.setdefault(slot, rng)
 
-    def _skill(slot: int, key: str, cd: float, rng_f, hf: int) -> FightSkill:
+    def _int_tuple(xs) -> tuple[int, ...]:
+        out: list[int] = []
+        for x in xs or ():
+            try:
+                out.append(int(x))
+            except (TypeError, ValueError):
+                continue
+        return tuple(out)
+
+    def _skill(
+        slot: int,
+        key: str,
+        cd: float,
+        rng_f,
+        hf: int,
+        group_key: str = "",
+        group_slots=(),
+        group_keys=(),
+        gaps_ms=(),
+    ) -> FightSkill:
         is_combo = slot in combo
+        slots = tuple(int(x) for x in (group_slots or ()) if str(x).isdigit() or str(x).lstrip("-").isdigit())
+        if len(slots) <= 1:
+            slots = ()
+        keys = tuple(str(x).strip() for x in (group_keys or ()) if str(x).strip())
+        if not keys and group_key:
+            keys = tuple(p for p in str(group_key).split(">") if p)
+        hold_slots = slots or (slot,)
+        holds = tuple(max(0, int(binds.get(int(s), ("", 0.0, 0))[2])) for s in hold_slots)
         return FightSkill(
             slot=slot,
             key=key,
@@ -817,6 +931,11 @@ def fight_plan_from_features(
             hold_ms=max(0, int(hf)),
             multi=multi_map.get(slot, 1),
             mash=slot in mash_slots,
+            group_key=str(group_key or ""),
+            group_slots=slots,
+            group_keys=keys,
+            group_holds=holds,
+            gaps_ms=_int_tuple(gaps_ms),
         )
 
     def _seq(room: dict) -> tuple[FightSkill, ...]:
@@ -838,12 +957,26 @@ def fight_plan_from_features(
                 if not key or "+" in key or "＋" in key or len(key.split()) != 1:
                     continue
             _bk, cd, hf = binds.get(slot, ("", 0.0, 0))
-            rng = sk.get("range_med")
+            rng = sk.get("range_max")
+            if rng is None:
+                rng = sk.get("range_med")
             try:
                 rng_f = float(rng) if rng is not None else slot_range.get(slot)
             except (TypeError, ValueError):
                 rng_f = slot_range.get(slot)
-            items.append(_skill(slot, key, cd, rng_f, hf))
+            items.append(
+                _skill(
+                    slot,
+                    key,
+                    cd,
+                    rng_f,
+                    hf,
+                    group_key=str(sk.get("group_key") or ""),
+                    group_slots=sk.get("group_slots") or (),
+                    group_keys=sk.get("group_keys") or (),
+                    gaps_ms=sk.get("gaps_ms") or (),
+                )
+            )
         return expand_fight_skills(tuple(items))
 
     plans: list[DistSkillPlan] = []
@@ -904,6 +1037,15 @@ def dist_table_from_features(data: dict | None) -> tuple[DistSig, ...]:
             continue
         tags = room.get("tags") or []
         n = int(room.get("n") or 0)
+        bw = float(room.get("bbox_w") or 0)
+        bh = float(room.get("bbox_h") or 0)
+        if not bw and not bh and room.get("bbox"):
+            box = room.get("bbox") or []
+            try:
+                bw = float(box[2]) - float(box[0])
+                bh = float(box[3]) - float(box[1])
+            except (TypeError, ValueError, IndexError):
+                bw, bh = 0.0, 0.0
         out.append(
             DistSig(
                 key=str(key),
@@ -911,6 +1053,8 @@ def dist_table_from_features(data: dict | None) -> tuple[DistSig, ...]:
                 n=n,
                 rx=rx,
                 ry=ry,
+                bbox_w=bw if n > 1 else 0.0,
+                bbox_h=bh if n > 1 else 0.0,
                 reset_point=bool(room.get("reset_point") or TAG_RESET_POINT in tags),
                 multi_boss=bool(room.get("multi_boss") or "多BOSS" in tags),
             )
@@ -978,9 +1122,35 @@ def detect_cd_resets(
     return out
 
 
+def _median_gaps(casts: list[dict]) -> list[int]:
+    rows: list[list[int]] = []
+    n = 0
+    for c in casts:
+        raw = c.get("gaps_ms")
+        if not isinstance(raw, (list, tuple)) or not raw:
+            continue
+        row = []
+        for x in raw:
+            try:
+                row.append(max(0, int(round(float(x)))))
+            except (TypeError, ValueError):
+                continue
+        if row:
+            rows.append(row)
+            n = max(n, len(row))
+    if not rows:
+        return []
+    out: list[int] = []
+    for i in range(n):
+        col = [r[i] for r in rows if i < len(r)]
+        if col:
+            out.append(int(round(median(col))))
+    return out
+
+
 def _skill_summary(casts: list[dict]) -> dict:
     real = [c for c in casts if not c.get("fake")]
-    dists = [c["dist"] for c in real if c.get("dist") is not None]
+    ranges = [c.get("range_px") for c in real if c.get("range_px") is not None]
     kinds = [c.get("kind") for c in real if c.get("kind")]
     ratios = [c["kill_ratio"] for c in real if c.get("kill_ratio") is not None]
     n_group = sum(1 for k in kinds if k == "群")
@@ -988,13 +1158,15 @@ def _skill_summary(casts: list[dict]) -> dict:
     return {
         "n": len(real),
         "n_fake": sum(1 for c in casts if c.get("fake")),
-        "range_med": None if not dists else round(float(median(dists)), 2),
+        "range_med": None,
+        "range_max": None if not ranges else round(float(max(ranges)), 2),
         "kind_maj": kind_maj,
         "kind_group": n_group,
         "kill_mean": None
         if not real
         else round(sum(float(c.get("killed_mon") or 0) for c in real) / len(real), 2),
         "kill_ratio_mean": None if not ratios else round(sum(ratios) / len(ratios), 3),
+        "gaps_ms": _median_gaps(real),
     }
 
 
@@ -1058,15 +1230,35 @@ def merge_casts(
             tags.append("异常")
         room["tags"] = tags
         if c.get("center") and room.get("rel") is None:
-            room["rel"] = c.get("center")
+            room["rel"] = c.get("rel") or c.get("center")
+        if c.get("bbox") and room.get("bbox") is None:
+            room["bbox"] = c.get("bbox")
+        if c.get("bbox_w") is not None:
+            room["bbox_w"] = c.get("bbox_w")
+            room["bbox_h"] = c.get("bbox_h")
         if kind == "mob":
             room["n"] = int(c.get("mon") or room.get("n") or 0)
         skills = dict(room.get("skills") or {})
-        sk_key = str(int(c.get("slot") or 0))
-        sk = dict(skills.get(sk_key) or {"slot": int(c.get("slot") or 0), "key": c.get("key") or "", "casts": []})
+        gk = str(c.get("group_key") or c.get("key") or int(c.get("slot") or 0))
+        sk_key = gk
+        sk = dict(
+            skills.get(sk_key)
+            or {
+                "slot": int(c.get("slot") or 0),
+                "key": c.get("key") or "",
+                "group_key": gk,
+                "casts": [],
+            }
+        )
         sk["slot"] = int(c.get("slot") or sk.get("slot") or 0)
         if c.get("key"):
             sk["key"] = c["key"]
+        if c.get("group_key"):
+            sk["group_key"] = c["group_key"]
+        if c.get("group_slots"):
+            sk["group_slots"] = list(c.get("group_slots") or [])
+        if c.get("group_keys"):
+            sk["group_keys"] = list(c.get("group_keys") or [])
         lst = list(sk.get("casts") or [])
         lst.append(c)
         sk["casts"] = lst
@@ -1211,8 +1403,14 @@ def format_report(data: dict | None, added: int = 0, skipped: int = 0) -> str:
         lines.append(f"怪物分布 {rk} {tags}  序列 {seq_s}")
         skills = _sort_skills(room.get("skills") or {}, str(room.get("kind") or ""))
         for sk_key, sk in skills.items():
-            rng = sk.get("range_med")
+            rng = sk.get("range_max")
+            if rng is None:
+                rng = sk.get("range_med")
             rng_s = "—" if rng is None else str(rng)
+            gk = sk.get("group_key") or ""
+            gk_s = f"  组{gk}" if gk and ">" in str(gk) else ""
+            gaps = sk.get("gaps_ms") or []
+            gap_s = f"  间隔{gaps}ms" if gaps else ""
             ratio = sk.get("kill_ratio_mean")
             ratio_s = "—" if ratio is None else f"{ratio:.0%}" if ratio <= 1 else str(ratio)
             km = sk.get("kill_mean")
@@ -1235,8 +1433,8 @@ def format_report(data: dict | None, added: int = 0, skipped: int = 0) -> str:
             fake_n = int(sk.get("n_fake") or 0)
             fake_s = f"  假释放{fake_n}" if fake_n else ""
             lines.append(
-                f"  技能{sk.get('slot')} {sk.get('key') or '—'}  "
-                f"n={sk.get('n', 0)}  范围中位={rng_s}  "
+                f"  技能{sk.get('slot')} {sk.get('key') or '—'}{gk_s}{gap_s}  "
+                f"n={sk.get('n', 0)}  范围最大={rng_s}  "
                 f"类型={sk.get('kind_maj') or '—'}（群{sk.get('kind_group', 0)}）  "
                 f"杀MON效率={ratio_s}  杀MON均={km_s}{combo_s}{multi_s}{fake_s}"
             )
@@ -1263,30 +1461,51 @@ def format_report(data: dict | None, added: int = 0, skipped: int = 0) -> str:
 
 
 def skill_range_of(data: dict | None, room, slot: int) -> float | None:
-    """该分布该槽的范围中位；没有则用各分布同槽中位。"""
+    """该分布该槽（或技能组）的范围：优先 range_max，否则旧 range_med。"""
     if not data:
         return None
+
+    def _val(sk: dict) -> float | None:
+        for k in ("range_max", "range_med"):
+            v = sk.get(k)
+            if v is None:
+                continue
+            try:
+                return float(v)
+            except (TypeError, ValueError):
+                continue
+        return None
+
     rooms = _rooms_or_dists(data)
-    sk = ((rooms.get(str(room)) or {}).get("skills") or {}).get(str(int(slot))) or {}
-    rng = sk.get("range_med")
+    skills = ((rooms.get(str(room)) or {}).get("skills") or {})
+    hit = skills.get(str(int(slot))) or {}
+    rng = _val(hit)
+    if rng is None:
+        for sk in skills.values():
+            try:
+                if int(sk.get("slot") or 0) == int(slot):
+                    rng = _val(sk)
+                    if rng is not None:
+                        break
+            except (TypeError, ValueError):
+                continue
     if rng is not None:
-        try:
-            return float(rng)
-        except (TypeError, ValueError):
-            pass
+        return rng
     dists = []
     for room_d in rooms.values():
-        other = ((room_d or {}).get("skills") or {}).get(str(int(slot))) or {}
-        v = other.get("range_med")
-        if v is None:
-            continue
-        try:
-            dists.append(float(v))
-        except (TypeError, ValueError):
-            continue
+        for other in ((room_d or {}).get("skills") or {}).values():
+            try:
+                same = int(other.get("slot") or 0) == int(slot)
+            except (TypeError, ValueError):
+                same = False
+            if not same:
+                continue
+            v = _val(other)
+            if v is not None:
+                dists.append(v)
     if not dists:
         return None
-    return round(float(median(dists)), 2)
+    return round(float(max(dists)), 2)
 
 
 def pack_dist_from_player(view: dict | None) -> float | None:

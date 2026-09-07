@@ -11,8 +11,9 @@ class RecordWriter:
     """
     单写盘线程消费队列。
     条目约定:
-      {"stream": "keys"|"frames"|"meta", ...}
+      {"stream": "keys"|"frames"|"states"|"meta", ...}
       {"stream": "_stop"} 结束
+    states.jsonl 仅在收到 stream=states 时创建（采集段不会出现该文件）。
     """
 
     def __init__(self, session_dir: str | Path, log=None):
@@ -24,11 +25,14 @@ class RecordWriter:
         self._running = False
         self.keys_path = self.session_dir / "keys.jsonl"
         self.frames_path = self.session_dir / "frames.jsonl"
+        self.states_path = self.session_dir / "states.jsonl"
         self.meta_path = self.session_dir / "meta.json"
         self._keys_f = None
         self._frames_f = None
+        self._states_f = None
         self.keys_count = 0
         self.frames_count = 0
+        self.states_count = 0
         self.dropped = 0
 
     def start(self):
@@ -65,7 +69,7 @@ class RecordWriter:
             self._thread.join(timeout=timeout)
         self._running = False
         self._thread = None
-        for f in (self._keys_f, self._frames_f):
+        for f in (self._keys_f, self._frames_f, self._states_f):
             if f:
                 try:
                     f.flush()
@@ -74,9 +78,11 @@ class RecordWriter:
                     pass
         self._keys_f = None
         self._frames_f = None
+        self._states_f = None
         if self.log:
+            extra = f" states={self.states_count}" if self.states_count else ""
             self.log(
-                f"采集写盘: keys={self.keys_count} frames={self.frames_count} "
+                f"采集写盘: keys={self.keys_count} frames={self.frames_count}{extra} "
                 f"dropped={self.dropped} -> {self.session_dir}"
             )
 
@@ -115,6 +121,12 @@ class RecordWriter:
                 self.frames_count += 1
                 if self.frames_count % 10 == 0:
                     self._frames_f.flush()
+            elif stream == "states":
+                if self._states_f is None:
+                    self._states_f = open(self.states_path, "a", encoding="utf-8")
+                self._states_f.write(line)
+                self.states_count += 1
+                self._states_f.flush()
         except Exception as e:
             if self.log:
                 self.log(f"采集写盘错误: {e}")
