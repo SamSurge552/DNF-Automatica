@@ -14,9 +14,16 @@ from fsm_core import (
     FsmState,
     DEFAULT_PW_MS,
     DEFAULT_TOWN_S,
+    DEFAULT_ADVANCE_TIMEOUT_MS,
+    DEFAULT_APPROACH_TIMEOUT_MS,
+    DEFAULT_STUCK_RECOVER_S,
+    parse_stuck_recover,
+    stuck_recover_to_json,
     dungeon_deb_step,
     intent_text,
     mon_off_from_dict,
+    loot_off_from_dict,
+    gate_off_from_dict,
     send_keys_label,
     snapshot_from_detect,
     step,
@@ -301,7 +308,7 @@ class StatusAnalysisModule:
             p = self._fsm_params
             self.gui.log(
                 f"状态分析模块: 已启动【FSM测试】（YOLO+FSM+发键；进图后写盘 FSM_TEST）。"
-                f"M={p.m} L={p.l} G={p.g} X={p.x_s:g}s GX={p.gx} GY={p.gy} AX={p.ax_ms}ms AY={p.ay_ms}ms Y={p.y_ms}ms S={p.s}% "
+                f"M={p.m} L={p.l} G={p.g} X={p.x_s:g}s GX={p.gx} GY={p.gy} AX={p.ax_ms}ms AY={p.ay_ms}ms 恢复s={p.stuck_recover_s:g} S={p.s}% "
                 f"点按{getattr(self, '_tap_ms_min', DEFAULT_TAP_MS_MIN)}-{getattr(self, '_tap_ms_max', DEFAULT_TAP_MS_MAX)}ms 连按COUNT={getattr(self, '_mash_count', DEFAULT_MASH_COUNT)} "
                 f"间隔{getattr(self, '_mash_gap_ms', DEFAULT_MASH_GAP_MS)}ms TH={p.th_ms}ms  开打序列{len(p.fight_plan)}分布 发键开"
             )
@@ -407,6 +414,7 @@ class StatusAnalysisModule:
             decision.move_dir,
             decision.skill_key,
             mash_n=mash_n,
+            fight_dir=getattr(decision, "fight_dir", None),
         )
 
     def _fsm_session_path(self, dungeon: str, stamp: str, character: str | None) -> Path:
@@ -515,7 +523,8 @@ class StatusAnalysisModule:
                 "gy": p.gy,
                 "ax_ms": p.ax_ms,
                 "ay_ms": p.ay_ms,
-                "y_ms": p.y_ms,
+                "stuck_recover_s": p.stuck_recover_s,
+                "stuck_recover": stuck_recover_to_json(p.stuck_recover),
                 "s": p.s,
                 "s_pos": p.s if p.s_pos is None else p.s_pos,
                 "s_size": p.s if p.s_size is None else p.s_size,
@@ -525,10 +534,16 @@ class StatusAnalysisModule:
                 "xxx_ms": p.xxx_ms,
                 "th_ms": p.th_ms,
                 "pw_ms": p.pw_ms,
+                "advance_timeout_ms": p.advance_timeout_ms,
+                "approach_timeout_ms": p.approach_timeout_ms,
                 "tn_s": p.tn_s,
                 "town_s": getattr(self, "_town_s", DEFAULT_TOWN_S),
                 "mon_off_x": p.mon_off_x,
                 "mon_off_y": p.mon_off_y,
+                "loot_off_x": p.loot_off_x,
+                "loot_off_y": p.loot_off_y,
+                "gate_off_x": p.gate_off_x,
+                "gate_off_y": p.gate_off_y,
                 "mash_count": getattr(self, "_mash_count", DEFAULT_MASH_COUNT),
                 "mash_gap_ms": getattr(self, "_mash_gap_ms", DEFAULT_MASH_GAP_MS),
                 "map_reset": p.map_reset,
@@ -682,6 +697,8 @@ class StatusAnalysisModule:
         mash_count, mash_gap = DEFAULT_MASH_COUNT, DEFAULT_MASH_GAP_MS
         town_s = DEFAULT_TOWN_S
         ox, oy = 0, 0
+        lox, loy = 0, 0
+        gox, goy = 0, 0
         data = {}
         if path.is_file():
             try:
@@ -703,12 +720,16 @@ class StatusAnalysisModule:
                 mash_gap = clamp_mash_gap_ms(data.get("mash_gap_ms", mash_gap))
                 town_s = float(data.get("town_s", town_s))
                 ox, oy = mon_off_from_dict(data)
+                lox, loy = loot_off_from_dict(data)
+                gox, goy = gate_off_from_dict(data)
             except Exception:
                 pass
         x_s = json_s(data, "x_s", 30.0)
         ax_ms = json_ms(data, "ax_ms", 1000)
         ay_ms = json_ms(data, "ay_ms", 1000)
         y_ms = json_ms(data, "y_ms", 500, lo=1)
+        stuck_recover_s = json_s(data, "stuck_recover_s", DEFAULT_STUCK_RECOVER_S, lo=0.05)
+        stuck_recover = parse_stuck_recover(data.get("stuck_recover"))
         xxx_ms = json_ms(data, "xxx_ms", 2000, lo=1)
         try:
             th_ms = max(0, min(300, int(data.get("th_ms", mash_gap))))
@@ -718,6 +739,8 @@ class StatusAnalysisModule:
             pw_ms = max(0, int(data.get("pw_ms", DEFAULT_PW_MS)))
         except (TypeError, ValueError):
             pw_ms = DEFAULT_PW_MS
+        advance_timeout_ms = json_ms(data, "advance_timeout_ms", DEFAULT_ADVANCE_TIMEOUT_MS, lo=1)
+        approach_timeout_ms = json_ms(data, "approach_timeout_ms", DEFAULT_APPROACH_TIMEOUT_MS, lo=1)
         tap_lo, tap_hi = parse_tap_ms_range(data)
         self._f = f
         self._town_s = town_s
@@ -748,6 +771,8 @@ class StatusAnalysisModule:
             ax_ms=ax_ms,
             ay_ms=ay_ms,
             y_ms=y_ms,
+            stuck_recover_s=stuck_recover_s,
+            stuck_recover=stuck_recover,
             s=s,
             s_pos=s,
             s_size=s_size,
@@ -757,6 +782,8 @@ class StatusAnalysisModule:
             xxx_ms=xxx_ms,
             th_ms=th_ms,
             pw_ms=pw_ms,
+            advance_timeout_ms=advance_timeout_ms,
+            approach_timeout_ms=approach_timeout_ms,
             tn_s=float(town_s),
             fight_plan=load_fight_plan(char, dun, f=f) if char and dun else (),
             hotbar=load_hotbar(char) if char else (),
@@ -764,13 +791,17 @@ class StatusAnalysisModule:
             map_reset=has_map_reset(feats) if feats else False,
             mon_off_x=ox,
             mon_off_y=oy,
+            loot_off_x=lox,
+            loot_off_y=loy,
+            gate_off_x=gox,
+            gate_off_y=goy,
         )
         floor_s = stuck_x_s_floor(params)
         if params.x_s + 1e-9 < floor_s and not getattr(self, "_stuck_floor_logged", False):
             self._stuck_floor_logged = True
             self.gui.log(
                 f"提示: 卡住 X秒={params.x_s:g} 小于建议下限 {floor_s:g}s"
-                f"（max(XXX,AX,AY,PW,四向Y)）。技能表最长持续也计入此下限。"
+                f"（max(XXX,AX,AY,PW,恢复序列HOLD)）。技能表最长持续也计入此下限。"
             )
         return params
 

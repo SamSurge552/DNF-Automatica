@@ -1,31 +1,59 @@
 {
-  "m": 5,
-  "l": 3,
-  "g": 3,
-  "x_s": 30.0,
-  "gx": 120,
+  "m": 2,
+  "l": 2,
+  "g": 4,
+  "x_s": 20.0,
+  "gx": 100,
   "gy": 100,
   "ax_ms": 2000,
   "ay_ms": 100,
+  "stuck_recover_s": 1.0,
+  "stuck_recover": [
+    {
+      "action": "tap",
+      "key": "esc"
+    },
+    {
+      "action": "hold",
+      "key": "right",
+      "s": 2
+    },
+    {
+      "action": "hold",
+      "key": "left",
+      "s": 2
+    },
+    {
+      "action": "hold",
+      "key": "up",
+      "s": 1
+    },
+    {
+      "action": "hold",
+      "key": "down",
+      "s": 1
+    }
+  ],
   "xxx_ms": 2000,
   "tap_ms_min": 80,
   "tap_ms_max": 120,
   "mash_count": 3,
-  "mash_gap_ms": 100,
+  "mash_gap_ms": 300,
   "th_ms": 100,
-  "y_ms": 500,
   "s": 50,
   "s_pos": 50,
-  "s_size": 52,
+  "s_size": 50,
   "pm": 30,
   "pc": 4,
-  "pt": 2,
+  "pt": 4,
   "pw_ms": 2000,
+  "advance_timeout_ms": 3000,
+  "approach_timeout_ms": 3000,
   "town_s": 2.0,
   "run_press": 2,
   "loot_hold_ms": 500,
   "e": 3,
-  "f": 49,
+  "f": 50,
   "press_lag_frames": 0,
   "fill": true,
   "relative": false,
@@ -33,31 +61,39 @@
   "overlay_alpha": 20,
   "skill_hold_ms": {
     "SolarWarden": {
-      "1": 5000,
-      "2": 1500,
+      "1": 7000,
+      "2": 2000,
       "3": 5000,
       "4": 99999,
       "5": 250,
-      "6": 5000,
+      "6": 6000,
       "7": 1000,
-      "8": 3000
+      "8": 2000
     },
     "Varien": {
-      "1": 5000,
+      "1": 1500,
       "2": 1500,
-      "3": 5000,
-      "6": 5000,
-      "7": 1000,
+      "3": 2500,
+      "6": 2000,
+      "7": 5000,
       "8": 3000,
-      "4": 99999,
-      "5": 250
+      "4": 3000,
+      "5": 5000
     }
   },
   "session_source": "全部",
   "extract_include_fsm": false,
-  "last_session": "recordings/深渊：最终调律者/20260907_222726_Varien",
+  "last_session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
   "mon_corr_u": 0,
   "mon_corr_d": 80,
   "mon_corr_l": 0,
-  "mon_corr_r": 0
+  "mon_corr_r": 0,
+  "loot_corr_u": 55,
+  "loot_corr_d": 0,
+  "loot_corr_l": 0,
+  "loot_corr_r": 0,
+  "gate_corr_u": 0,
+  "gate_corr_d": 0,
+  "gate_corr_l": 0,
+  "gate_corr_r": 0
 }

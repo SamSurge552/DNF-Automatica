@@ -8,7 +8,7 @@ alwaysApply: true
 ## 读什么
 - 新开对话：先读 `CONTEXT_HANDOFF.md`（薄），需要细则再打开它指路的文件。
 - **通关草案 / 可调行为** → 只改、只信 `FSM_DESIGN.txt`（现行）。
-- **为什么 / 长期意图 / 已撤销** → `DECISIONS.md`（§1.0 当前阶段；§4 未落地勿覆盖 txt）。
+- **为什么 / 长期意图 / 已撤销** → `DECISIONS.md`（§1.0 当前阶段；通关以 `FSM_DESIGN.txt` 为准）。
 - **组集清洗** → `TRAIN_ALIGN.md`；与代码打架先问用户改文档还是改代码。
 - **磁盘代码才是实现真相。**
 

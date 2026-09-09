@@ -25,7 +25,7 @@ from central_controller import CentralController
 from window_align import enable_dpi_awareness, get_virtual_screen, get_window_at_point, find_window_by_process
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
-from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_PW_MS, DEFAULT_TOWN_S, json_ms, json_s
+from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_PW_MS, DEFAULT_TOWN_S, DEFAULT_ADVANCE_TIMEOUT_MS, DEFAULT_APPROACH_TIMEOUT_MS, DEFAULT_STUCK_RECOVER_S, json_ms, json_s, parse_stuck_recover, stuck_recover_to_json
 from fsm_execute import DEFAULT_TAP_MS_MIN, DEFAULT_TAP_MS_MAX, parse_tap_ms_range, clamp_tap_ms
 from skill_feature_extract import DEFAULT_E, DEFAULT_F, skill_table_missing
 
@@ -335,6 +335,7 @@ class App(tk.Tk):
         self.fsm_ax_var = tk.StringVar(value="250")
         self.fsm_ay_var = tk.StringVar(value="250")
         self.fsm_y_var = tk.StringVar(value="250")
+        self.fsm_stuck_recover_s_var = tk.StringVar(value=str(DEFAULT_STUCK_RECOVER_S))
         self.fsm_s_var = tk.StringVar(value="20")
         self.fsm_s_size_var = tk.StringVar(value="20")
         self.fsm_xxx_var = tk.StringVar(value="1000")
@@ -342,6 +343,8 @@ class App(tk.Tk):
         self.fsm_pc_var = tk.StringVar(value="5")
         self.fsm_pt_var = tk.StringVar(value="3")
         self.fsm_pw_var = tk.StringVar(value=str(DEFAULT_PW_MS))
+        self.fsm_advance_timeout_var = tk.StringVar(value=str(DEFAULT_ADVANCE_TIMEOUT_MS))
+        self.fsm_approach_timeout_var = tk.StringVar(value=str(DEFAULT_APPROACH_TIMEOUT_MS))
         self.fsm_e_var = tk.StringVar(value=str(DEFAULT_E))
         self.fsm_f_var = tk.StringVar(value=str(DEFAULT_F))
         self.fsm_town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
@@ -371,7 +374,7 @@ class App(tk.Tk):
             self.fsm_gy_var,
             self.fsm_ax_var,
             self.fsm_ay_var,
-            self.fsm_y_var,
+            self.fsm_stuck_recover_s_var,
             self.fsm_s_var,
             self.fsm_s_size_var,
             self.fsm_xxx_var,
@@ -1056,6 +1059,7 @@ class App(tk.Tk):
         spin(r1, "L", self.fsm_l_var, 1, 60)
         spin(r1, "G", self.fsm_g_var, 1, 60)
         spin(r1, "卡住 X秒", self.fsm_x_var, 0.05, 120, 5)
+        spin(r1, "恢复s", self.fsm_stuck_recover_s_var, 0.05, 30, 5)
 
         r2 = ttk.Frame(body)
         r2.pack(fill=tk.X, pady=(6, 0))
@@ -1064,9 +1068,16 @@ class App(tk.Tk):
         spin(r2, "AX ms", self.fsm_ax_var, 0, 20000, 6)
         spin(r2, "AY ms", self.fsm_ay_var, 0, 20000, 6)
 
+        r2b = ttk.Frame(body)
+        r2b.pack(fill=tk.X, pady=(6, 0))
+        spin(r2b, "前进超时 ms", self.fsm_advance_timeout_var, 1, 60000, 6)
+
+        r2c = ttk.Frame(body)
+        r2c.pack(fill=tk.X, pady=(6, 0))
+        spin(r2c, "走近超时 ms", self.fsm_approach_timeout_var, 1, 60000, 6)
+
         r3 = ttk.Frame(body)
         r3.pack(fill=tk.X, pady=(6, 0))
-        spin(r3, "恢复 Y ms", self.fsm_y_var, 1, 20000, 6)
         spin(r3, "S_pos%", self.fsm_s_var, 0, 100)
         spin(r3, "S_size%", self.fsm_s_size_var, 0, 100)
         spin(r3, "普攻 XXX ms", self.fsm_xxx_var, 1, 20000, 6)
@@ -1153,7 +1164,7 @@ class App(tk.Tk):
 
         ttk.Label(
             body,
-            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒 tn_s：连续无地下城关键词达该秒数即回城（不换帧）。OCR 无关键词则沿用上一帧再进进图/回城。前进接近与捡物：点按 → TH 毫秒 → 按住。距门 >GX/>GY 才接近；两轴停或门没了再 AX/AY 毫秒。卡住后 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)。S=分布相似百分比。PM/PT=掉落在动；PW=等停下上限毫秒，超时按当前掉落继续捡。数量>PC 一键拾取。E/F=提取。XXX=全 CD 普攻毫秒。点按 min/max=每次点按按下保持（默认 80–120，含移动 TAP）。连按 COUNT 在执行层。MON/BOSS 补正用于 FSM/提取/回放逻辑点，jsonl 仍原始，改后请重提。与回放共用 json：改完立刻写入；点开始会先读文件。",
+            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒 tn_s：连续无地下城关键词达该秒数即回城（不换帧）。OCR 无关键词则沿用上一帧再进进图/回城。前进接近与捡物：点按 → TH 毫秒 → 按住。距门 >GX/>GY 才接近；两轴停或门没了再 AX/AY 毫秒。卡住后跑 json 里 stuck_recover 序列（默认 ESC 点按再按倍数×恢复s HOLD）。X 秒应大于 max(最长技能持续, AX, AY, PW, 恢复序列 HOLD)。S=分布相似百分比。PM/PT=掉落在动；PW=等停下上限毫秒，超时按当前掉落继续捡。数量>PC 一键拾取。E/F=提取。XXX=全 CD 普攻毫秒。点按 min/max=每次点按按下保持（默认 80–120，含移动 TAP）。连按 COUNT 在执行层。MON/BOSS 补正用于 FSM/提取/回放逻辑点，jsonl 仍原始，改后请重提。与回放共用 json：改完立刻写入；点开始会先读文件。",
             foreground="#666",
             wraplength=460,
             justify=tk.LEFT,
@@ -1249,6 +1260,8 @@ class App(tk.Tk):
         th_ms = 50
         e, f, town_s = DEFAULT_E, DEFAULT_F, float(DEFAULT_TOWN_S)
         pw_ms = DEFAULT_PW_MS
+        advance_timeout_ms = DEFAULT_ADVANCE_TIMEOUT_MS
+        approach_timeout_ms = DEFAULT_APPROACH_TIMEOUT_MS
         data = {}
         if FSM_UI_PATH.is_file():
             try:
@@ -1281,6 +1294,8 @@ class App(tk.Tk):
         x_s = json_s(data, "x_s", 30.0)
         ax_ms = json_ms(data, "ax_ms", 1000)
         ay_ms = json_ms(data, "ay_ms", 1000)
+        advance_timeout_ms = json_ms(data, "advance_timeout_ms", DEFAULT_ADVANCE_TIMEOUT_MS, lo=1)
+        approach_timeout_ms = json_ms(data, "approach_timeout_ms", DEFAULT_APPROACH_TIMEOUT_MS, lo=1)
         y_ms = json_ms(data, "y_ms", 500, lo=1)
         xxx_ms = json_ms(data, "xxx_ms", 2000, lo=1)
         self.fsm_m_var.set(str(m))
@@ -1291,7 +1306,9 @@ class App(tk.Tk):
         self.fsm_gy_var.set(str(gy))
         self.fsm_ax_var.set(str(ax_ms))
         self.fsm_ay_var.set(str(ay_ms))
-        self.fsm_y_var.set(str(y_ms))
+        self.fsm_advance_timeout_var.set(str(advance_timeout_ms))
+        self.fsm_approach_timeout_var.set(str(approach_timeout_ms))
+        self.fsm_stuck_recover_s_var.set(str(json_s(data, "stuck_recover_s", DEFAULT_STUCK_RECOVER_S, lo=0.05)))
         self.fsm_s_var.set(str(s))
         self.fsm_s_size_var.set(str(s_size))
         self.fsm_xxx_var.set(str(xxx_ms))
@@ -1376,7 +1393,9 @@ class App(tk.Tk):
             data["th_ms"] = max(0, min(300, int(str(self.fsm_th_var.get()).strip() or 50)))
         except (TypeError, ValueError):
             data["th_ms"] = 50
-        data["y_ms"] = self._parse_mlg(self.fsm_y_var, 250)
+        data["stuck_recover_s"] = self._parse_float(self.fsm_stuck_recover_s_var, DEFAULT_STUCK_RECOVER_S, lo=0.05)
+        if not isinstance(data.get("stuck_recover"), list) or not data.get("stuck_recover"):
+            data["stuck_recover"] = stuck_recover_to_json()
         try:
             data["s"] = max(0, min(100, int(str(self.fsm_s_var.get()).strip() or 20)))
         except (TypeError, ValueError):
@@ -1402,6 +1421,20 @@ class App(tk.Tk):
             data["pw_ms"] = max(0, int(str(self.fsm_pw_var.get()).strip() or DEFAULT_PW_MS))
         except (TypeError, ValueError):
             data["pw_ms"] = DEFAULT_PW_MS
+        try:
+            data["advance_timeout_ms"] = max(
+                1,
+                int(str(self.fsm_advance_timeout_var.get()).strip() or DEFAULT_ADVANCE_TIMEOUT_MS),
+            )
+        except (TypeError, ValueError):
+            data["advance_timeout_ms"] = DEFAULT_ADVANCE_TIMEOUT_MS
+        try:
+            data["approach_timeout_ms"] = max(
+                1,
+                int(str(self.fsm_approach_timeout_var.get()).strip() or DEFAULT_APPROACH_TIMEOUT_MS),
+            )
+        except (TypeError, ValueError):
+            data["approach_timeout_ms"] = DEFAULT_APPROACH_TIMEOUT_MS
         try:
             data["e"] = max(0, int(str(self.fsm_e_var.get()).strip() or DEFAULT_E))
         except (TypeError, ValueError):

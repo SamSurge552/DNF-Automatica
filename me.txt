@@ -117,3 +117,41 @@
 21：50 默认 YOLO mix_a；开打走近、gaps_ms、不足100%不计范围已落地。请重提
 22：35 归档本对话 ARCHIVE_NOTE_2026-09-07-1
 -
+22：50 薄交接 CONTEXT_HANDOFF + .cursor/rules/handoff.mdc；厚版归档
+23：00 blueprint 非过时内容并入 DECISIONS「长期意图」；过时主流程不并入
+23：05 训练默认权重改 weights/yolo26n.pt；确认双份 yolo26n 同内容
+23：10 确认 shift_align_check 为 BC 对齐遗留，日常不用
+23：20 24h 任务确认完成；删 24h-fsm 提醒例程
+23：30 回放信息栏去掉 origin_bl / 盘面左上
+23：40 修技能表持续 ms 换角色串台；去掉多余「保存技能表」（切段自动写）
+23：50 DECISIONS 瘦身：删旧 FSM§4、评估§、症状表；数据节只留填充/相对+训练短注
+23：55 单图 PL 两角色可稳定较快刷完；DECISIONS §2 改为「现在/下一档」
+24：05 blueprint 跳转 stub 确认无用；交接改为「已并入后删除」
+
+26/9/8
+-
+6：40 确认 frame_count 在 FSM_TEST/.../states.jsonl（采集不写）
+6：50 回放右上角改显示 states 状态/frame_count（替坐标提示）
+7：00 修回放 icon 清会话后变小蓝点（清段不丢/缺则重载 icon）
+7：10 讨论 M/L/G=检测类有无布尔游程；count↑为效率噪声下界
+7：15 回放右下角显示有无×连续帧(到/未)、mon无游程 med/max、mon↑
+7：20 检测游程改按钮弹窗；掉检/误检直方图；COUNT抖动标帧
+7：30 游程1–4帧下列帧号；≥5只计数
+7：35 回放条旁「跳到」帧（1起，回车/跳转）
+7：45 每轮时间条：同角色+同图、目录名标签、分段横条+汇总；纵向不封顶
+7：50 时间条含空闲；「含空闲（图+统计）」勾选同时管图与汇总
+8：10 确认移动 HOLD 差分发键；TAP 无差分；TH 由 ctx.dash_* 计时，等待帧输出 NONE
+8：20 states 尚无 enter怪数/casts序列/卡住布尔（仅卡住独立成段）
+8：40 写入 mon_boss_enter+casts；回放「开打排序」（每只怪耗时降序+分类+汇总）；卡住邻接标记
+8：55 LOOT/GATE 坐标补正（与 MON/BOSS 同套滑块；jsonl 仍原始；改 loot/gate 不必重提）
+9：00 卡住恢复：四向各 Y ms 一轮后退出并重置监测（修 %4 无限自我循环）
+-
+20:20 skill range XY box (extract + rect draw; old range_px compat); 旧特征需重提才有 XY 字段
+21：00 右侧参数列表滚轮：Spinbox/Scale 绑 MouseWheel 转滚动画布，避免路过误改数值
+23：28 CAST转身约定：仅左右脸(dx)；点按方向再技能；用全局点按ms
+23：57 CAST边沿现算左右脸；前进超时 advance_timeout_ms 重入判定
+11：23 走近超时 approach_timeout_ms：范围外走近超时后重选技能
+11：29 卡住恢复改为配置序列 stuck_recover + 恢复s；默认 ESC 再右左2s上下1s
+11：40 FSM_DESIGN：核对本轮改1–4；补 CAST 左右脸+关键参数指针；卡住十字限制说明（2/3/4原已有）
+12：00 技能排序破序改用 group_key 字符串（同 n/效率不再靠插入顺序）
+-

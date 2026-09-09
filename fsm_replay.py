@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import statistics
 import subprocess
 import sys
 import threading
@@ -28,10 +29,20 @@ from fsm_core import (
     run_track,
     MON_CORR_MAX,
     apply_mon_boss_corr,
+    apply_loot_corr,
+    apply_gate_corr,
+    apply_detect_xy_corr,
     mon_corr_from_dict,
+    loot_corr_from_dict,
+    gate_corr_from_dict,
     mon_off_from_corr,
     DEFAULT_PW_MS,
     DEFAULT_TOWN_S,
+    DEFAULT_ADVANCE_TIMEOUT_MS,
+    DEFAULT_APPROACH_TIMEOUT_MS,
+    DEFAULT_STUCK_RECOVER_S,
+    parse_stuck_recover,
+    stuck_recover_to_json,
     send_keys_label,
     json_ms,
     json_s,
@@ -61,6 +72,7 @@ from skill_feature_extract import (
     rollback_features,
     save_features,
     skill_range_of,
+    skill_range_xy_of,
     clear_features,
     combo_slots_of,
     set_combo_slots,
@@ -117,11 +129,11 @@ HELP_PARAMS = (
     "S_pos%：分布中心相似。S_size%：多 MON 范围框尺寸相似。全表取最相似再过阈值。\n"
     "F%：杀 MON 效率低于该百分比记假释放（不进序列 / 范围 / CD）。\n"
     "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。PW：等停下上限毫秒，超时结束等待并按当前掉落继续捡（蓝字「捡物等待超时 PW」）。数量 > PC 一键拾取，否则挨个捡。\n"
-    "卡住：同一流程状态连续 X 秒则改为卡住，上下左右各 HOLD Y 毫秒（不是前进）。X 秒应大于 max(最长技能持续, AX, AY, PW, 四向 Y)（秒）。\n"
-    "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。开打范围外同样走近（朝分布中心）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
+    "卡住：同一流程状态连续 X 秒则改为卡住，然后跑配置序列 stuck_recover（默认：ESC 点按，再右/左 HOLD 2×恢复s、上/下 HOLD 1×恢复s）。步骤在 json 的 stuck_recover 里改，不必改代码。基准秒字段 stuck_recover_s。一轮跑完退出卡住并重置监测（可再入）。X 秒应大于 max(最长技能持续, AX, AY, PW, 恢复序列 HOLD)（秒）。\n"
+    "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。开打范围外同样走近（朝分布中心）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。前进超时：方法开始计时，超过 advance_timeout_ms 结束本次前进并重入状态判定（重识门/重记过门方向，不进卡住）。走近超时：开打范围外走近超过 approach_timeout_ms 结束本次走近并重选技能（不进卡住、不强行对该技能 CAST/CD）。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
     "点按 min/max：发键层每次点按（移动 TAP、技能 CAST/连按每次、左Alt 拾取）按下保持 uniform[min,max] 毫秒。默认 80–120。HOLD/普攻不是点按。PICK 节流 = max×5。与主面板共用 json。\n"
     "连按 COUNT / 间隔 ms：执行层参数（不进核心）。红字由回放按槽是否勾连按 + COUNT 拼出来。\n"
-    "MON/BOSS 补正：上下左右滑块。FSM / 提取 / 回放逻辑点用同一偏移；jsonl 与叠图 PNG 仍是原始检测。改补正后旧 skill_features 作废，请重新提取本图。\n"
+    "MON/BOSS、LOOT、GATE 补正：各类上下左右滑块。FSM / 回放逻辑点用同一偏移；jsonl 与叠图 PNG 仍是原始检测。改 MON/BOSS 补正后旧 skill_features 作废，请重新提取本图；改 LOOT/GATE 不必重提。\n"
     "叠图：把该帧 PNG 铺到坐标网上（半透明、最上层）。对齐=截屏像素与 jsonl 同一套；相对坐标时图平移使 player 落在盘面中心。\n"
     "改完立刻写入共用 json，回放当场重算；FSM测试点开始（或测试中再改）会读这份，不必另同步。"
 )
@@ -131,7 +143,7 @@ HELP_SKILLS = (
     "多次释放：勾选后填 MULTI（默认 2），FSM 拆成多份独立 CD。\n"
     "连按：执行层把该技能展开成 COUNT 次点按（COUNT/间隔在参数区）。与连续释放/多次释放不是一回事。\n"
     "连续释放 / 多次释放都不触发提取时的 CD 重置检测。\n"
-    "勾选或改次数后点「保存技能表」写入键位表。键位工具改完后点「重新读取」。"
+    "持续/连续/多次/连按会在切录像、勾选变更、提取前、关闭回放时自动写入该角色键位表。键位工具改完后点「重新读取」。"
 )
 HELP_EXTRACT = (
     "按下快捷栏技能（含 SPACE）即提取，不要求开打。hold_ms 未结束又按下下一个 → 技能组（group_key 如 a>b）。\n"
@@ -386,6 +398,8 @@ def compute_draft_track(
     ax_ms: int = 250,
     ay_ms: int = 250,
     y_ms: int = 250,
+    stuck_recover_s: float = DEFAULT_STUCK_RECOVER_S,
+    stuck_recover=(),
     s: int = 20,
     s_pos: int | None = None,
     s_size: int | None = None,
@@ -395,12 +409,18 @@ def compute_draft_track(
     xxx_ms: int = 1000,
     th_ms: int = 50,
     pw_ms: int = 3000,
+    advance_timeout_ms: int = DEFAULT_ADVANCE_TIMEOUT_MS,
+    approach_timeout_ms: int = DEFAULT_APPROACH_TIMEOUT_MS,
     fight_plan=(),
     hotbar=(),
     dist_table=(),
     map_reset: bool = False,
     mon_off_x: int = 0,
     mon_off_y: int = 0,
+    loot_off_x: int = 0,
+    loot_off_y: int = 0,
+    gate_off_x: int = 0,
+    gate_off_y: int = 0,
     tn_s: float = DEFAULT_TOWN_S,
 ) -> list[dict]:
     """回放宿主入口；t_ns 用 jsonl 原值。判定在 fsm_core.step。"""
@@ -416,6 +436,8 @@ def compute_draft_track(
             ax_ms=ax_ms,
             ay_ms=ay_ms,
             y_ms=y_ms,
+            stuck_recover_s=float(stuck_recover_s),
+            stuck_recover=parse_stuck_recover(stuck_recover),
             s=s,
             s_pos=s_pos,
             s_size=s_size,
@@ -425,12 +447,18 @@ def compute_draft_track(
             xxx_ms=xxx_ms,
             th_ms=th_ms,
             pw_ms=int(pw_ms),
+            advance_timeout_ms=max(1, int(advance_timeout_ms)),
+            approach_timeout_ms=max(1, int(approach_timeout_ms)),
             fight_plan=tuple(fight_plan or ()),
             hotbar=tuple(hotbar or ()),
             dist_table=tuple(dist_table or ()),
             map_reset=bool(map_reset),
             mon_off_x=int(mon_off_x),
             mon_off_y=int(mon_off_y),
+            loot_off_x=int(loot_off_x),
+            loot_off_y=int(loot_off_y),
+            gate_off_x=int(gate_off_x),
+            gate_off_y=int(gate_off_y),
             tn_s=float(tn_s),
         ),
     )
@@ -764,6 +792,619 @@ def keys_vocab(events: list[dict], held_at_start: list[str] | None = None) -> li
     return sorted(seen)
 
 
+
+
+DET_KEYS = ("mon", "boss", "loot", "gate")
+
+
+def _frame_count(fr: dict, key: str) -> int:
+    try:
+        return max(0, int(fr.get(key) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _interior_run_spans(seq: list[bool], want_on: bool) -> list[tuple[int, int]]:
+    """两侧被相反状态夹住的连续段 [start, end]（含，0-based）。
+    want_on=False → 掉检：有→无→有 中间「无」；
+    want_on=True  → 误检：无→有→无 中间「有」。
+    """
+    n = len(seq)
+    out: list[tuple[int, int]] = []
+    i = 0
+    while i < n:
+        j = i
+        while j + 1 < n and seq[j + 1] == seq[i]:
+            j += 1
+        if (
+            seq[i] == want_on
+            and i > 0
+            and j + 1 < n
+            and seq[i - 1] != want_on
+            and seq[j + 1] != want_on
+        ):
+            out.append((i, j))
+        i = j + 1
+    return out
+
+
+def _run_hist_from_spans(spans: list[tuple[int, int]]) -> dict[str, int]:
+    h = {"1": 0, "2": 0, "3": 0, "4": 0, "5+": 0}
+    for a, b in spans:
+        r = b - a + 1
+        if r <= 0:
+            continue
+        if r >= 5:
+            h["5+"] += 1
+        else:
+            h[str(r)] += 1
+    return h
+
+
+def _fmt_hist(h: dict[str, int]) -> str:
+    return (
+        f"  1帧: {h.get('1', 0)}   2帧: {h.get('2', 0)}   "
+        f"3帧: {h.get('3', 0)}   4帧: {h.get('4', 0)}   ≥5帧: {h.get('5+', 0)}"
+    )
+
+
+def _fmt_span_1based(a: int, b: int) -> str:
+    """回放 UI 帧号为 1-based。"""
+    if a == b:
+        return str(a + 1)
+    return f"{a + 1}-{b + 1}"
+
+
+def _fmt_short_span_lines(spans: list[tuple[int, int]]) -> list[str]:
+    """仅列出长度 1–4 的游程帧号。"""
+    by_len: dict[int, list[str]] = {1: [], 2: [], 3: [], 4: []}
+    for a, b in spans:
+        r = b - a + 1
+        if 1 <= r <= 4:
+            by_len[r].append(_fmt_span_1based(a, b))
+    lines: list[str] = []
+    for r in (1, 2, 3, 4):
+        if by_len[r]:
+            lines.append(f"  {r}帧 → " + ", ".join(by_len[r]))
+    return lines
+
+
+def _count_jitters(frames: list[dict], key: str) -> list[dict]:
+    """连续「有」内 count 上升：记录帧(0-based)、旧值、新值。"""
+    n = len(frames)
+    counts = [_frame_count(fr, key) for fr in frames]
+    on = [c > 0 for c in counts]
+    out: list[dict] = []
+    i = 0
+    while i < n:
+        if not on[i]:
+            i += 1
+            continue
+        j = i
+        while j + 1 < n and on[j + 1]:
+            j += 1
+        for k in range(i + 1, j + 1):
+            if counts[k] > counts[k - 1]:
+                out.append({"i": k, "prev": counts[k - 1], "cur": counts[k]})
+        i = j + 1
+    return out
+
+
+def build_det_stats(frames: list[dict]) -> dict:
+    """类存在布尔游程 + mon COUNT 抖动（连续「有」内上升）。"""
+    drop_spans: dict[str, list[tuple[int, int]]] = {}
+    false_spans: dict[str, list[tuple[int, int]]] = {}
+    drop_hist: dict[str, dict[str, int]] = {}
+    false_hist: dict[str, dict[str, int]] = {}
+    for key in DET_KEYS:
+        seq = [_frame_count(fr, key) > 0 for fr in frames]
+        ds = _interior_run_spans(seq, False)
+        fs = _interior_run_spans(seq, True)
+        drop_spans[key] = ds
+        false_spans[key] = fs
+        drop_hist[key] = _run_hist_from_spans(ds)
+        false_hist[key] = _run_hist_from_spans(fs)
+    mon_jit = _count_jitters(frames, "mon")
+    mon_present = sum(1 for fr in frames if _frame_count(fr, "mon") > 0)
+    return {
+        "drop_spans": drop_spans,
+        "false_spans": false_spans,
+        "drop_hist": drop_hist,
+        "false_hist": false_hist,
+        "mon_jitters": mon_jit,
+        "mon_present_frames": mon_present,
+    }
+
+
+def format_det_run_report(det: dict | None) -> str:
+    if not det:
+        return "本段无检测帧统计。"
+    lines: list[str] = []
+    for key in DET_KEYS:
+        dh = (det.get("drop_hist") or {}).get(key) or _run_hist_from_spans([])
+        fh = (det.get("false_hist") or {}).get(key) or _run_hist_from_spans([])
+        ds = (det.get("drop_spans") or {}).get(key) or []
+        fs = (det.get("false_spans") or {}).get(key) or []
+        lines.append(f"{key}  掉检游程（连续帧内有→无→有，中间那段「无」的长度）")
+        lines.append(_fmt_hist(dh))
+        lines.extend(_fmt_short_span_lines(ds))
+        lines.append(f"{key}  误检游程（无→有→无，中间那段「有」的长度）")
+        lines.append(_fmt_hist(fh))
+        lines.extend(_fmt_short_span_lines(fs))
+        lines.append("")
+    jits = det.get("mon_jitters") or []
+    pf = int(det.get("mon_present_frames") or 0)
+    lines.append("mon  COUNT抖动（连续「有」内 count 上升；帧号与回放一致，从1起）")
+    if not jits:
+        lines.append(f"  （无）  有怪帧 {pf}")
+    else:
+        for j in jits:
+            lines.append(f"  帧 {int(j['i']) + 1}: {int(j['prev'])}→{int(j['cur'])}")
+        lines.append(f"  共 {len(jits)} 次 / 有怪帧 {pf}")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def state_hint_for_frame(states: list[dict], frames: list[dict], i: int) -> str:
+    """右上角：states.jsonl 当前状态 + frame_count（有则带进度）。"""
+    if not states:
+        return "无 states.jsonl"
+    if i < 0 or i >= len(frames):
+        return "无 states.jsonl"
+    try:
+        t = int(frames[i]["t_ns"])
+    except (KeyError, TypeError, ValueError):
+        return "无 states.jsonl"
+    hit = None
+    for row in states:
+        try:
+            a = int(row.get("enter_t_ns"))
+            b = int(row.get("exit_t_ns"))
+        except (TypeError, ValueError):
+            continue
+        lo, hi = (a, b) if a <= b else (b, a)
+        if lo <= t <= hi:
+            hit = row
+            break
+    if hit is None:
+        # 落在空隙时取最近已结束段
+        best = None
+        best_d = None
+        for row in states:
+            try:
+                b = int(row.get("exit_t_ns"))
+            except (TypeError, ValueError):
+                continue
+            if b <= t:
+                d = t - b
+                if best_d is None or d < best_d:
+                    best, best_d = row, d
+        hit = best
+    if hit is None:
+        return "states 未覆盖本帧"
+    st = str(hit.get("state") or "—")
+    try:
+        fc = max(1, int(hit.get("frame_count") or 1))
+    except (TypeError, ValueError):
+        fc = 1
+    try:
+        enter = int(hit.get("enter_t_ns"))
+        exit_ = int(hit.get("exit_t_ns"))
+    except (TypeError, ValueError):
+        enter = exit_ = None
+    cur = None
+    if enter is not None and exit_ is not None:
+        lo, hi = (enter, exit_) if enter <= exit_ else (exit_, enter)
+        n = 0
+        for fr in frames:
+            try:
+                tj = int(fr["t_ns"])
+            except (KeyError, TypeError, ValueError):
+                continue
+            if lo <= tj <= hi:
+                n += 1
+                if tj == t:
+                    cur = n
+        if cur is None and lo <= t <= hi:
+            cur = n
+    try:
+        dur = int(hit.get("duration_ms") or 0)
+    except (TypeError, ValueError):
+        dur = 0
+    if cur is not None and fc > 0:
+        bit = f"{st} · {cur}/{fc}帧"
+    else:
+        bit = f"{st} · {fc}帧"
+    if dur > 0:
+        bit += f" · {dur}ms"
+    nxt = hit.get("next_state")
+    if nxt:
+        bit += f" → {nxt}"
+    return bit
+
+
+
+ROUND_BAR_SKIP_STATES = frozenset()
+ROUND_BAR_COLORS = {
+    "前进": "#4aa3ff",
+    "开打": "#e85d5d",
+    "捡物": "#e8c547",
+    "空闲": "#6b7280",
+    "未知": "#888888",
+}
+_ROUND_BAR_FALLBACK = ("#7c6af2", "#2bb673", "#e67e22", "#1abc9c", "#9b59b6", "#16a085")
+
+
+def _state_dur_ms(row: dict) -> int:
+    try:
+        if row.get("duration_ms") is not None:
+            return max(0, int(row["duration_ms"]))
+    except (TypeError, ValueError):
+        pass
+    try:
+        return max(0, int((int(row["exit_t_ns"]) - int(row["enter_t_ns"])) / 1e6))
+    except (KeyError, TypeError, ValueError):
+        return 0
+
+
+def _round_bar_color(state: str, seen: dict[str, str]) -> str:
+    if state in ROUND_BAR_COLORS:
+        return ROUND_BAR_COLORS[state]
+    if state not in seen:
+        seen[state] = _ROUND_BAR_FALLBACK[len(seen) % len(_ROUND_BAR_FALLBACK)]
+    return seen[state]
+
+
+def _fmt_dual_ms(ms: float) -> str:
+    if ms is None:
+        return "—"
+    ms = float(ms)
+    return f"{ms / 1000.0:.2f}s ({ms:.0f}ms)"
+
+
+def _percentile(xs: list[float], p: float) -> float | None:
+    if not xs:
+        return None
+    ys = sorted(xs)
+    if len(ys) == 1:
+        return float(ys[0])
+    k = (len(ys) - 1) * (p / 100.0)
+    f = int(k)
+    c = min(f + 1, len(ys) - 1)
+    if f == c:
+        return float(ys[f])
+    return float(ys[f] + (ys[c] - ys[f]) * (k - f))
+
+
+def load_round_segments(states: list[dict]) -> list[tuple[str, int]]:
+    """一轮内按状态分段：(state, duration_ms)，跳过 0 时长。"""
+    out: list[tuple[str, int]] = []
+    for row in states:
+        st = str(row.get("state") or "未知")
+        if st in ROUND_BAR_SKIP_STATES:
+            continue
+        ms = _state_dur_ms(row)
+        if ms <= 0:
+            continue
+        out.append((st, ms))
+    return out
+
+
+def collect_dungeon_rounds(
+    dun: str,
+    character: str = "",
+    session: Path | None = None,
+) -> list[tuple[str, Path, list[tuple[str, int]]]]:
+    """同角色+同地下城含 states.jsonl 的段，按目录名新→旧，不设数量上限。标签=目录名。"""
+    found: list[tuple[str, Path, list[tuple[str, int]]]] = []
+    seen: set[Path] = set()
+    roots = (FSM_TEST_DIR, RECORDINGS)
+    candidates: list[Path] = []
+    char = (character or "").strip()
+    if dun and dun not in ("未知", "采集", "FSM测试"):
+        for root in roots:
+            ddir = root / dun
+            if ddir.is_dir():
+                for p in ddir.iterdir():
+                    if p.is_dir() and (p / "states.jsonl").is_file():
+                        candidates.append(p)
+    if session is not None:
+        sp = Path(session)
+        if sp.is_dir() and (sp / "states.jsonl").is_file():
+            candidates.append(sp)
+    for p in sorted(candidates, key=lambda x: x.name, reverse=True):
+        try:
+            key = p.resolve()
+        except OSError:
+            key = p
+        if key in seen:
+            continue
+        seen.add(key)
+        meta = {}
+        mp = p / "meta.json"
+        if mp.is_file():
+            try:
+                meta = json.loads(mp.read_text(encoding="utf-8"))
+            except Exception:
+                meta = {}
+        if not isinstance(meta, dict):
+            meta = {}
+        # 角色：meta / 目录名后缀；states 里 char_name 兜底
+        ch = character_of_session(p, meta)
+        if not ch:
+            rows0 = load_jsonl(p / "states.jsonl")
+            for row in rows0[:5]:
+                c2 = str(row.get("char_name") or "").strip()
+                if c2:
+                    ch = c2
+                    break
+        if char and ch and ch != char:
+            continue
+        if char and not ch:
+            # 当前指定了角色但这段解析不出角色 → 跳过，避免串角色
+            continue
+        rows = load_jsonl(p / "states.jsonl")
+        segs = load_round_segments(rows)
+        if not segs:
+            continue
+        found.append((p.name, p, segs))
+    return found
+
+
+def summarize_round_segments(
+    rounds: list[tuple[str, Path, list[tuple[str, int]]]],
+    *,
+    include_idle: bool = False,
+) -> list[dict]:
+    """每状态：占比 / 次数 / 中位 / p90 / max（ms）。按占比降序。"""
+    by: dict[str, list[int]] = {}
+    for _name, _path, segs in rounds:
+        for st, ms in segs:
+            if st == "空闲" and not include_idle:
+                continue
+            by.setdefault(st, []).append(ms)
+    total = sum(sum(v) for v in by.values()) or 1
+    rows: list[dict] = []
+    for st, xs in by.items():
+        s = sum(xs)
+        rows.append(
+            {
+                "state": st,
+                "share": 100.0 * s / total,
+                "n": len(xs),
+                "med": statistics.median(xs) if xs else None,
+                "p90": _percentile([float(x) for x in xs], 90.0),
+                "max": float(max(xs)) if xs else None,
+                "total_ms": s,
+            }
+        )
+    rows.sort(key=lambda r: (-r["share"], r["state"]))
+    return rows
+
+
+def format_round_summary_table(summary: list[dict]) -> str:
+    lines = [
+        "状态汇总（占比 | 次数 | 中位 | p90 | max；时长双单位 s/ms）",
+        f"{'状态':<6} {'占比':>7} {'次数':>5} {'中位':>18} {'p90':>18} {'max':>18}",
+    ]
+    for r in summary:
+        lines.append(
+            f"{r['state']:<6} {r['share']:6.1f}% {r['n']:5d} "
+            f"{_fmt_dual_ms(r['med']):>18} {_fmt_dual_ms(r['p90']):>18} {_fmt_dual_ms(r['max']):>18}"
+        )
+    return "\n".join(lines) + "\n"
+
+
+
+
+def _frame_index_1based(frames: list[dict], t_ns: int) -> int | None:
+    """enter_t_ns → 回放帧号（1-based）；找不到则 None。"""
+    if not frames:
+        return None
+    try:
+        t = int(t_ns)
+    except (TypeError, ValueError):
+        return None
+    best_i = None
+    for i, fr in enumerate(frames):
+        try:
+            ft = int(fr["t_ns"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if ft >= t:
+            return i + 1
+        best_i = i + 1
+    return best_i
+
+
+def classify_fight_casts(casts: list | None) -> str:
+    """只描述 casts 形状，不做因果判断。"""
+    xs = list(casts or [])
+    if not xs:
+        return "无释放"
+    slots: list[int] = []
+    ts: list[int] = []
+    for c in xs:
+        if not isinstance(c, dict):
+            continue
+        try:
+            slots.append(int(c.get("slot")))
+        except (TypeError, ValueError):
+            continue
+        try:
+            ts.append(int(c.get("t") or 0))
+        except (TypeError, ValueError):
+            ts.append(0)
+    if not slots:
+        return "无释放"
+    uniq = set(slots)
+    if len(uniq) == 1 and len(slots) >= 2:
+        gaps = [ts[i + 1] - ts[i] for i in range(len(ts) - 1)]
+        gaps = [g for g in gaps if g >= 0]
+        if gaps:
+            avg = sum(gaps) / len(gaps)
+            if avg > 0 and all(0.5 * avg <= g <= 1.5 * avg for g in gaps):
+                return "同槽反复"
+        return "同槽反复"
+    return "有释放"
+
+
+def _fmt_casts_cell(casts: list | None) -> str:
+    xs = list(casts or [])
+    if not xs:
+        return "[]"
+    parts: list[str] = []
+    for c in xs:
+        if not isinstance(c, dict):
+            continue
+        t = c.get("t", 0)
+        slot = c.get("slot")
+        parts.append(f"{t}:s{slot}" if slot is not None else f"{t}:s?")
+    return "[" + ", ".join(parts) + "]"
+
+
+def collect_fight_segments(
+    dun: str,
+    character: str = "",
+    session: Path | None = None,
+) -> list[dict]:
+    """同角色+同图各段 states.jsonl 里的开打段，附起始帧与邻接卡住标记。"""
+    rounds = collect_dungeon_rounds(dun, character=character, session=session)
+    # also need sessions that only have states — collect_dungeon_rounds skips empty combat segs
+    # Re-scan sessions for states including those with only idle:
+    found_paths: list[Path] = []
+    seen: set[Path] = set()
+    char = (character or "").strip()
+    roots = (FSM_TEST_DIR, RECORDINGS)
+    cands: list[Path] = []
+    if dun and dun not in ("未知", "采集", "FSM测试"):
+        for root in roots:
+            ddir = root / dun
+            if ddir.is_dir():
+                for p in ddir.iterdir():
+                    if p.is_dir() and (p / "states.jsonl").is_file():
+                        cands.append(p)
+    if session is not None:
+        sp = Path(session)
+        if sp.is_dir() and (sp / "states.jsonl").is_file():
+            cands.append(sp)
+    for p in sorted(cands, key=lambda x: x.name, reverse=True):
+        try:
+            key = p.resolve()
+        except OSError:
+            key = p
+        if key in seen:
+            continue
+        seen.add(key)
+        meta = {}
+        mp = p / "meta.json"
+        if mp.is_file():
+            try:
+                meta = json.loads(mp.read_text(encoding="utf-8"))
+            except Exception:
+                meta = {}
+        if not isinstance(meta, dict):
+            meta = {}
+        ch = character_of_session(p, meta)
+        if not ch:
+            rows0 = load_jsonl(p / "states.jsonl")
+            for row in rows0[:5]:
+                c2 = str(row.get("char_name") or "").strip()
+                if c2:
+                    ch = c2
+                    break
+        if char and ch and ch != char:
+            continue
+        if char and not ch:
+            continue
+        found_paths.append(p)
+
+    out: list[dict] = []
+    for p in found_paths:
+        states = load_jsonl(p / "states.jsonl")
+        frames = load_jsonl(p / "frames.jsonl")
+        for i, row in enumerate(states):
+            if str(row.get("state") or "") != "开打":
+                continue
+            if "mon_boss_enter" not in row:
+                # 旧段无新字段，跳过取数（先验字段）
+                continue
+            try:
+                dur = int(row.get("duration_ms") or 0)
+            except (TypeError, ValueError):
+                dur = 0
+            try:
+                enter_n = int(row.get("mon_boss_enter") or 0)
+            except (TypeError, ValueError):
+                enter_n = 0
+            per = (dur / enter_n) if enter_n > 0 else float(dur)
+            casts = row.get("casts") if isinstance(row.get("casts"), list) else []
+            stuck_near = False
+            if i > 0 and str(states[i - 1].get("state") or "") == "卡住":
+                stuck_near = True
+            if i + 1 < len(states) and str(states[i + 1].get("state") or "") == "卡住":
+                stuck_near = True
+            try:
+                et = int(row.get("enter_t_ns") or 0)
+            except (TypeError, ValueError):
+                et = 0
+            out.append(
+                {
+                    "session": p.name,
+                    "path": p,
+                    "map_name": str(row.get("map_name") or dun),
+                    "frame": _frame_index_1based(frames, et),
+                    "duration_ms": dur,
+                    "mon_boss_enter": enter_n,
+                    "per_ms": per,
+                    "casts": casts,
+                    "class": classify_fight_casts(casts),
+                    "stuck_near": stuck_near,
+                    "enter_t_ns": et,
+                }
+            )
+    out.sort(key=lambda r: (-r["per_ms"], -r["duration_ms"]))
+    return out
+
+
+def format_fight_sort_report(rows: list[dict]) -> str:
+    if not rows:
+        return (
+            "无带 mon_boss_enter/casts 的开打段。\n"
+            "请用新写入端跑一轮 FSM 测试后再打开本表。\n"
+        )
+    lines: list[str] = []
+    lines.append(
+        f"{'#':>2}  {'轮次':<28} {'图':<12} {'起始帧':>8}  {'时长':>8}  {'进入怪数':>6}  {'每只怪':>8}  {'casts':<32}  分类  卡住邻接"
+    )
+    for i, r in enumerate(rows, 1):
+        fr = f"f{r['frame']:05d}" if r["frame"] is not None else "f?????"
+        map_s = (r["map_name"] or "")[:12]
+        casts_s = _fmt_casts_cell(r["casts"])
+        stuck = "是" if r["stuck_near"] else ""
+        lines.append(
+            f"{i:>2}  {r['session']:<28} {map_s:<12} {fr:>8}  {r['duration_ms']:>6}ms  "
+            f"{r['mon_boss_enter']:>6}  {r['per_ms']:>6.0f}ms  {casts_s:<32}  {r['class']:<6}  {stuck}"
+        )
+    # summary
+    n = len(rows)
+    c_cast = sum(1 for r in rows if r["class"] == "有释放")
+    c_none = sum(1 for r in rows if r["class"] == "无释放")
+    c_same = sum(1 for r in rows if r["class"] == "同槽反复")
+    pers = [r["per_ms"] for r in rows]
+    med = statistics.median(pers)
+    p90 = _percentile(pers, 90.0) if pers else None
+    mx = max(pers) if pers else None
+    lines.append("")
+    lines.append(
+        f"开打段 {n} 个：有释放 {c_cast} / 无释放 {c_none} / 同槽反复 {c_same}"
+    )
+    lines.append(
+        f"每只怪耗时：中位 {_fmt_dual_ms(med)}  p90 {_fmt_dual_ms(p90)}  max {_fmt_dual_ms(mx)}"
+    )
+    lines.append("排序键 = duration_ms / mon_boss_enter（降序）。分类只描述 casts 形状。")
+    return "\n".join(lines) + "\n"
+
+
 def load_session(session: Path) -> dict:
     frames = sorted(load_jsonl(session / "frames.jsonl"), key=lambda r: int(r["t_ns"]))
     keys = sorted(load_jsonl(session / "keys.jsonl"), key=lambda r: int(r.get("t_ns") or 0))
@@ -788,11 +1429,14 @@ def load_session(session: Path) -> dict:
     region = meta.get("region") or {}
     keys_path = session / "keys.jsonl"
     held_at_start = [str(k).lower() for k in (meta.get("keys_held_at_start") or []) if k]
+    states_path = session / "states.jsonl"
+    states = load_jsonl(states_path) if states_path.is_file() else []
     return {
         "session": session,
         "meta": meta,
         "frames": frames,
         "keys": keys,
+        "states": states,
         "keys_path_exists": keys_path.is_file(),
         "held_at_start": held_at_start,
         "keys_vocab": keys_vocab(keys, held_at_start),
@@ -803,6 +1447,7 @@ def load_session(session: Path) -> dict:
             fr.get("mon_xy") or fr.get("loot_xy") or fr.get("gate_xy") or fr.get("boss_xy")
             for fr in frames[: min(20, len(frames))]
         ),
+        "det_stats": build_det_stats(frames),
     }
 
 
@@ -852,6 +1497,15 @@ class FsmReplayApp(tk.Tk):
         ttk.Button(top, text="删除本段", width=10, command=self._delete_current_session).pack(
             side=tk.LEFT, padx=(6, 0)
         )
+        ttk.Button(top, text="检测游程", width=10, command=self._show_det_runs).pack(
+            side=tk.LEFT, padx=(6, 0)
+        )
+        ttk.Button(top, text="每轮时间条", width=10, command=self._show_round_time_bars).pack(
+            side=tk.LEFT, padx=(6, 0)
+        )
+        ttk.Button(top, text="开打排序", width=10, command=self._show_fight_sort).pack(
+            side=tk.LEFT, padx=(6, 0)
+        )
         ttk.Button(top, text="打开技能绑定工具", command=self._open_skill_bind_tool).pack(side=tk.LEFT, padx=(8, 0))
 
         body = ttk.Frame(self, padding=(8, 0))
@@ -874,6 +1528,7 @@ class FsmReplayApp(tk.Tk):
         self.ax_var = tk.StringVar(value="250")
         self.ay_var = tk.StringVar(value="250")
         self.y_var = tk.StringVar(value="250")
+        self.stuck_recover_s_var = tk.StringVar(value=str(DEFAULT_STUCK_RECOVER_S))
         self.s_var = tk.StringVar(value="20")
         self.s_size_var = tk.StringVar(value="20")
         self.xxx_var = tk.StringVar(value="1000")
@@ -886,6 +1541,8 @@ class FsmReplayApp(tk.Tk):
         self.pc_var = tk.StringVar(value=str(DEFAULT_PC))
         self.pt_var = tk.StringVar(value=str(DEFAULT_PT))
         self.pw_var = tk.StringVar(value=str(DEFAULT_PW_MS))
+        self.advance_timeout_var = tk.StringVar(value=str(DEFAULT_ADVANCE_TIMEOUT_MS))
+        self.approach_timeout_var = tk.StringVar(value=str(DEFAULT_APPROACH_TIMEOUT_MS))
         self.town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
         self.run_press_var = tk.StringVar(value=str(RUN_PRESS_GT))
         self.loot_hold_var = tk.StringVar(value=str(LOOT_HOLD_DEFAULT))
@@ -893,6 +1550,14 @@ class FsmReplayApp(tk.Tk):
         self.corr_d = tk.IntVar(value=0)
         self.corr_l = tk.IntVar(value=0)
         self.corr_r = tk.IntVar(value=0)
+        self.loot_corr_u = tk.IntVar(value=0)
+        self.loot_corr_d = tk.IntVar(value=0)
+        self.loot_corr_l = tk.IntVar(value=0)
+        self.loot_corr_r = tk.IntVar(value=0)
+        self.gate_corr_u = tk.IntVar(value=0)
+        self.gate_corr_d = tk.IntVar(value=0)
+        self.gate_corr_l = tk.IntVar(value=0)
+        self.gate_corr_r = tk.IntVar(value=0)
         self._corr_lock = False
         self._corr_prev = (0, 0, 0, 0)
         self.e_var = tk.StringVar(value="3")
@@ -911,6 +1576,7 @@ class FsmReplayApp(tk.Tk):
         self._multi_n_vars: dict[int, tk.StringVar] = {}
         self._multi_spins: dict[int, ttk.Spinbox] = {}
         self._multi_ui_guard = False
+        self._stuck_recover_spec = stuck_recover_to_json()
         self._load_ui_settings()
         self.source_combo.bind("<<ComboboxSelected>>", lambda e: self._on_source())
 
@@ -920,9 +1586,12 @@ class FsmReplayApp(tk.Tk):
         feat_r.pack(fill=tk.X)
         ttk.Label(feat_r, text="E").pack(side=tk.LEFT)
         self._e_spin = ttk.Spinbox(feat_r, from_=0, to=40, width=4, textvariable=self.e_var)
+        self._shield_right_wheel(self._e_spin)
         self._e_spin.pack(side=tk.LEFT, padx=(2, 8))
         ttk.Label(feat_r, text="F%").pack(side=tk.LEFT)
-        ttk.Spinbox(feat_r, from_=0, to=100, width=4, textvariable=self.f_var).pack(side=tk.LEFT, padx=(2, 8))
+        _f_spin = ttk.Spinbox(feat_r, from_=0, to=100, width=4, textvariable=self.f_var)
+        self._shield_right_wheel(_f_spin)
+        _f_spin.pack(side=tk.LEFT, padx=(2, 8))
         ttk.Checkbutton(
             feat_r,
             text="含FSM测试",
@@ -998,8 +1667,8 @@ class FsmReplayApp(tk.Tk):
         r_x = _prow(box_stuck)
         ttk.Label(r_x, text="X秒").pack(side=tk.LEFT)
         self._spin(r_x, self.x_var, to=120, frm=0.05, width=5).pack(side=tk.LEFT, padx=(2, 8))
-        ttk.Label(r_x, text="Y ms").pack(side=tk.LEFT)
-        self._spin(r_x, self.y_var, to=20000, frm=1, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        ttk.Label(r_x, text="恢复s").pack(side=tk.LEFT)
+        self._spin(r_x, self.stuck_recover_s_var, to=30, frm=0.05, width=5).pack(side=tk.LEFT, padx=(2, 0))
         box_gate = _pf("过门")
         r_gate = _prow(box_gate)
         ttk.Label(r_gate, text="GX").pack(side=tk.LEFT)
@@ -1011,6 +1680,9 @@ class FsmReplayApp(tk.Tk):
         self._spin(r_ax, self.ax_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 6))
         ttk.Label(r_ax, text="AY ms").pack(side=tk.LEFT)
         self._spin(r_ax, self.ay_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        r_adv_to = _prow(box_gate)
+        ttk.Label(r_adv_to, text="前进超时 ms").pack(side=tk.LEFT)
+        self._spin(r_adv_to, self.advance_timeout_var, frm=1, to=60000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         box_fight = _pf("开打")
         r_sf = _prow(box_fight)
         ttk.Label(r_sf, text="S_pos%").pack(side=tk.LEFT)
@@ -1022,6 +1694,9 @@ class FsmReplayApp(tk.Tk):
         r_xxx = _prow(box_fight)
         ttk.Label(r_xxx, text="XXX ms").pack(side=tk.LEFT)
         self._spin(r_xxx, self.xxx_var, frm=1, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        r_appr_to = _prow(box_fight)
+        ttk.Label(r_appr_to, text="走近超时 ms").pack(side=tk.LEFT)
+        self._spin(r_appr_to, self.approach_timeout_var, frm=1, to=60000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         r_tap = _prow(box_fight)
         ttk.Label(r_tap, text="点按 min").pack(side=tk.LEFT)
         self._spin(r_tap, self.tap_ms_min_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 8))
@@ -1056,19 +1731,53 @@ class FsmReplayApp(tk.Tk):
         ttk.Label(r_run, text="捡物 ms").pack(side=tk.LEFT)
         self._spin(r_run, self.loot_hold_var, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         box_corr = _pf("补正")
-        r_corr = _prow(box_corr)
-        ttk.Label(r_corr, text="MON/BOSS").pack(side=tk.LEFT)
-        self.corr_summary = ttk.Label(r_corr, text="X+0 Y+0", foreground="#06c")
-        self.corr_summary.pack(side=tk.LEFT, padx=(8, 0))
-        pad = ttk.Frame(box_corr)
-        pad.pack(fill=tk.X, pady=(2, 0))
         mx = MON_CORR_MAX
-        tk.Scale(pad, from_=mx, to=0, orient=tk.VERTICAL, length=72, width=10, showvalue=True, variable=self.corr_u, label="上", command=self._on_corr_edit).pack(side=tk.LEFT)
-        mid = ttk.Frame(pad)
-        mid.pack(side=tk.LEFT, fill=tk.Y, padx=4)
-        tk.Scale(mid, from_=mx, to=0, orient=tk.HORIZONTAL, length=90, width=10, showvalue=True, variable=self.corr_l, label="左", command=self._on_corr_edit).pack()
-        tk.Scale(mid, from_=0, to=mx, orient=tk.HORIZONTAL, length=90, width=10, showvalue=True, variable=self.corr_r, label="右", command=self._on_corr_edit).pack()
-        tk.Scale(pad, from_=0, to=mx, orient=tk.VERTICAL, length=72, width=10, showvalue=True, variable=self.corr_d, label="下", command=self._on_corr_edit).pack(side=tk.LEFT)
+
+        def _corr_pad(parent, title: str, vu, vd, vl, vr, summary_attr: str, kind: str):
+            r = _prow(parent)
+            ttk.Label(r, text=title).pack(side=tk.LEFT)
+            lab = ttk.Label(r, text="X+0 Y+0", foreground="#06c")
+            lab.pack(side=tk.LEFT, padx=(8, 0))
+            setattr(self, summary_attr, lab)
+            pad = ttk.Frame(parent)
+            pad.pack(fill=tk.X, pady=(2, 6))
+            cmd = lambda _=None, k=kind: self._on_corr_edit(kind=k)
+            sc_u = tk.Scale(
+                pad, from_=mx, to=0, orient=tk.VERTICAL, length=64, width=10,
+                showvalue=True, variable=vu, label="上", command=cmd,
+            )
+            self._shield_right_wheel(sc_u)
+            sc_u.pack(side=tk.LEFT)
+            mid = ttk.Frame(pad)
+            mid.pack(side=tk.LEFT, fill=tk.Y, padx=4)
+            sc_l = tk.Scale(
+                mid, from_=mx, to=0, orient=tk.HORIZONTAL, length=84, width=10,
+                showvalue=True, variable=vl, label="左", command=cmd,
+            )
+            self._shield_right_wheel(sc_l)
+            sc_l.pack()
+            sc_r = tk.Scale(
+                mid, from_=0, to=mx, orient=tk.HORIZONTAL, length=84, width=10,
+                showvalue=True, variable=vr, label="右", command=cmd,
+            )
+            self._shield_right_wheel(sc_r)
+            sc_r.pack()
+            sc_d = tk.Scale(
+                pad, from_=0, to=mx, orient=tk.VERTICAL, length=64, width=10,
+                showvalue=True, variable=vd, label="下", command=cmd,
+            )
+            self._shield_right_wheel(sc_d)
+            sc_d.pack(side=tk.LEFT)
+
+        _corr_pad(box_corr, "MON/BOSS", self.corr_u, self.corr_d, self.corr_l, self.corr_r, "corr_summary", "mon")
+        _corr_pad(
+            box_corr, "LOOT", self.loot_corr_u, self.loot_corr_d, self.loot_corr_l, self.loot_corr_r,
+            "loot_corr_summary", "loot",
+        )
+        _corr_pad(
+            box_corr, "GATE", self.gate_corr_u, self.gate_corr_d, self.gate_corr_l, self.gate_corr_r,
+            "gate_corr_summary", "gate",
+        )
         self._refresh_corr_summary()
         ttk.Checkbutton(
             box_corr,
@@ -1090,7 +1799,7 @@ class FsmReplayApp(tk.Tk):
         ).pack(anchor=tk.W, fill=tk.X)
         r_ov = _prow(box_corr)
         ttk.Label(r_ov, text="透明度").pack(side=tk.LEFT)
-        tk.Scale(
+        ov_sc = tk.Scale(
             r_ov,
             from_=8,
             to=100,
@@ -1100,7 +1809,9 @@ class FsmReplayApp(tk.Tk):
             showvalue=True,
             variable=self.overlay_alpha_var,
             command=lambda _=None: self._on_overlay_opts(),
-        ).pack(side=tk.LEFT, fill=tk.X, expand=True)
+        )
+        self._shield_right_wheel(ov_sc)
+        ov_sc.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         skill_box = ttk.LabelFrame(self._right_inner, text="技能表", padding=6)
         skill_box.pack(side=tk.TOP, fill=tk.X, pady=(0, 8))
@@ -1108,8 +1819,7 @@ class FsmReplayApp(tk.Tk):
         skill_head.pack(fill=tk.X)
         self.skill_bind_label = ttk.Label(skill_head, text="技能表: —", foreground="#668")
         self.skill_bind_label.pack(side=tk.LEFT)
-        ttk.Button(skill_head, text="保存技能表", command=self._save_skill_table).pack(side=tk.RIGHT)
-        ttk.Button(skill_head, text="重新读取", command=self._reload_skill_table).pack(side=tk.RIGHT, padx=(0, 4))
+        ttk.Button(skill_head, text="重新读取", command=self._reload_skill_table).pack(side=tk.RIGHT)
         self._help_btn(skill_head, "技能表说明", HELP_SKILLS).pack(side=tk.RIGHT, padx=(0, 4))
         skill_cols = ttk.Frame(skill_box)
         skill_cols.pack(fill=tk.X, pady=(4, 0))
@@ -1220,6 +1930,12 @@ class FsmReplayApp(tk.Tk):
         self.scale.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=10)
         self.frame_var = tk.StringVar(value="0 / 0")
         ttk.Label(ctrl, textvariable=self.frame_var, width=14).pack(side=tk.LEFT)
+        ttk.Label(ctrl, text="跳到").pack(side=tk.LEFT, padx=(8, 2))
+        self.jump_var = tk.StringVar()
+        jump_ent = ttk.Entry(ctrl, textvariable=self.jump_var, width=6)
+        jump_ent.pack(side=tk.LEFT)
+        jump_ent.bind("<Return>", self._jump_to_frame)
+        ttk.Button(ctrl, text="跳转", width=4, command=self._jump_to_frame).pack(side=tk.LEFT, padx=(2, 0))
 
         self._refresh_sessions()
         self._persist_ok = True
@@ -1240,13 +1956,18 @@ class FsmReplayApp(tk.Tk):
 
         write_icons(ICON_DIR)
         for name in CLASSES:
-            p = ICON_DIR / f"{name}.png"
-            if not p.is_file():
+            path = ICON_DIR / f"{name}.png"
+            if not path.is_file():
                 continue
-            img = Image.open(p).convert("RGB")
+            img = Image.open(path).convert("RGB")
             self._stack_photos[name] = ImageTk.PhotoImage(img.resize((28, 28)))
             if name == "player":
                 self._player_photo = ImageTk.PhotoImage(img.resize((36, 36)))
+
+    def _ensure_icons(self):
+        if self._player_photo is not None and all(n in self._stack_photos for n in CLASSES):
+            return
+        self._load_icons()
 
     def _help_btn(self, parent, title: str, body: str) -> ttk.Button:
         return ttk.Button(
@@ -1259,13 +1980,16 @@ class FsmReplayApp(tk.Tk):
     def _spin(self, parent, var: tk.StringVar, to: int = 60, frm: int = 1, width: int = 4) -> ttk.Spinbox:
         sp = ttk.Spinbox(parent, from_=frm, to=to, width=width, textvariable=var, command=self._on_fsm_opts, increment=0.05 if isinstance(frm, float) or (isinstance(to, float)) else 1)
         var.trace_add("write", lambda *_: self._on_fsm_opts())
+        self._shield_right_wheel(sp)
         return sp
 
     def _press_lag_frames(self) -> int:
         return self._spin_n(self.press_lag_var, EXTRACT_PRESS_LAG_FRAMES, lo=0)
 
     def _fsm_track_kwargs(self) -> dict:
-        ox, oy = mon_off_from_corr(*self._corr_tuple())
+        ox, oy = mon_off_from_corr(*self._corr_tuple("mon"))
+        lox, loy = mon_off_from_corr(*self._corr_tuple("loot"))
+        gox, goy = mon_off_from_corr(*self._corr_tuple("gate"))
         return {
             "m": self._spin_n(self.m_var, 5),
             "l": self._spin_n(self.l_var, 5),
@@ -1275,7 +1999,8 @@ class FsmReplayApp(tk.Tk):
             "gy": self._spin_n(self.gy_var, 10, lo=0),
             "ax_ms": self._spin_n(self.ax_var, 250, lo=0),
             "ay_ms": self._spin_n(self.ay_var, 250, lo=0),
-            "y_ms": self._spin_n(self.y_var, 250),
+            "stuck_recover_s": self._spin_f(self.stuck_recover_s_var, DEFAULT_STUCK_RECOVER_S, lo=0.05),
+            "stuck_recover": list(getattr(self, "_stuck_recover_spec", None) or stuck_recover_to_json()),
             "s": self._spin_n(self.s_var, 20, lo=0),
             "s_pos": self._spin_n(self.s_var, 20, lo=0),
             "s_size": self._spin_n(self.s_size_var, 20, lo=0),
@@ -1283,6 +2008,12 @@ class FsmReplayApp(tk.Tk):
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
             "pw_ms": self._spin_n(self.pw_var, DEFAULT_PW_MS, lo=0),
+            "advance_timeout_ms": self._spin_n(
+                self.advance_timeout_var, DEFAULT_ADVANCE_TIMEOUT_MS, lo=1
+            ),
+            "approach_timeout_ms": self._spin_n(
+                self.approach_timeout_var, DEFAULT_APPROACH_TIMEOUT_MS, lo=1
+            ),
             "xxx_ms": self._spin_n(self.xxx_var, 1000),
             "th_ms": self._spin_n(self.th_var, 50, lo=0),
             "fight_plan": self._fight_plan(),
@@ -1291,6 +2022,10 @@ class FsmReplayApp(tk.Tk):
             "map_reset": has_map_reset(self._feature_cache),
             "mon_off_x": ox,
             "mon_off_y": oy,
+            "loot_off_x": lox,
+            "loot_off_y": loy,
+            "gate_off_x": gox,
+            "gate_off_y": goy,
             "tn_s": self._spin_f(self.town_s_var, float(DEFAULT_TOWN_S), lo=0.05),
         }
 
@@ -1306,62 +2041,95 @@ class FsmReplayApp(tk.Tk):
             dr.get("move_dir"),
             dr.get("skill_key"),
             mash_n=mash_n,
+            fight_dir=dr.get("fight_dir"),
         )
 
-    def _corr_tuple(self) -> tuple[int, int, int, int]:
+    def _corr_vars(self, kind: str = "mon") -> tuple[tk.IntVar, tk.IntVar, tk.IntVar, tk.IntVar]:
+        if kind == "loot":
+            return self.loot_corr_u, self.loot_corr_d, self.loot_corr_l, self.loot_corr_r
+        if kind == "gate":
+            return self.gate_corr_u, self.gate_corr_d, self.gate_corr_l, self.gate_corr_r
+        return self.corr_u, self.corr_d, self.corr_l, self.corr_r
+
+    def _corr_tuple(self, kind: str = "mon") -> tuple[int, int, int, int]:
         def n(var: tk.IntVar) -> int:
             try:
                 return max(0, min(MON_CORR_MAX, int(var.get())))
             except (TypeError, ValueError, tk.TclError):
                 return 0
 
-        return n(self.corr_u), n(self.corr_d), n(self.corr_l), n(self.corr_r)
+        u, dwn, left, right = self._corr_vars(kind)
+        return n(u), n(dwn), n(left), n(right)
+
+    def _corr_off(self, kind: str = "mon") -> tuple[int, int]:
+        return mon_off_from_corr(*self._corr_tuple(kind))
+
+    def _apply_xy_corr(self, fr: dict) -> dict:
+        mox, moy = self._corr_off("mon")
+        lox, loy = self._corr_off("loot")
+        gox, goy = self._corr_off("gate")
+        return apply_detect_xy_corr(
+            fr, mon_ox=mox, mon_oy=moy, loot_ox=lox, loot_oy=loy, gate_ox=gox, gate_oy=goy
+        )
 
     def _refresh_corr_summary(self):
-        lab = getattr(self, "corr_summary", None)
-        if lab is None:
-            return
-        ox, oy = mon_off_from_corr(*self._corr_tuple())
-        try:
-            lab.config(text=f"X{ox:+d} Y{oy:+d}")
-        except tk.TclError:
-            pass
+        for kind, attr in (
+            ("mon", "corr_summary"),
+            ("loot", "loot_corr_summary"),
+            ("gate", "gate_corr_summary"),
+        ):
+            lab = getattr(self, attr, None)
+            if lab is None:
+                continue
+            ox, oy = self._corr_off(kind)
+            try:
+                lab.config(text=f"X{ox:+d} Y{oy:+d}")
+            except tk.TclError:
+                pass
 
-    def _on_corr_edit(self, _=None):
+    def _on_corr_edit(self, _=None, kind: str = "mon"):
         if getattr(self, "_corr_lock", False):
             return
         self._corr_lock = True
         try:
-            cur = self._corr_tuple()
-            prev = getattr(self, "_corr_prev", (0, 0, 0, 0))
+            vu, vd, vl, vr = self._corr_vars(kind)
+            cur = self._corr_tuple(kind)
+            prev_map = getattr(self, "_corr_prev_map", None)
+            if not isinstance(prev_map, dict):
+                prev_map = {}
+            prev = prev_map.get(kind, (0, 0, 0, 0))
             u, dwn, left, right = cur
             if u > 0 and dwn > 0:
                 if u != prev[0]:
-                    self.corr_d.set(0)
+                    vd.set(0)
                 elif dwn != prev[1]:
-                    self.corr_u.set(0)
+                    vu.set(0)
                 elif u >= dwn:
-                    self.corr_d.set(0)
+                    vd.set(0)
                 else:
-                    self.corr_u.set(0)
+                    vu.set(0)
             if left > 0 and right > 0:
                 if left != prev[2]:
-                    self.corr_r.set(0)
+                    vr.set(0)
                 elif right != prev[3]:
-                    self.corr_l.set(0)
+                    vl.set(0)
                 elif left >= right:
-                    self.corr_r.set(0)
+                    vr.set(0)
                 else:
-                    self.corr_l.set(0)
-            self._corr_prev = self._corr_tuple()
+                    vl.set(0)
+            prev_map[kind] = self._corr_tuple(kind)
+            self._corr_prev_map = prev_map
+            if kind == "mon":
+                self._corr_prev = prev_map[kind]
         finally:
             self._corr_lock = False
         self._refresh_corr_summary()
-        ox, oy = mon_off_from_corr(*self._corr_tuple())
-        prev_off = getattr(self, "_corr_off_warned", None)
-        if prev_off is not None and prev_off != (ox, oy) and getattr(self, "_persist_ok", False):
-            self._warn_corr_reextract()
-        self._corr_off_warned = (ox, oy)
+        if kind == "mon":
+            ox, oy = self._corr_off("mon")
+            prev_off = getattr(self, "_corr_off_warned", None)
+            if prev_off is not None and prev_off != (ox, oy) and getattr(self, "_persist_ok", False):
+                self._warn_corr_reextract()
+            self._corr_off_warned = (ox, oy)
         self._save_ui_settings()
         if self.data:
             self._rebuild_views()
@@ -1397,14 +2165,19 @@ class FsmReplayApp(tk.Tk):
     def _on_right_canvas_cfg(self, event):
         self._right_canvas.itemconfigure(self._right_win, width=event.width)
 
-    def _bind_right_wheel(self, host):
-        def _wheel(event):
-            if event.delta:
-                self._right_canvas.yview_scroll(int(-event.delta / 120), "units")
-            return "break"
+    def _right_wheel_event(self, event):
+        """右侧参数列表滚轮：只滚动画布，不改 Spinbox/Scale 数值。"""
+        if getattr(event, "delta", 0):
+            self._right_canvas.yview_scroll(int(-event.delta / 120), "units")
+        return "break"
 
+    def _shield_right_wheel(self, widget) -> None:
+        """Spinbox/Scale 默认会先吃掉滚轮；绑在控件上 return break，再转给列表。"""
+        widget.bind("<MouseWheel>", self._right_wheel_event)
+
+    def _bind_right_wheel(self, host):
         def _enter(_):
-            self.bind_all("<MouseWheel>", _wheel)
+            self.bind_all("<MouseWheel>", self._right_wheel_event)
 
         def _leave(_):
             self.unbind_all("<MouseWheel>")
@@ -1604,8 +2377,7 @@ class FsmReplayApp(tk.Tk):
         self.scale.config(to=1)
         self.frame_var.set("0 / 0")
         self._photos.clear()
-        self._stack_photos.clear()
-        self._player_photo = None
+        # 分类 icon 是全局 UI 资源，清会话时不要丢；否则再打开段会退化成蓝点
         self._count_overlay_photo = None
         self._frame_overlay_photo = None
         self._frame_overlay_key = None
@@ -1804,6 +2576,8 @@ class FsmReplayApp(tk.Tk):
             ("pc", self.pc_var, DEFAULT_PC, 0),
             ("pt", self.pt_var, DEFAULT_PT, 1),
             ("pw_ms", self.pw_var, DEFAULT_PW_MS, 0),
+            ("advance_timeout_ms", self.advance_timeout_var, DEFAULT_ADVANCE_TIMEOUT_MS, 1),
+            ("approach_timeout_ms", self.approach_timeout_var, DEFAULT_APPROACH_TIMEOUT_MS, 1),
             ("town_s", self.town_s_var, int(DEFAULT_TOWN_S), 1),
             ("run_press", self.run_press_var, RUN_PRESS_GT, 0),
             ("e", self.e_var, 3, 0),
@@ -1828,8 +2602,16 @@ class FsmReplayApp(tk.Tk):
             except (TypeError, ValueError):
                 self.th_var.set("50")
         self.x_var.set(str(json_s(data, "x_s", 30.0)))
+        self.stuck_recover_s_var.set(str(json_s(data, "stuck_recover_s", DEFAULT_STUCK_RECOVER_S, lo=0.05)))
+        self._stuck_recover_spec = stuck_recover_to_json(parse_stuck_recover(data.get("stuck_recover")))
         self.ax_var.set(str(json_ms(data, "ax_ms", 1000)))
         self.ay_var.set(str(json_ms(data, "ay_ms", 1000)))
+        self.advance_timeout_var.set(
+            str(json_ms(data, "advance_timeout_ms", DEFAULT_ADVANCE_TIMEOUT_MS, lo=1))
+        )
+        self.approach_timeout_var.set(
+            str(json_ms(data, "approach_timeout_ms", DEFAULT_APPROACH_TIMEOUT_MS, lo=1))
+        )
         if "a" in data:
             warn_legacy_key("a")
         self.xxx_var.set(str(json_ms(data, "xxx_ms", 2000, lo=1)))
@@ -1872,13 +2654,28 @@ class FsmReplayApp(tk.Tk):
             if p.exists():
                 self._last_session_path = p
         cu, cd, cl, cr = mon_corr_from_dict(data)
+        lu, ld, ll, lr = loot_corr_from_dict(data)
+        gu, gd, gl, gr = gate_corr_from_dict(data)
         self._corr_lock = True
         self.corr_u.set(cu)
         self.corr_d.set(cd)
         self.corr_l.set(cl)
         self.corr_r.set(cr)
+        self.loot_corr_u.set(lu)
+        self.loot_corr_d.set(ld)
+        self.loot_corr_l.set(ll)
+        self.loot_corr_r.set(lr)
+        self.gate_corr_u.set(gu)
+        self.gate_corr_d.set(gd)
+        self.gate_corr_l.set(gl)
+        self.gate_corr_r.set(gr)
         self._corr_lock = False
         self._corr_prev = (cu, cd, cl, cr)
+        self._corr_prev_map = {
+            "mon": (cu, cd, cl, cr),
+            "loot": (lu, ld, ll, lr),
+            "gate": (gu, gd, gl, gr),
+        }
         sh = data.get("skill_hold_ms")
         if not isinstance(sh, dict):
             if isinstance(data.get("skill_hold"), dict):
@@ -1912,13 +2709,14 @@ class FsmReplayApp(tk.Tk):
             "gy": self._spin_n(self.gy_var, 10, lo=0),
             "ax_ms": self._spin_n(self.ax_var, 250, lo=0),
             "ay_ms": self._spin_n(self.ay_var, 250, lo=0),
+            "stuck_recover_s": self._spin_f(self.stuck_recover_s_var, DEFAULT_STUCK_RECOVER_S, lo=0.05),
+            "stuck_recover": list(getattr(self, "_stuck_recover_spec", None) or stuck_recover_to_json()),
             "xxx_ms": self._spin_n(self.xxx_var, 1000),
             "tap_ms_min": self._spin_n(self.tap_ms_min_var, DEFAULT_TAP_MS_MIN),
             "tap_ms_max": self._spin_n(self.tap_ms_max_var, DEFAULT_TAP_MS_MAX),
             "mash_count": self._spin_n(self.mash_count_var, 3),
             "mash_gap_ms": self._spin_n(self.mash_gap_var, 50, lo=10),
             "th_ms": self._spin_n(self.th_var, 50, lo=0),
-            "y_ms": self._spin_n(self.y_var, 250),
             "s": self._spin_n(self.s_var, 20, lo=0),
             "s_pos": self._spin_n(self.s_var, 20, lo=0),
             "s_size": self._spin_n(self.s_size_var, 20, lo=0),
@@ -1926,6 +2724,12 @@ class FsmReplayApp(tk.Tk):
             "pc": self._spin_n(self.pc_var, DEFAULT_PC, lo=0),
             "pt": self._spin_n(self.pt_var, DEFAULT_PT),
             "pw_ms": self._spin_n(self.pw_var, DEFAULT_PW_MS, lo=0),
+            "advance_timeout_ms": self._spin_n(
+                self.advance_timeout_var, DEFAULT_ADVANCE_TIMEOUT_MS, lo=1
+            ),
+            "approach_timeout_ms": self._spin_n(
+                self.approach_timeout_var, DEFAULT_APPROACH_TIMEOUT_MS, lo=1
+            ),
             "town_s": self._spin_f(self.town_s_var, float(DEFAULT_TOWN_S), lo=0.05),
             "run_press": self._spin_n(self.run_press_var, RUN_PRESS_GT, lo=0),
             "loot_hold_ms": self._spin_n(self.loot_hold_var, LOOT_HOLD_DEFAULT),
@@ -1945,11 +2749,21 @@ class FsmReplayApp(tk.Tk):
                 else (self._session_rel(self._last_session_path) if self._last_session_path else "")
             ),
         }
-        u, dwn, left, right = self._corr_tuple()
+        u, dwn, left, right = self._corr_tuple("mon")
         data["mon_corr_u"] = u
         data["mon_corr_d"] = dwn
         data["mon_corr_l"] = left
         data["mon_corr_r"] = right
+        lu, ld, ll, lr = self._corr_tuple("loot")
+        data["loot_corr_u"] = lu
+        data["loot_corr_d"] = ld
+        data["loot_corr_l"] = ll
+        data["loot_corr_r"] = lr
+        gu, gd, gl, gr = self._corr_tuple("gate")
+        data["gate_corr_u"] = gu
+        data["gate_corr_d"] = gd
+        data["gate_corr_l"] = gl
+        data["gate_corr_r"] = gr
         lo = int(data["tap_ms_min"])
         hi = int(data["tap_ms_max"])
         if lo > hi:
@@ -2009,30 +2823,6 @@ class FsmReplayApp(tk.Tk):
         except Exception as e:
             messagebox.showerror("技能绑定工具", str(e), parent=self)
 
-    def _save_skill_table(self):
-        char = self._bind_character
-        if not char:
-            messagebox.showinfo("技能表", "当前录像没有角色名，没法写入键位表。", parent=self)
-            return
-        if not bind_file(char).is_file():
-            messagebox.showinfo("技能表", f"没有 {bind_file(char).name}，请先打开技能绑定工具生成。", parent=self)
-            return
-        self._flush_skill_hold_saved()
-        write_skill_table(
-            char,
-            slot_durs=self._slot_durs(),
-            combo_slots=self._combo_slots_from_ui(),
-            multi_n=self._multi_n_from_ui(),
-            mash_slots=self._mash_slots_from_ui(),
-            edit_slots=self._edit_slots_from_ui(),
-        )
-        self._sync_combo_to_features(save=True)
-        self._sync_multi_to_features(save=True)
-        if self.data:
-            self._rebuild_draft()
-            self._show()
-        messagebox.showinfo("技能表", f"已写入 {bind_file(char).name}（持续 ms + 连续释放 + 多次释放 + 连按）。", parent=self)
-
     def _sync_combo_to_features(self, save: bool = False):
         slots = self._combo_slots_from_ui()
         data = self._feature_cache
@@ -2080,6 +2870,7 @@ class FsmReplayApp(tk.Tk):
         self._show()
 
     def _sync_skill_binds(self, reload_disk: bool = False):
+        prev = self._bind_character
         if not reload_disk:
             self._flush_skill_hold_saved()
         d = self.data
@@ -2100,7 +2891,8 @@ class FsmReplayApp(tk.Tk):
             self.skill_bind_label.config(
                 text=f"技能表: {char}  {len(self._bind_skills)}个快捷键（含space）"
             )
-        self._rebuild_skill_hold_ui(from_binds=reload_disk)
+        # 换角色时必须从该角色键位表重灌；否则会把上一角色旋钮值 flush 进新角色
+        self._rebuild_skill_hold_ui(from_binds=reload_disk or (char != prev))
 
     def _rebuild_skill_hold_ui(self, *, from_binds: bool = False):
         self._skill_ui_guard = True
@@ -2108,8 +2900,7 @@ class FsmReplayApp(tk.Tk):
         self._mash_ui_guard = True
         self._multi_ui_guard = True
         try:
-            if not from_binds:
-                self._flush_skill_hold_saved()
+            # 不在这里 flush：旋钮仍属上一角色时，_bind_character 已切走会污染新角色缓存
             for child in self.skill_hold_host.winfo_children():
                 child.destroy()
             self._skill_hold_vars = {}
@@ -2167,6 +2958,7 @@ class FsmReplayApp(tk.Tk):
                     command=self._on_multi_n_change,
                     state=tk.NORMAL if on_m else tk.DISABLED,
                 )
+                self._shield_right_wheel(sp)
                 sp.pack(side=tk.LEFT, padx=(2, 0))
                 nvar.trace_add("write", lambda *_: self._on_multi_n_change())
                 self._multi_spins[slot] = sp
@@ -2199,7 +2991,7 @@ class FsmReplayApp(tk.Tk):
         ox, oy = mon_off_from_corr(*self._corr_tuple())
         frames = d["frames"]
         if ox or oy:
-            frames = [apply_mon_boss_corr(fr, ox, oy) for fr in frames]
+            frames = [self._apply_xy_corr(fr) for fr in frames]
         d["views"] = views_for_frames(
             frames,
             fill=bool(self.fill_var.get()),
@@ -2312,6 +3104,23 @@ class FsmReplayApp(tk.Tk):
             return
         n = len(self.data["frames"])
         self.idx = n - 1 if i < 0 else 0
+        self.scale.set(self.idx)
+        self._show()
+
+    def _jump_to_frame(self, _event=None):
+        """跳到指定帧（与回放显示一致，从 1 起）。"""
+        if not self.data:
+            return
+        n = len(self.data["frames"])
+        if not n:
+            return
+        raw = (self.jump_var.get() or "").strip()
+        try:
+            f = int(raw)
+        except ValueError:
+            return
+        i = max(1, min(n, f)) - 1
+        self.idx = i
         self.scale.set(self.idx)
         self._show()
 
@@ -2454,18 +3263,22 @@ class FsmReplayApp(tk.Tk):
             origin_s = f"{mode}/{fill_on} player=null"
         else:
             tag = "fill" if view["player_hold"] else "本帧"
-            origin_s = f"{mode}/{fill_on} xy={view['player_xy']}({tag}) origin_bl={view.get('origin_bl')}"
+            origin_s = f"{mode}/{fill_on} xy={view['player_xy']}({tag})"
         self.info_var.set(
-            f"t={t:7.2f}s{dt_s}  特征未变={stuck:5.2f}s{fsm_note}  {origin_s}  "
-            f"盘面左上={fr.get('player_xy')}{infer_s}  {d['session'].name}{xy_note}"
+            f"t={t:7.2f}s{dt_s}  特征未变={stuck:5.2f}s{fsm_note}  {origin_s}"
+            f"{infer_s}  {d['session'].name}{xy_note}"
         )
         skill_range = None
+        skill_range_xy = None
         if skill_hit:
             room_n = (dr or {}).get("dist_key") or (dr or {}).get("rooms") or 0
+            skill_range_xy = skill_range_xy_of(self._feature_cache, room_n, int(skill_hit[0]))
             skill_range = skill_range_of(self._feature_cache, room_n, int(skill_hit[0]))
             now_dist = pack_dist_from_player(view)
             bits = [f"技能{skill_hit[0]}：{skill_hit[1]}"]
-            if skill_range is not None:
+            if skill_range_xy is not None:
+                bits.append(f"范围X{skill_range_xy[0]:.0f}/Y{skill_range_xy[1]:.0f}")
+            elif skill_range is not None:
                 bits.append(f"范围{skill_range:.0f}")
             if now_dist is not None:
                 bits.append(f"现距{now_dist:.0f}")
@@ -2496,13 +3309,229 @@ class FsmReplayApp(tk.Tk):
             d["game_h"],
             has_xy=bool(has_xy),
             skill_range=skill_range,
+            skill_range_xy=skill_range_xy,
             cd_reset=reset_here,
             counts=counts,
             overlay_path=self._png_path_for_frame(fr) if self.overlay_var.get() else None,
             player_tl=self._overlay_player_tl(fr, view, d.get("game_h") or 0),
+            state_hint=state_hint_for_frame(d.get("states") or [], d["frames"], i),
         )
 
+    def _show_det_runs(self):
+        if not self.data:
+            messagebox.showinfo("检测游程", "未打开录像段。")
+            return
+        report = format_det_run_report(self.data.get("det_stats"))
+        win = tk.Toplevel(self)
+        win.title("检测游程")
+        win.minsize(520, 360)
+        txt = tk.Text(win, wrap=tk.NONE, font=("Consolas", 11), padx=10, pady=10)
+        ys = ttk.Scrollbar(win, orient=tk.VERTICAL, command=txt.yview)
+        xs = ttk.Scrollbar(win, orient=tk.HORIZONTAL, command=txt.xview)
+        txt.configure(yscrollcommand=ys.set, xscrollcommand=xs.set)
+        txt.grid(row=0, column=0, sticky="nsew")
+        ys.grid(row=0, column=1, sticky="ns")
+        xs.grid(row=1, column=0, sticky="ew")
+        win.grid_rowconfigure(0, weight=1)
+        win.grid_columnconfigure(0, weight=1)
+        txt.insert("1.0", report)
+        txt.configure(state=tk.DISABLED)
+
+    def _show_fight_sort(self):
+        """同角色+同图开打段：按每只怪耗时降序 + 汇总。"""
+        if not self.data:
+            messagebox.showinfo("开打排序", "未打开录像段。", parent=self)
+            return
+        dun = self._current_dungeon()
+        char = character_of_session(self.data["session"], self.data.get("meta") or {}) or (
+            self._bind_character or ""
+        )
+        rows = collect_fight_segments(dun, character=char, session=self.data.get("session"))
+        report = format_fight_sort_report(rows)
+        win = tk.Toplevel(self)
+        win.title(f"开打排序 · {char or '?'} · {dun} · {len(rows)} 段")
+        win.minsize(960, 420)
+        win.geometry("1100x520")
+        txt = tk.Text(win, wrap=tk.NONE, font=("Consolas", 10), padx=10, pady=10)
+        ys = ttk.Scrollbar(win, orient=tk.VERTICAL, command=txt.yview)
+        xs = ttk.Scrollbar(win, orient=tk.HORIZONTAL, command=txt.xview)
+        txt.configure(yscrollcommand=ys.set, xscrollcommand=xs.set)
+        txt.grid(row=0, column=0, sticky="nsew")
+        ys.grid(row=0, column=1, sticky="ns")
+        xs.grid(row=1, column=0, sticky="ew")
+        win.grid_rowconfigure(0, weight=1)
+        win.grid_columnconfigure(0, weight=1)
+        txt.insert("1.0", report)
+        txt.configure(state=tk.DISABLED)
+
+    def _show_round_time_bars(self):
+
+        """同角色+同图 states.jsonl：按文件名纵向叠分段横条 + 汇总表（不设轮数上限）。"""
+        if not self.data:
+            messagebox.showinfo("每轮时间条", "未打开录像段。", parent=self)
+            return
+        dun = self._current_dungeon()
+        char = character_of_session(self.data["session"], self.data.get("meta") or {}) or (
+            self._bind_character or ""
+        )
+        rounds = collect_dungeon_rounds(dun, character=char, session=self.data.get("session"))
+        if not rounds:
+            messagebox.showinfo(
+                "每轮时间条",
+                f"角色「{char or '?'}」图「{dun}」没有可用的 states.jsonl。",
+                parent=self,
+            )
+            return
+        cur_name = Path(self.data["session"]).name
+
+        win = tk.Toplevel(self)
+        win.title(f"每轮时间条 · {char or '?'} · {dun} · {len(rounds)} 段")
+        win.minsize(900, 520)
+        win.geometry("1000x640")
+
+        top = ttk.Frame(win, padding=8)
+        top.pack(fill=tk.BOTH, expand=True)
+        tip = ttk.Label(
+            top,
+            text=f"范围：角色 {char or '?'} + 图 {dun}（标签=目录名，不限段数）。点击条可跳到该段。",
+        )
+        tip.pack(anchor=tk.W)
+
+        opts = ttk.Frame(top)
+        opts.pack(fill=tk.X, pady=(4, 0))
+        include_idle_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(opts, text="含空闲（图+统计）", variable=include_idle_var).pack(side=tk.LEFT)
+
+        canvas_host = ttk.Frame(top)
+        canvas_host.pack(fill=tk.BOTH, expand=True, pady=(6, 0))
+        ys = ttk.Scrollbar(canvas_host, orient=tk.VERTICAL)
+        xs = ttk.Scrollbar(canvas_host, orient=tk.HORIZONTAL)
+        cv = tk.Canvas(canvas_host, bg="#1a1d24", highlightthickness=0)
+        ys.config(command=cv.yview)
+        xs.config(command=cv.xview)
+        cv.config(yscrollcommand=ys.set, xscrollcommand=xs.set)
+        ys.pack(side=tk.RIGHT, fill=tk.Y)
+        xs.pack(side=tk.BOTTOM, fill=tk.X)
+        cv.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        tbl = ttk.LabelFrame(top, text="汇总表", padding=6)
+        tbl.pack(fill=tk.X, pady=(8, 0))
+        txt = tk.Text(tbl, height=8, wrap=tk.NONE, font=("Consolas", 10))
+        txt.pack(fill=tk.X)
+
+        label_w = 260
+        bar_h = 22
+        gap = 8
+        left = 8
+        top_y = 12
+        bar_x0 = left + label_w + 8
+        bar_max_w = 620
+        path_by_tag: dict[str, Path] = {}
+
+        def _segs_filtered(segs: list[tuple[str, int]]) -> list[tuple[str, int]]:
+            if include_idle_var.get():
+                return list(segs)
+            return [(st, ms) for st, ms in segs if st != "空闲"]
+
+        def _redraw(*_a):
+            cv.delete("all")
+            path_by_tag.clear()
+            color_seen: dict[str, str] = {}
+            drawn = [(name, sp, _segs_filtered(segs)) for name, sp, segs in rounds]
+            drawn = [(n, p, s) for n, p, s in drawn if s]
+            max_total = max((sum(ms for _s, ms in segs) for _n, _p, segs in drawn), default=1) or 1
+            y = top_y
+            for name, sess_path, segs in drawn:
+                total = sum(ms for _s, ms in segs) or 1
+                mark = " ◆" if name == cur_name else ""
+                fill = "#e8c547" if name == cur_name else "#c8cdd8"
+                cv.create_text(
+                    left + label_w,
+                    y + bar_h / 2,
+                    anchor=tk.E,
+                    fill=fill,
+                    font=("Consolas", 9),
+                    text=name + mark,
+                )
+                x = bar_x0
+                scale = bar_max_w / max_total
+                for st, ms in segs:
+                    w = max(2.0, ms * scale)
+                    col = _round_bar_color(st, color_seen)
+                    tag = f"bar:{name}"
+                    path_by_tag[tag] = sess_path
+                    cv.create_rectangle(
+                        x, y, x + w, y + bar_h, fill=col, outline="#111", width=1, tags=(tag,)
+                    )
+                    if w >= 36:
+                        cv.create_text(
+                            x + w / 2,
+                            y + bar_h / 2,
+                            fill="#111",
+                            font=("Microsoft YaHei", 8),
+                            text=st,
+                            tags=(tag,),
+                        )
+                    x += w
+                cv.create_text(
+                    x + 8,
+                    y + bar_h / 2,
+                    anchor=tk.W,
+                    fill="#9ab",
+                    font=("Consolas", 10),
+                    text=f"{total / 1000.0:.1f}s",
+                )
+                y += bar_h + gap
+
+            lx = bar_x0
+            ly = y + 6
+            legend_states: list[str] = []
+            want = ("前进", "开打", "捡物", "空闲") if include_idle_var.get() else ("前进", "开打", "捡物")
+            for st in want:
+                legend_states.append(st)
+            for st in color_seen:
+                if st not in legend_states:
+                    legend_states.append(st)
+            for st in legend_states:
+                col = _round_bar_color(st, color_seen)
+                cv.create_rectangle(lx, ly, lx + 14, ly + 14, fill=col, outline="#111")
+                cv.create_text(
+                    lx + 18,
+                    ly + 7,
+                    anchor=tk.W,
+                    fill="#c8cdd8",
+                    font=("Microsoft YaHei", 9),
+                    text=st,
+                )
+                lx += 18 + 12 * max(2, len(st)) + 16
+            y = ly + 28
+            cv.configure(scrollregion=(0, 0, bar_x0 + bar_max_w + 120, y + 8))
+            for tag in path_by_tag:
+                cv.tag_bind(tag, "<Button-1>", _on_bar_click)
+
+            summary = summarize_round_segments(rounds, include_idle=bool(include_idle_var.get()))
+            txt.configure(state=tk.NORMAL)
+            txt.delete("1.0", tk.END)
+            txt.insert("1.0", format_round_summary_table(summary))
+            txt.configure(state=tk.DISABLED)
+
+        def _on_bar_click(ev):
+            items = cv.find_withtag("current")
+            if not items:
+                return
+            tags = cv.gettags(items[0])
+            for t in tags:
+                if t.startswith("bar:") and t in path_by_tag:
+                    self._select_path(path_by_tag[t])
+                    break
+
+        include_idle_var.trace_add("write", _redraw)
+        _redraw()
+
+
     def _session_rel(self, p: Path) -> str:
+
+
         try:
             return str(p.relative_to(ROOT)).replace("\\", "/")
         except ValueError:
@@ -2669,7 +3698,7 @@ class FsmReplayApp(tk.Tk):
         ox, oy = mon_off_from_corr(*self._corr_tuple())
         view_frames = frames
         if ox or oy:
-            view_frames = [apply_mon_boss_corr(fr, ox, oy) for fr in frames]
+            view_frames = [self._apply_xy_corr(fr) for fr in frames]
         views = views_for_frames(
             view_frames,
             fill=True,
@@ -3023,11 +4052,14 @@ class FsmReplayApp(tk.Tk):
         gh: int,
         has_xy: bool = False,
         skill_range: float | None = None,
+        skill_range_xy: tuple[float, float] | None = None,
         cd_reset: bool = False,
         counts: dict[str, int] | None = None,
         overlay_path: Path | None = None,
         player_tl: list[float] | None = None,
+        state_hint: str = "",
     ):
+        self._ensure_icons()
         c = self.canvas
         cw, ch = self._field_wh()
         c.delete("all")
@@ -3057,15 +4089,7 @@ class FsmReplayApp(tk.Tk):
             for y in range(0, ch, 45):
                 c.create_line(0, y, cw, y, fill="#252830")
 
-        if relative:
-            hint = "相对 player（y 向上）"
-        else:
-            hint = "区域左下角绝对（y 向上）"
-        ox, oy = mon_off_from_corr(*self._corr_tuple())
-        if ox or oy:
-            hint += " · 逻辑点已补正（叠图/jsonl 原始）"
-        if not has_xy:
-            hint += " · 旧段仅 player"
+        hint = (state_hint or "").strip() or "无 states.jsonl"
 
         if view is not None and gw > 0 and gh > 0:
             def to_canvas(pt: list[float]) -> tuple[float, float]:
@@ -3091,28 +4115,33 @@ class FsmReplayApp(tk.Tk):
                 c.create_text(cx0, cy0, fill="#a64", text="无 player 原点（可勾选沿用上次）")
             elif view.get("player_hold"):
                 c.create_text(cw / 2, 40, fill="#a84", text="player 漏检，位置沿用上次")
-            if skill_range is not None and skill_range > 0:
-                pxy = view.get("player_xy") if view else None
-                if isinstance(pxy, (list, tuple)) and len(pxy) >= 2:
-                    px, py = to_canvas(pxy)
-                    rx = skill_range / gw * cw
-                    ry = skill_range / gh * ch
-                    c.create_oval(
-                        px - rx,
-                        py - ry,
-                        px + rx,
-                        py + ry,
-                        outline="#e8c547",
-                        width=2,
-                        dash=(8, 4),
-                    )
-                    c.create_text(
-                        px,
-                        py - ry - 10,
-                        fill="#e8c547",
-                        font=("Consolas", 12, "bold"),
-                        text=f"范围 {skill_range:.0f}px",
-                    )
+            range_xy = skill_range_xy
+            if range_xy is None and skill_range is not None and skill_range > 0:
+                range_xy = (skill_range, skill_range)
+            if range_xy is not None:
+                rx_g, ry_g = float(range_xy[0]), float(range_xy[1])
+                if rx_g > 0 and ry_g > 0:
+                    pxy = view.get("player_xy") if view else None
+                    if isinstance(pxy, (list, tuple)) and len(pxy) >= 2:
+                        px, py = to_canvas(pxy)
+                        hx = rx_g / gw * cw
+                        hy = ry_g / gh * ch
+                        c.create_rectangle(
+                            px - hx,
+                            py - hy,
+                            px + hx,
+                            py + hy,
+                            outline="#e8c547",
+                            width=2,
+                            dash=(8, 4),
+                        )
+                        c.create_text(
+                            px,
+                            py - hy - 10,
+                            fill="#e8c547",
+                            font=("Consolas", 12, "bold"),
+                            text=f"范围 X{rx_g:.0f}/Y{ry_g:.0f}",
+                        )
 
         if overlay_path is not None and gw > 0 and gh > 0 and self.overlay_var.get():
             photo, ox, oy = self._overlay_photo(

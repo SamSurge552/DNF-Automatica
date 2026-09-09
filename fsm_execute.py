@@ -151,13 +151,26 @@ class FsmExecutor:
         if action is FsmAction.HOLD and names:
             self._hold_only(names)
             return
-        if action is FsmAction.TAP and names:
+        if action is FsmAction.HOLD:
+            key = str(decision.skill_key or "").strip().lower()
+            if key:
+                self._hold_only({key})
+                return
+        if action is FsmAction.TAP:
             self._hold_only(set())
-            for name in sorted(names):
-                self._tap(name)
+            if names:
+                for name in sorted(names):
+                    self._tap(name)
+                return
+            key = str(decision.skill_key or "").strip().lower()
+            if key:
+                self._tap(key)
             return
         if action is FsmAction.CAST:
             self._hold_only(set())
+            fd = decision.fight_dir
+            if fd in (FsmDir.LEFT, FsmDir.RIGHT):
+                self._tap(fd.value)
             slot = decision.skill_slot
             mash = slot is not None and int(slot) in self._mash_slots
             self._cast(str(decision.skill_key or ""), mash=mash)

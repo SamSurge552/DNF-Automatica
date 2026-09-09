@@ -25,7 +25,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 5000
+      "hold_ms": 7000
     },
     {
       "slot": 2,
@@ -36,7 +36,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 1500
+      "hold_ms": 2000
     },
     {
       "slot": 3,
@@ -77,7 +77,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 5000
+      "hold_ms": 6000
     },
     {
       "slot": 7,
@@ -98,7 +98,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": true,
-      "hold_ms": 3000
+      "hold_ms": 2000
     }
   ]
 }

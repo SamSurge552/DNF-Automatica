@@ -18,6 +18,7 @@ from fsm_core import (
     DistSkillPlan,
     FightSkill,
     bbox_range_px,
+    bbox_range_xy,
     bbox_rel,
     classify_dist,
     expand_fight_skills,
@@ -345,8 +346,13 @@ def casts_from_tracks(
         kind = None if is_boss else ("群" if killed_mon > e else "单")
         kill_ratio = None if is_boss else _ratio(killed_mon, start_n)
         if not is_boss and kill_ratio is not None and float(kill_ratio) >= 0.999:
+            xy = bbox_range_xy(box)
+            range_x = None if xy is None else xy[0]
+            range_y = None if xy is None else xy[1]
             range_px = bbox_range_px(box)
         else:
+            range_x = None
+            range_y = None
             range_px = None
         keys = [m["key"] for m in members if m["key"]]
         group_key = ">".join(keys) if keys else str(first["key"] or first["slot"])
@@ -390,6 +396,8 @@ def casts_from_tracks(
                 "bbox_w": 0.0 if box is None else round(box[2] - box[0], 2),
                 "bbox_h": 0.0 if box is None else round(box[3] - box[1], 2),
                 "dist": a["dist"],
+                "range_x": range_x,
+                "range_y": range_y,
                 "range_px": range_px,
                 "gaps_ms": gaps_ms,
                 "dir": a["dir"],
@@ -582,37 +590,33 @@ def _cast_n(sk: dict) -> int:
 
 
 def sort_skills_by_freq(skills: dict | None) -> dict:
-    """释放次数从高到低，次数相同按槽位。"""
+    """释放次数从高到低；次数相同按 group_key 字符串破序（稳定、与插入顺序无关）。"""
 
     def key(kv):
         k, sk = kv
-        try:
-            slot = int(k)
-        except (TypeError, ValueError):
-            slot = 0
-        return (-_cast_n(sk or {}), slot)
+        sk = sk or {}
+        gk = str(sk.get("group_key") or k or "")
+        return (-_cast_n(sk), gk)
 
     return dict(sorted((skills or {}).items(), key=key))
 
 
 def sort_skills_by_ratio(skills: dict | None) -> dict:
-    """杀MON效率从高到低；效率相同按释放次数比率从高到低。"""
+    """杀MON效率从高到低；效率相同按释放次数占比从高到低；再按 group_key 字符串破序。"""
     items = list((skills or {}).items())
     total = sum(_cast_n(sk or {}) for _, sk in items) or 1
 
     def key(kv):
         k, sk = kv
-        try:
-            slot = int(k)
-        except (TypeError, ValueError):
-            slot = 0
-        ratio = (sk or {}).get("kill_ratio_mean")
+        sk = sk or {}
+        ratio = sk.get("kill_ratio_mean")
         try:
             r = float(ratio) if ratio is not None else -1.0
         except (TypeError, ValueError):
             r = -1.0
-        n = _cast_n(sk or {})
-        return (-r, -(n / total), slot)
+        n = _cast_n(sk)
+        gk = str(sk.get("group_key") or k or "")
+        return (-r, -(n / total), gk)
 
     return dict(sorted(items, key=key))
 
@@ -912,6 +916,8 @@ def fight_plan_from_features(
         group_slots=(),
         group_keys=(),
         gaps_ms=(),
+        range_x=None,
+        range_y=None,
     ) -> FightSkill:
         is_combo = slot in combo
         slots = tuple(int(x) for x in (group_slots or ()) if str(x).isdigit() or str(x).lstrip("-").isdigit())
@@ -927,6 +933,8 @@ def fight_plan_from_features(
             key=key,
             cooldown_s=COMBO_CD_S if is_combo else cd,
             range_px=rng_f,
+            range_x=None if range_x is None else float(range_x),
+            range_y=None if range_y is None else float(range_y),
             combo=is_combo,
             hold_ms=max(0, int(hf)),
             multi=multi_map.get(slot, 1),
@@ -964,6 +972,14 @@ def fight_plan_from_features(
                 rng_f = float(rng) if rng is not None else slot_range.get(slot)
             except (TypeError, ValueError):
                 rng_f = slot_range.get(slot)
+            try:
+                rx_f = float(sk["range_x_max"]) if sk.get("range_x_max") is not None else None
+            except (TypeError, ValueError):
+                rx_f = None
+            try:
+                ry_f = float(sk["range_y_max"]) if sk.get("range_y_max") is not None else None
+            except (TypeError, ValueError):
+                ry_f = None
             items.append(
                 _skill(
                     slot,
@@ -975,6 +991,8 @@ def fight_plan_from_features(
                     group_slots=sk.get("group_slots") or (),
                     group_keys=sk.get("group_keys") or (),
                     gaps_ms=sk.get("gaps_ms") or (),
+                    range_x=rx_f,
+                    range_y=ry_f,
                 )
             )
         return expand_fight_skills(tuple(items))
@@ -1151,6 +1169,8 @@ def _median_gaps(casts: list[dict]) -> list[int]:
 def _skill_summary(casts: list[dict]) -> dict:
     real = [c for c in casts if not c.get("fake")]
     ranges = [c.get("range_px") for c in real if c.get("range_px") is not None]
+    ranges_x = [c.get("range_x") for c in real if c.get("range_x") is not None]
+    ranges_y = [c.get("range_y") for c in real if c.get("range_y") is not None]
     kinds = [c.get("kind") for c in real if c.get("kind")]
     ratios = [c["kill_ratio"] for c in real if c.get("kill_ratio") is not None]
     n_group = sum(1 for k in kinds if k == "群")
@@ -1160,6 +1180,8 @@ def _skill_summary(casts: list[dict]) -> dict:
         "n_fake": sum(1 for c in casts if c.get("fake")),
         "range_med": None,
         "range_max": None if not ranges else round(float(max(ranges)), 2),
+        "range_x_max": None if not ranges_x else round(float(max(ranges_x)), 2),
+        "range_y_max": None if not ranges_y else round(float(max(ranges_y)), 2),
         "kind_maj": kind_maj,
         "kind_group": n_group,
         "kill_mean": None
@@ -1460,8 +1482,60 @@ def format_report(data: dict | None, added: int = 0, skipped: int = 0) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def skill_range_xy_of(data: dict | None, room, slot: int) -> tuple[float, float] | None:
+    """该分布该槽范围框 (|X|,|Y|)：优先 range_x_max/range_y_max。"""
+    if not data:
+        return None
+
+    def _xy(sk: dict) -> tuple[float, float] | None:
+        try:
+            rx = sk.get("range_x_max")
+            ry = sk.get("range_y_max")
+            if rx is None or ry is None:
+                return None
+            return (float(rx), float(ry))
+        except (TypeError, ValueError):
+            return None
+
+    rooms = _rooms_or_dists(data)
+    skills = ((rooms.get(str(room)) or {}).get("skills") or {})
+    hit = skills.get(str(int(slot))) or {}
+    xy = _xy(hit)
+    if xy is None:
+        for sk in skills.values():
+            try:
+                if int(sk.get("slot") or 0) == int(slot):
+                    xy = _xy(sk)
+                    if xy is not None:
+                        break
+            except (TypeError, ValueError):
+                continue
+    if xy is not None:
+        return xy
+    xs, ys = [], []
+    for room_d in rooms.values():
+        for other in ((room_d or {}).get("skills") or {}).values():
+            try:
+                same = int(other.get("slot") or 0) == int(slot)
+            except (TypeError, ValueError):
+                same = False
+            if not same:
+                continue
+            v = _xy(other)
+            if v is not None:
+                xs.append(v[0])
+                ys.append(v[1])
+    if not xs or not ys:
+        return None
+    return (round(float(max(xs)), 2), round(float(max(ys)), 2))
+
+
 def skill_range_of(data: dict | None, room, slot: int) -> float | None:
-    """该分布该槽（或技能组）的范围：优先 range_max，否则旧 range_med。"""
+    """兼容旧圆形：有 XY 则返回 hypot(rx,ry)；否则 range_max/med。"""
+    xy = skill_range_xy_of(data, room, slot)
+    if xy is not None:
+        import math as _m
+        return round(_m.hypot(xy[0], xy[1]), 2)
     if not data:
         return None
 

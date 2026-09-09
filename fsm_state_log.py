@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fsm_core import FsmContext, FsmDecision, FsmState
+from fsm_core import FsmAction, FsmContext, FsmDecision, FsmState
 
 
 def _val(x: Any) -> Any:
@@ -19,6 +19,19 @@ def _val(x: Any) -> Any:
     if isinstance(x, frozenset):
         return sorted(_val(i) for i in x)
     return x
+
+
+def _mon_boss_n(features: dict | None) -> int:
+    feats = features or {}
+    try:
+        mon = max(0, int(feats.get("mon") or 0))
+    except (TypeError, ValueError):
+        mon = 0
+    try:
+        boss = max(0, int(feats.get("boss") or 0))
+    except (TypeError, ValueError):
+        boss = 0
+    return mon + boss
 
 
 def context_fields(state: FsmState, decision: FsmDecision, ctx: FsmContext, features: dict | None = None) -> dict:
@@ -79,7 +92,8 @@ def context_fields(state: FsmState, decision: FsmDecision, ctx: FsmContext, feat
         out.update(
             {
                 "recover_on": bool(ctx.recover_on),
-                "recover_dir": rec_dir,
+                "recover_dir": str(ctx.recover_key or "") or rec_dir,
+                "recover_key": str(ctx.recover_key or ""),
                 "recover_ms": int(ctx.recover_ms),
                 "watch_state": _val(ctx.watch_state),
             }
@@ -94,7 +108,12 @@ def context_fields(state: FsmState, decision: FsmDecision, ctx: FsmContext, feat
 
 
 class FsmStateLogger:
-    """主循环末尾：state 变了就交出刚结束那一段。回城/停进程 flush 未闭合段。"""
+    """主循环末尾：state 变了就交出刚结束那一段。回城/停进程 flush 未闭合段。
+
+    额外只写字段（不进决策）：
+      mon_boss_enter — 开段帧 mon+boss
+      casts — 段内每次 CAST 追加 {t: 相对段起点ms, slot}
+    """
 
     def __init__(self) -> None:
         self.reset()
@@ -107,6 +126,9 @@ class FsmStateLogger:
         self._last_t: int | None = None
         self._n = 0
         self._ctx: dict = {}
+        self._mon_boss_enter = 0
+        self._casts: list[dict] = []
+        self._cast_armed = True  # 边沿：非 CAST 后下一次 CAST 才记
 
     def set_names(self, map_name: str, char_name: str) -> None:
         self.map_name = str(map_name or "")
@@ -123,15 +145,18 @@ class FsmStateLogger:
         name = decision.state.value
         snap = context_fields(decision.state, decision, ctx, features)
         if self._state is None:
-            self._open(name, t_ns, snap)
+            self._open(name, t_ns, snap, features)
+            self._note_cast(t_ns, decision)
             return None
         if name == self._state:
             self._last_t = t_ns
             self._n += 1
             self._ctx = snap
+            self._note_cast(t_ns, decision)
             return None
         rec = self._close(next_state=name, exit_t=self._last_t)
-        self._open(name, t_ns, snap)
+        self._open(name, t_ns, snap, features)
+        self._note_cast(t_ns, decision)
         return rec
 
     def flush(self, next_state: str | None = None) -> dict | None:
@@ -141,12 +166,33 @@ class FsmStateLogger:
         self.reset()
         return rec
 
-    def _open(self, state: str, t_ns: int, snap: dict) -> None:
+    def _open(self, state: str, t_ns: int, snap: dict, features: dict | None) -> None:
         self._state = state
         self._enter_t = t_ns
         self._last_t = t_ns
         self._n = 1
         self._ctx = snap
+        self._mon_boss_enter = _mon_boss_n(features)
+        self._casts = []
+        self._cast_armed = True
+
+    def _note_cast(self, t_ns: int, decision: FsmDecision) -> None:
+        """每次进入 CAST 动作记一条（连续多帧同一 CAST 只记首帧）。"""
+        is_cast = decision.action is FsmAction.CAST
+        if not is_cast:
+            self._cast_armed = True
+            return
+        if not self._cast_armed:
+            return
+        self._cast_armed = False
+        enter = int(self._enter_t or t_ns)
+        t_ms = max(0, int(round((int(t_ns) - enter) / 1e6)))
+        slot = decision.skill_slot
+        try:
+            slot_i = int(slot) if slot is not None else None
+        except (TypeError, ValueError):
+            slot_i = None
+        self._casts.append({"t": t_ms, "slot": slot_i})
 
     def _close(self, *, next_state: str | None, exit_t: int | None) -> dict:
         enter = int(self._enter_t or 0)
@@ -161,6 +207,8 @@ class FsmStateLogger:
             "frame_count": int(self._n),
             "map_name": self.map_name,
             "char_name": self.char_name,
+            "mon_boss_enter": int(self._mon_boss_enter),
+            "casts": list(self._casts),
         }
         rec.update(self._ctx)
         return rec

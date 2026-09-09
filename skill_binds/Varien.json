@@ -25,7 +25,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 5000
+      "hold_ms": 1500
     },
     {
       "slot": 2,
@@ -47,7 +47,7 @@
       "multi": true,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 5000
+      "hold_ms": 2500
     },
     {
       "slot": 4,
@@ -58,7 +58,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 99999
+      "hold_ms": 3000
     },
     {
       "slot": 5,
@@ -69,7 +69,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 250
+      "hold_ms": 5000
     },
     {
       "slot": 6,
@@ -80,7 +80,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 5000
+      "hold_ms": 2000
     },
     {
       "slot": 7,
@@ -91,7 +91,7 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 1000
+      "hold_ms": 5000
     }
   ]
 }
