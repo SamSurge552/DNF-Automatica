@@ -1,5 +1,5 @@
 """
-随时看 D:/Atrain/Aset/<集> 的正负样本与各类占比（统计表）。
+随时看 D:/Desktop/T/test/images/Atrain/Aset/<集> 的正负样本与各类占比（统计表）。
 
 配对：Aset/<name>/*.png  ↔  Xout/<name>/<同名>.txt
   - 有框 → 正样本
@@ -21,7 +21,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 
-ROOT = Path(r"D:/Atrain")
+ROOT = Path(__file__).resolve().parent / "images" / "Atrain"
 IMG_EXT = {".png", ".jpg", ".jpeg", ".bmp", ".webp"}
 DEFAULT_NAMES = ["boss", "gate", "loot", "mon", "player"]
 DEFAULT_CSV = ROOT / "aset_balance.csv"
@@ -302,7 +302,7 @@ def main():
         help="给指定集里还没有 txt 的 png 写空标签（blank 进训练集前用）",
     )
     ap.add_argument("--verbose", action="store_true", help="每个集再打一份明细")
-    ap.add_argument("--csv", nargs="?", const=str(DEFAULT_CSV), default=None, help="写出 CSV（默认 D:/Atrain/aset_balance.csv）")
+    ap.add_argument("--csv", nargs="?", const=str(DEFAULT_CSV), default=None, help="写出 CSV（默认 D:/Desktop/T/test/images/Atrain/aset_balance.csv）")
     args = ap.parse_args()
     names = args.sets or list_asets(args.root)
     if not names:

@@ -1,11 +1,99 @@
 {
   "dungeon": "深渊：最终调律者",
   "character": "Varien",
-  "updated_at": "2026-09-09 11:38:23",
+  "updated_at": "2026-09-09 15:24:01",
   "e": 3,
   "dists": {
     "B0": {
       "skills": {
+        "e>h": {
+          "slot": 7,
+          "key": "e",
+          "group_key": "e>h",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|554|e>h",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e>h",
+              "group_slots": [
+                7,
+                6
+              ],
+              "group_keys": [
+                "e",
+                "h"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|554|7",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|572|6"
+              ],
+              "i0": 554,
+              "i_feat": 554,
+              "i1": 591,
+              "i_end": 584,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                440.41,
+                171.55
+              ],
+              "rel": [
+                440.41,
+                171.55
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 472.64,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                1840
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7,
+            6
+          ],
+          "group_keys": [
+            "e",
+            "h"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            1840
+          ]
+        },
         "h>e": {
           "slot": 6,
           "key": "h",
@@ -34,8 +122,8 @@
               ],
               "i0": 61,
               "i_feat": 61,
-              "i1": 119,
-              "i_end": 118,
+              "i1": 98,
+              "i_end": 97,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -94,6 +182,287 @@
             819
           ]
         },
+        "h>e>a": {
+          "slot": 6,
+          "key": "h",
+          "group_key": "h>e>a",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|475|h>e>a",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "h",
+              "group_key": "h>e>a",
+              "group_slots": [
+                6,
+                7,
+                4
+              ],
+              "group_keys": [
+                "h",
+                "e",
+                "a"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|475|6",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|482|7",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|495|4"
+              ],
+              "i0": 475,
+              "i_feat": 475,
+              "i1": 511,
+              "i_end": 512,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                156.87,
+                198.4
+              ],
+              "rel": [
+                156.87,
+                198.4
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 252.92,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                721,
+                1344
+              ],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            7,
+            4
+          ],
+          "group_keys": [
+            "h",
+            "e",
+            "a"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            721,
+            1344
+          ]
+        },
+        "h>w>q>a": {
+          "slot": 6,
+          "key": "h",
+          "group_key": "h>w>q>a",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222726_Varien|235|h>w>q>a",
+              "session": "recordings/深渊：最终调律者/20260907_222726_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "h",
+              "group_key": "h>w>q>a",
+              "group_slots": [
+                6,
+                2,
+                1,
+                4
+              ],
+              "group_keys": [
+                "h",
+                "w",
+                "q",
+                "a"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222726_Varien|235|6",
+                "recordings/深渊：最终调律者/20260907_222726_Varien|240|2",
+                "recordings/深渊：最终调律者/20260907_222726_Varien|242|1",
+                "recordings/深渊：最终调律者/20260907_222726_Varien|247|4"
+              ],
+              "i0": 235,
+              "i_feat": 235,
+              "i1": 263,
+              "i_end": 264,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                206.01,
+                180.32
+              ],
+              "rel": [
+                206.01,
+                180.32
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 273.78,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                509,
+                205,
+                518
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            2,
+            1,
+            4
+          ],
+          "group_keys": [
+            "h",
+            "w",
+            "q",
+            "a"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            509,
+            205,
+            518
+          ]
+        },
+        "q": {
+          "slot": 1,
+          "key": "q",
+          "group_key": "q",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|213|q",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 1,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|213|1"
+              ],
+              "i0": 213,
+              "i_feat": 213,
+              "i1": 224,
+              "i_end": 225,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                533.27,
+                153.87
+              ],
+              "rel": [
+                533.27,
+                153.87
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 555.03,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            1
+          ],
+          "group_keys": [
+            "q"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
         "w>a": {
           "slot": 2,
           "key": "w",
@@ -122,8 +491,8 @@
               ],
               "i0": 153,
               "i_feat": 153,
-              "i1": 186,
-              "i_end": 187,
+              "i1": 173,
+              "i_end": 174,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -182,85 +551,6 @@
             411
           ]
         },
-        "q": {
-          "slot": 1,
-          "key": "q",
-          "group_key": "q",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|213|q",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "B0",
-              "dist_kind": "boss",
-              "room": "B0",
-              "slot": 1,
-              "key": "q",
-              "group_key": "q",
-              "group_slots": [
-                1
-              ],
-              "group_keys": [
-                "q"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|213|1"
-              ],
-              "i0": 213,
-              "i_feat": 213,
-              "i1": 227,
-              "i_end": 228,
-              "mon": 0,
-              "boss": 1,
-              "enemy": 1,
-              "start_n": 1,
-              "center": [
-                533.27,
-                153.87
-              ],
-              "rel": [
-                533.27,
-                153.87
-              ],
-              "bbox": null,
-              "bbox_w": 0.0,
-              "bbox_h": 0.0,
-              "dist": 555.03,
-              "range_x": null,
-              "range_y": null,
-              "range_px": null,
-              "gaps_ms": [],
-              "dir": "right",
-              "kind": null,
-              "boss_room": true,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 1,
-              "killed_enemy": null,
-              "kill_ratio": null,
-              "kill_ratio_enemy": null,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            1
-          ],
-          "group_keys": [
-            "q"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": null,
-          "range_x_max": null,
-          "range_y_max": null,
-          "kind_maj": null,
-          "kind_group": 0,
-          "kill_mean": 1.0,
-          "kill_ratio_mean": null,
-          "gaps_ms": []
-        },
         "w>e>q>a": {
           "slot": 2,
           "key": "w",
@@ -295,8 +585,8 @@
               ],
               "i0": 280,
               "i_feat": 280,
-              "i1": 330,
-              "i_end": 331,
+              "i1": 317,
+              "i_end": 318,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -325,8 +615,8 @@
               "kind": null,
               "boss_room": true,
               "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
               "killed_mon": 1,
               "killed_enemy": null,
               "kill_ratio": null,
@@ -363,159 +653,57 @@
             506
           ]
         },
-        "h>e>a>w": {
-          "slot": 6,
-          "key": "h",
-          "group_key": "h>e>a>w",
+        "w>q": {
+          "slot": 2,
+          "key": "w",
+          "group_key": "w>q",
           "casts": [
             {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|475|h>e>a>w",
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|404|w>q",
               "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 6,
-              "key": "h",
-              "group_key": "h>e>a>w",
+              "slot": 2,
+              "key": "w",
+              "group_key": "w>q",
               "group_slots": [
-                6,
-                7,
-                4,
-                2
+                2,
+                1
               ],
               "group_keys": [
-                "h",
-                "e",
-                "a",
-                "w"
+                "w",
+                "q"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|475|6",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|482|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|495|4",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|530|2"
+                "recordings/深渊：最终调律者/20260907_222032_Varien|404|2",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|411|1"
               ],
-              "i0": 475,
-              "i_feat": 475,
-              "i1": 544,
-              "i_end": 545,
+              "i0": 404,
+              "i_feat": 404,
+              "i1": 422,
+              "i_end": 423,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
               "start_n": 1,
               "center": [
-                156.87,
-                198.4
+                749.33,
+                140.17
               ],
               "rel": [
-                156.87,
-                198.4
+                749.33,
+                140.17
               ],
               "bbox": null,
               "bbox_w": 0.0,
               "bbox_h": 0.0,
-              "dist": 252.92,
+              "dist": 762.33,
               "range_x": null,
               "range_y": null,
               "range_px": null,
               "gaps_ms": [
-                721,
-                1344,
-                3586
-              ],
-              "dir": "up",
-              "kind": null,
-              "boss_room": true,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 1,
-              "killed_enemy": null,
-              "kill_ratio": null,
-              "kill_ratio_enemy": null,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            6,
-            7,
-            4,
-            2
-          ],
-          "group_keys": [
-            "h",
-            "e",
-            "a",
-            "w"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": null,
-          "range_x_max": null,
-          "range_y_max": null,
-          "kind_maj": null,
-          "kind_group": 0,
-          "kill_mean": 1.0,
-          "kill_ratio_mean": null,
-          "gaps_ms": [
-            721,
-            1344,
-            3586
-          ]
-        },
-        "e>h": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>h",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|554|e>h",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "B0",
-              "dist_kind": "boss",
-              "room": "B0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>h",
-              "group_slots": [
-                7,
-                6
-              ],
-              "group_keys": [
-                "e",
-                "h"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|554|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|572|6"
-              ],
-              "i0": 554,
-              "i_feat": 554,
-              "i1": 599,
-              "i_end": 603,
-              "mon": 0,
-              "boss": 1,
-              "enemy": 1,
-              "start_n": 1,
-              "center": [
-                440.41,
-                171.55
-              ],
-              "rel": [
-                440.41,
-                171.55
-              ],
-              "bbox": null,
-              "bbox_w": 0.0,
-              "bbox_h": 0.0,
-              "dist": 472.64,
-              "range_x": null,
-              "range_y": null,
-              "range_px": null,
-              "gaps_ms": [
-                1840
+                720
               ],
               "dir": "right",
               "kind": null,
@@ -532,12 +720,12 @@
             }
           ],
           "group_slots": [
-            7,
-            6
+            2,
+            1
           ],
           "group_keys": [
-            "e",
-            "h"
+            "w",
+            "q"
           ],
           "n": 1,
           "n_fake": 0,
@@ -550,7 +738,102 @@
           "kill_mean": 1.0,
           "kill_ratio_mean": null,
           "gaps_ms": [
-            1840
+            720
+          ]
+        },
+        "w>q>a": {
+          "slot": 2,
+          "key": "w",
+          "group_key": "w>q>a",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|55|w>q>a",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 2,
+              "key": "w",
+              "group_key": "w>q>a",
+              "group_slots": [
+                2,
+                1,
+                4
+              ],
+              "group_keys": [
+                "w",
+                "q",
+                "a"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|55|2",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|56|1",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|67|4"
+              ],
+              "i0": 55,
+              "i_feat": 55,
+              "i1": 83,
+              "i_end": 84,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                304.27,
+                194.28
+              ],
+              "rel": [
+                304.27,
+                194.28
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 361.01,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                103,
+                1127
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            2,
+            1,
+            4
+          ],
+          "group_keys": [
+            "w",
+            "q",
+            "a"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            103,
+            1127
           ]
         }
       },
@@ -592,8 +875,8 @@
               ],
               "i0": 32,
               "i_feat": 32,
-              "i1": 46,
-              "i_end": 47,
+              "i1": 43,
+              "i_end": 44,
               "mon": 10,
               "boss": 0,
               "enemy": 10,
@@ -652,8 +935,8 @@
               ],
               "i0": 102,
               "i_feat": 102,
-              "i1": 116,
-              "i_end": 117,
+              "i1": 113,
+              "i_end": 114,
               "mon": 13,
               "boss": 0,
               "enemy": 13,
@@ -712,8 +995,8 @@
               ],
               "i0": 193,
               "i_feat": 193,
-              "i1": 207,
-              "i_end": 208,
+              "i1": 204,
+              "i_end": 205,
               "mon": 11,
               "boss": 0,
               "enemy": 11,
@@ -772,8 +1055,8 @@
               ],
               "i0": 447,
               "i_feat": 447,
-              "i1": 461,
-              "i_end": 462,
+              "i1": 458,
+              "i_end": 459,
               "mon": 12,
               "boss": 0,
               "enemy": 12,
@@ -811,6 +1094,66 @@
               "kill_ratio_enemy": 1.0,
               "fake": false,
               "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|530|w",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|530|2"
+              ],
+              "i0": 530,
+              "i_feat": 530,
+              "i1": 541,
+              "i_end": 542,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                929.17,
+                86.87
+              ],
+              "rel": [
+                929.17,
+                86.87
+              ],
+              "bbox": [
+                231.56,
+                -84.94,
+                929.17,
+                86.87
+              ],
+              "bbox_w": 697.61,
+              "bbox_h": 171.81,
+              "dist": 933.22,
+              "range_x": 929.17,
+              "range_y": 86.87,
+              "range_px": 933.22,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
             }
           ],
           "group_slots": [
@@ -819,15 +1162,219 @@
           "group_keys": [
             "w"
           ],
-          "n": 4,
+          "n": 5,
           "n_fake": 0,
           "range_med": null,
           "range_max": 1019.26,
           "range_x_max": 1014.56,
           "range_y_max": 102.09,
           "kind_maj": "群",
-          "kind_group": 4,
-          "kill_mean": 11.5,
+          "kind_group": 5,
+          "kill_mean": 11.6,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "e": {
+          "slot": 7,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222726_Varien|205|e",
+              "session": "recordings/深渊：最终调律者/20260907_222726_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222726_Varien|205|7"
+              ],
+              "i0": 205,
+              "i_feat": 205,
+              "i1": 232,
+              "i_end": 233,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                493.27,
+                85.96
+              ],
+              "rel": [
+                493.27,
+                85.96
+              ],
+              "bbox": [
+                -120.67,
+                -85.81,
+                493.27,
+                85.96
+              ],
+              "bbox_w": 613.94,
+              "bbox_h": 171.77,
+              "dist": 500.7,
+              "range_x": 493.27,
+              "range_y": 85.96,
+              "range_px": 500.7,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 10,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 0.9,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|27|e",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|27|7"
+              ],
+              "i0": 27,
+              "i_feat": 27,
+              "i1": 54,
+              "i_end": 55,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                629.17,
+                151.82
+              ],
+              "rel": [
+                629.17,
+                151.82
+              ],
+              "bbox": [
+                -68.89,
+                -19.88,
+                629.17,
+                151.82
+              ],
+              "bbox_w": 698.06,
+              "bbox_h": 171.7,
+              "dist": 647.23,
+              "range_x": 629.17,
+              "range_y": 151.82,
+              "range_px": 647.23,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 10,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 0.9,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|357|e",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|357|7"
+              ],
+              "i0": 357,
+              "i_feat": 357,
+              "i1": 384,
+              "i_end": 385,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                -387.29,
+                108.57
+              ],
+              "rel": [
+                -387.29,
+                108.57
+              ],
+              "bbox": [
+                -387.29,
+                -50.85,
+                311.97,
+                121.01
+              ],
+              "bbox_w": 699.26,
+              "bbox_h": 171.86,
+              "dist": 402.22,
+              "range_x": 387.29,
+              "range_y": 121.01,
+              "range_px": 405.75,
+              "gaps_ms": [],
+              "dir": "left",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 10,
+              "killed_enemy": 10,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 3,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 647.23,
+          "range_x_max": 629.17,
+          "range_y_max": 151.82,
+          "kind_maj": "群",
+          "kind_group": 3,
+          "kill_mean": 10.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": []
         },
@@ -856,8 +1403,8 @@
               ],
               "i0": 127,
               "i_feat": 127,
-              "i1": 146,
-              "i_end": 147,
+              "i1": 138,
+              "i_end": 139,
               "mon": 9,
               "boss": 0,
               "enemy": 9,
@@ -916,8 +1463,8 @@
               ],
               "i0": 255,
               "i_feat": 255,
-              "i1": 274,
-              "i_end": 275,
+              "i1": 266,
+              "i_end": 267,
               "mon": 7,
               "boss": 0,
               "enemy": 7,
@@ -947,12 +1494,12 @@
               "kind": "群",
               "boss_room": false,
               "mon_end": 0,
-              "boss_end": 1,
-              "enemy_end": 1,
+              "boss_end": 0,
+              "enemy_end": 0,
               "killed_mon": 7,
-              "killed_enemy": 6,
+              "killed_enemy": 7,
               "kill_ratio": 1.0,
-              "kill_ratio_enemy": 0.857,
+              "kill_ratio_enemy": 1.0,
               "fake": false,
               "after_cd_reset": true
             }
@@ -974,327 +1521,6 @@
           "kill_mean": 8.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": []
-        },
-        "e>h>w>q>a": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>h>w>q>a",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222726_Varien|205|e>h>w>q>a",
-              "session": "recordings/深渊：最终调律者/20260907_222726_Varien",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>h>w>q>a",
-              "group_slots": [
-                7,
-                6,
-                2,
-                1,
-                4
-              ],
-              "group_keys": [
-                "e",
-                "h",
-                "w",
-                "q",
-                "a"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222726_Varien|205|7",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|235|6",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|240|2",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|242|1",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|247|4"
-              ],
-              "i0": 205,
-              "i_feat": 205,
-              "i1": 276,
-              "i_end": 277,
-              "mon": 10,
-              "boss": 0,
-              "enemy": 10,
-              "start_n": 10,
-              "center": [
-                493.27,
-                85.96
-              ],
-              "rel": [
-                493.27,
-                85.96
-              ],
-              "bbox": [
-                -120.67,
-                -85.81,
-                493.27,
-                85.96
-              ],
-              "bbox_w": 613.94,
-              "bbox_h": 171.77,
-              "dist": 500.7,
-              "range_x": 493.27,
-              "range_y": 85.96,
-              "range_px": 500.7,
-              "gaps_ms": [
-                3087,
-                509,
-                205,
-                518
-              ],
-              "dir": "right",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 10,
-              "killed_enemy": 10,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            7,
-            6,
-            2,
-            1,
-            4
-          ],
-          "group_keys": [
-            "e",
-            "h",
-            "w",
-            "q",
-            "a"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 500.7,
-          "range_x_max": 493.27,
-          "range_y_max": 85.96,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 10.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            3087,
-            509,
-            205,
-            518
-          ]
-        },
-        "e>w>q>a": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>w>q>a",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|27|e>w>q>a",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>w>q>a",
-              "group_slots": [
-                7,
-                2,
-                1,
-                4
-              ],
-              "group_keys": [
-                "e",
-                "w",
-                "q",
-                "a"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|27|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|55|2",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|56|1",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|67|4"
-              ],
-              "i0": 27,
-              "i_feat": 27,
-              "i1": 96,
-              "i_end": 97,
-              "mon": 10,
-              "boss": 0,
-              "enemy": 10,
-              "start_n": 10,
-              "center": [
-                629.17,
-                151.82
-              ],
-              "rel": [
-                629.17,
-                151.82
-              ],
-              "bbox": [
-                -68.89,
-                -19.88,
-                629.17,
-                151.82
-              ],
-              "bbox_w": 698.06,
-              "bbox_h": 171.7,
-              "dist": 647.23,
-              "range_x": 629.17,
-              "range_y": 151.82,
-              "range_px": 647.23,
-              "gaps_ms": [
-                2885,
-                103,
-                1127
-              ],
-              "dir": "right",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 10,
-              "killed_enemy": 10,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": false
-            }
-          ],
-          "group_slots": [
-            7,
-            2,
-            1,
-            4
-          ],
-          "group_keys": [
-            "e",
-            "w",
-            "q",
-            "a"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 647.23,
-          "range_x_max": 629.17,
-          "range_y_max": 151.82,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 10.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            2885,
-            103,
-            1127
-          ]
-        },
-        "e>w>q": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>w>q",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|357|e>w>q",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>w>q",
-              "group_slots": [
-                7,
-                2,
-                1
-              ],
-              "group_keys": [
-                "e",
-                "w",
-                "q"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|357|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|404|2",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|411|1"
-              ],
-              "i0": 357,
-              "i_feat": 357,
-              "i1": 425,
-              "i_end": 426,
-              "mon": 10,
-              "boss": 0,
-              "enemy": 10,
-              "start_n": 10,
-              "center": [
-                -387.29,
-                108.57
-              ],
-              "rel": [
-                -387.29,
-                108.57
-              ],
-              "bbox": [
-                -387.29,
-                -50.85,
-                311.97,
-                121.01
-              ],
-              "bbox_w": 699.26,
-              "bbox_h": 171.86,
-              "dist": 402.22,
-              "range_x": 387.29,
-              "range_y": 121.01,
-              "range_px": 405.75,
-              "gaps_ms": [
-                4825,
-                720
-              ],
-              "dir": "left",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 10,
-              "killed_enemy": 10,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            7,
-            2,
-            1
-          ],
-          "group_keys": [
-            "e",
-            "w",
-            "q"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 405.75,
-          "range_x_max": 387.29,
-          "range_y_max": 121.01,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 10.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            4825,
-            720
-          ]
         }
       },
       "kind": "mob",
@@ -1312,7 +1538,7 @@
         74.37
       ],
       "bbox_w": 697.61,
-      "bbox_h": 171.82,
+      "bbox_h": 171.81,
       "n": 12
     },
     "X": {
@@ -1351,8 +1577,8 @@
               ],
               "i0": 130,
               "i_feat": 130,
-              "i1": 172,
-              "i_end": 192,
+              "i1": 164,
+              "i_end": 171,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -1374,11 +1600,11 @@
               "dir": null,
               "kind": "单",
               "boss_room": false,
-              "mon_end": 11,
+              "mon_end": 0,
               "boss_end": 0,
-              "enemy_end": 11,
-              "killed_mon": -11,
-              "killed_enemy": -11,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
               "kill_ratio": null,
               "kill_ratio_enemy": null,
               "fake": false,
@@ -1405,12 +1631,17 @@
           "range_y_max": null,
           "kind_maj": "单",
           "kind_group": 0,
-          "kill_mean": -11.0,
+          "kill_mean": 0.0,
           "kill_ratio_mean": null,
           "gaps_ms": [
             926,
             411,
             824
+          ],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
           ]
         }
       },
@@ -1425,6 +1656,94 @@
   "rooms": {
     "B0": {
       "skills": {
+        "e>h": {
+          "slot": 7,
+          "key": "e",
+          "group_key": "e>h",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|554|e>h",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e>h",
+              "group_slots": [
+                7,
+                6
+              ],
+              "group_keys": [
+                "e",
+                "h"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|554|7",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|572|6"
+              ],
+              "i0": 554,
+              "i_feat": 554,
+              "i1": 591,
+              "i_end": 584,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                440.41,
+                171.55
+              ],
+              "rel": [
+                440.41,
+                171.55
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 472.64,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                1840
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7,
+            6
+          ],
+          "group_keys": [
+            "e",
+            "h"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            1840
+          ]
+        },
         "h>e": {
           "slot": 6,
           "key": "h",
@@ -1453,8 +1772,8 @@
               ],
               "i0": 61,
               "i_feat": 61,
-              "i1": 119,
-              "i_end": 118,
+              "i1": 98,
+              "i_end": 97,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -1513,6 +1832,287 @@
             819
           ]
         },
+        "h>e>a": {
+          "slot": 6,
+          "key": "h",
+          "group_key": "h>e>a",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|475|h>e>a",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "h",
+              "group_key": "h>e>a",
+              "group_slots": [
+                6,
+                7,
+                4
+              ],
+              "group_keys": [
+                "h",
+                "e",
+                "a"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|475|6",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|482|7",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|495|4"
+              ],
+              "i0": 475,
+              "i_feat": 475,
+              "i1": 511,
+              "i_end": 512,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                156.87,
+                198.4
+              ],
+              "rel": [
+                156.87,
+                198.4
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 252.92,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                721,
+                1344
+              ],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            7,
+            4
+          ],
+          "group_keys": [
+            "h",
+            "e",
+            "a"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            721,
+            1344
+          ]
+        },
+        "h>w>q>a": {
+          "slot": 6,
+          "key": "h",
+          "group_key": "h>w>q>a",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222726_Varien|235|h>w>q>a",
+              "session": "recordings/深渊：最终调律者/20260907_222726_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "h",
+              "group_key": "h>w>q>a",
+              "group_slots": [
+                6,
+                2,
+                1,
+                4
+              ],
+              "group_keys": [
+                "h",
+                "w",
+                "q",
+                "a"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222726_Varien|235|6",
+                "recordings/深渊：最终调律者/20260907_222726_Varien|240|2",
+                "recordings/深渊：最终调律者/20260907_222726_Varien|242|1",
+                "recordings/深渊：最终调律者/20260907_222726_Varien|247|4"
+              ],
+              "i0": 235,
+              "i_feat": 235,
+              "i1": 263,
+              "i_end": 264,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                206.01,
+                180.32
+              ],
+              "rel": [
+                206.01,
+                180.32
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 273.78,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                509,
+                205,
+                518
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            2,
+            1,
+            4
+          ],
+          "group_keys": [
+            "h",
+            "w",
+            "q",
+            "a"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            509,
+            205,
+            518
+          ]
+        },
+        "q": {
+          "slot": 1,
+          "key": "q",
+          "group_key": "q",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|213|q",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 1,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|213|1"
+              ],
+              "i0": 213,
+              "i_feat": 213,
+              "i1": 224,
+              "i_end": 225,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                533.27,
+                153.87
+              ],
+              "rel": [
+                533.27,
+                153.87
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 555.03,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            1
+          ],
+          "group_keys": [
+            "q"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
         "w>a": {
           "slot": 2,
           "key": "w",
@@ -1541,8 +2141,8 @@
               ],
               "i0": 153,
               "i_feat": 153,
-              "i1": 186,
-              "i_end": 187,
+              "i1": 173,
+              "i_end": 174,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -1601,85 +2201,6 @@
             411
           ]
         },
-        "q": {
-          "slot": 1,
-          "key": "q",
-          "group_key": "q",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|213|q",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "B0",
-              "dist_kind": "boss",
-              "room": "B0",
-              "slot": 1,
-              "key": "q",
-              "group_key": "q",
-              "group_slots": [
-                1
-              ],
-              "group_keys": [
-                "q"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|213|1"
-              ],
-              "i0": 213,
-              "i_feat": 213,
-              "i1": 227,
-              "i_end": 228,
-              "mon": 0,
-              "boss": 1,
-              "enemy": 1,
-              "start_n": 1,
-              "center": [
-                533.27,
-                153.87
-              ],
-              "rel": [
-                533.27,
-                153.87
-              ],
-              "bbox": null,
-              "bbox_w": 0.0,
-              "bbox_h": 0.0,
-              "dist": 555.03,
-              "range_x": null,
-              "range_y": null,
-              "range_px": null,
-              "gaps_ms": [],
-              "dir": "right",
-              "kind": null,
-              "boss_room": true,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 1,
-              "killed_enemy": null,
-              "kill_ratio": null,
-              "kill_ratio_enemy": null,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            1
-          ],
-          "group_keys": [
-            "q"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": null,
-          "range_x_max": null,
-          "range_y_max": null,
-          "kind_maj": null,
-          "kind_group": 0,
-          "kill_mean": 1.0,
-          "kill_ratio_mean": null,
-          "gaps_ms": []
-        },
         "w>e>q>a": {
           "slot": 2,
           "key": "w",
@@ -1714,8 +2235,8 @@
               ],
               "i0": 280,
               "i_feat": 280,
-              "i1": 330,
-              "i_end": 331,
+              "i1": 317,
+              "i_end": 318,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -1744,8 +2265,8 @@
               "kind": null,
               "boss_room": true,
               "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
               "killed_mon": 1,
               "killed_enemy": null,
               "kill_ratio": null,
@@ -1782,159 +2303,57 @@
             506
           ]
         },
-        "h>e>a>w": {
-          "slot": 6,
-          "key": "h",
-          "group_key": "h>e>a>w",
+        "w>q": {
+          "slot": 2,
+          "key": "w",
+          "group_key": "w>q",
           "casts": [
             {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|475|h>e>a>w",
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|404|w>q",
               "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 6,
-              "key": "h",
-              "group_key": "h>e>a>w",
+              "slot": 2,
+              "key": "w",
+              "group_key": "w>q",
               "group_slots": [
-                6,
-                7,
-                4,
-                2
+                2,
+                1
               ],
               "group_keys": [
-                "h",
-                "e",
-                "a",
-                "w"
+                "w",
+                "q"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|475|6",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|482|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|495|4",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|530|2"
+                "recordings/深渊：最终调律者/20260907_222032_Varien|404|2",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|411|1"
               ],
-              "i0": 475,
-              "i_feat": 475,
-              "i1": 544,
-              "i_end": 545,
+              "i0": 404,
+              "i_feat": 404,
+              "i1": 422,
+              "i_end": 423,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
               "start_n": 1,
               "center": [
-                156.87,
-                198.4
+                749.33,
+                140.17
               ],
               "rel": [
-                156.87,
-                198.4
+                749.33,
+                140.17
               ],
               "bbox": null,
               "bbox_w": 0.0,
               "bbox_h": 0.0,
-              "dist": 252.92,
+              "dist": 762.33,
               "range_x": null,
               "range_y": null,
               "range_px": null,
               "gaps_ms": [
-                721,
-                1344,
-                3586
-              ],
-              "dir": "up",
-              "kind": null,
-              "boss_room": true,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 1,
-              "killed_enemy": null,
-              "kill_ratio": null,
-              "kill_ratio_enemy": null,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            6,
-            7,
-            4,
-            2
-          ],
-          "group_keys": [
-            "h",
-            "e",
-            "a",
-            "w"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": null,
-          "range_x_max": null,
-          "range_y_max": null,
-          "kind_maj": null,
-          "kind_group": 0,
-          "kill_mean": 1.0,
-          "kill_ratio_mean": null,
-          "gaps_ms": [
-            721,
-            1344,
-            3586
-          ]
-        },
-        "e>h": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>h",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|554|e>h",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "B0",
-              "dist_kind": "boss",
-              "room": "B0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>h",
-              "group_slots": [
-                7,
-                6
-              ],
-              "group_keys": [
-                "e",
-                "h"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|554|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|572|6"
-              ],
-              "i0": 554,
-              "i_feat": 554,
-              "i1": 599,
-              "i_end": 603,
-              "mon": 0,
-              "boss": 1,
-              "enemy": 1,
-              "start_n": 1,
-              "center": [
-                440.41,
-                171.55
-              ],
-              "rel": [
-                440.41,
-                171.55
-              ],
-              "bbox": null,
-              "bbox_w": 0.0,
-              "bbox_h": 0.0,
-              "dist": 472.64,
-              "range_x": null,
-              "range_y": null,
-              "range_px": null,
-              "gaps_ms": [
-                1840
+                720
               ],
               "dir": "right",
               "kind": null,
@@ -1951,12 +2370,12 @@
             }
           ],
           "group_slots": [
-            7,
-            6
+            2,
+            1
           ],
           "group_keys": [
-            "e",
-            "h"
+            "w",
+            "q"
           ],
           "n": 1,
           "n_fake": 0,
@@ -1969,7 +2388,102 @@
           "kill_mean": 1.0,
           "kill_ratio_mean": null,
           "gaps_ms": [
-            1840
+            720
+          ]
+        },
+        "w>q>a": {
+          "slot": 2,
+          "key": "w",
+          "group_key": "w>q>a",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|55|w>q>a",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 2,
+              "key": "w",
+              "group_key": "w>q>a",
+              "group_slots": [
+                2,
+                1,
+                4
+              ],
+              "group_keys": [
+                "w",
+                "q",
+                "a"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|55|2",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|56|1",
+                "recordings/深渊：最终调律者/20260907_222032_Varien|67|4"
+              ],
+              "i0": 55,
+              "i_feat": 55,
+              "i1": 83,
+              "i_end": 84,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                304.27,
+                194.28
+              ],
+              "rel": [
+                304.27,
+                194.28
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 361.01,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                103,
+                1127
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            2,
+            1,
+            4
+          ],
+          "group_keys": [
+            "w",
+            "q",
+            "a"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            103,
+            1127
           ]
         }
       },
@@ -2011,8 +2525,8 @@
               ],
               "i0": 32,
               "i_feat": 32,
-              "i1": 46,
-              "i_end": 47,
+              "i1": 43,
+              "i_end": 44,
               "mon": 10,
               "boss": 0,
               "enemy": 10,
@@ -2071,8 +2585,8 @@
               ],
               "i0": 102,
               "i_feat": 102,
-              "i1": 116,
-              "i_end": 117,
+              "i1": 113,
+              "i_end": 114,
               "mon": 13,
               "boss": 0,
               "enemy": 13,
@@ -2131,8 +2645,8 @@
               ],
               "i0": 193,
               "i_feat": 193,
-              "i1": 207,
-              "i_end": 208,
+              "i1": 204,
+              "i_end": 205,
               "mon": 11,
               "boss": 0,
               "enemy": 11,
@@ -2191,8 +2705,8 @@
               ],
               "i0": 447,
               "i_feat": 447,
-              "i1": 461,
-              "i_end": 462,
+              "i1": 458,
+              "i_end": 459,
               "mon": 12,
               "boss": 0,
               "enemy": 12,
@@ -2230,6 +2744,66 @@
               "kill_ratio_enemy": 1.0,
               "fake": false,
               "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|530|w",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|530|2"
+              ],
+              "i0": 530,
+              "i_feat": 530,
+              "i1": 541,
+              "i_end": 542,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                929.17,
+                86.87
+              ],
+              "rel": [
+                929.17,
+                86.87
+              ],
+              "bbox": [
+                231.56,
+                -84.94,
+                929.17,
+                86.87
+              ],
+              "bbox_w": 697.61,
+              "bbox_h": 171.81,
+              "dist": 933.22,
+              "range_x": 929.17,
+              "range_y": 86.87,
+              "range_px": 933.22,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
             }
           ],
           "group_slots": [
@@ -2238,15 +2812,219 @@
           "group_keys": [
             "w"
           ],
-          "n": 4,
+          "n": 5,
           "n_fake": 0,
           "range_med": null,
           "range_max": 1019.26,
           "range_x_max": 1014.56,
           "range_y_max": 102.09,
           "kind_maj": "群",
-          "kind_group": 4,
-          "kill_mean": 11.5,
+          "kind_group": 5,
+          "kill_mean": 11.6,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "e": {
+          "slot": 7,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222726_Varien|205|e",
+              "session": "recordings/深渊：最终调律者/20260907_222726_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222726_Varien|205|7"
+              ],
+              "i0": 205,
+              "i_feat": 205,
+              "i1": 232,
+              "i_end": 233,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                493.27,
+                85.96
+              ],
+              "rel": [
+                493.27,
+                85.96
+              ],
+              "bbox": [
+                -120.67,
+                -85.81,
+                493.27,
+                85.96
+              ],
+              "bbox_w": 613.94,
+              "bbox_h": 171.77,
+              "dist": 500.7,
+              "range_x": 493.27,
+              "range_y": 85.96,
+              "range_px": 500.7,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 10,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 0.9,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|27|e",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|27|7"
+              ],
+              "i0": 27,
+              "i_feat": 27,
+              "i1": 54,
+              "i_end": 55,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                629.17,
+                151.82
+              ],
+              "rel": [
+                629.17,
+                151.82
+              ],
+              "bbox": [
+                -68.89,
+                -19.88,
+                629.17,
+                151.82
+              ],
+              "bbox_w": 698.06,
+              "bbox_h": 171.7,
+              "dist": 647.23,
+              "range_x": 629.17,
+              "range_y": 151.82,
+              "range_px": 647.23,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 10,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 0.9,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|357|e",
+              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_222032_Varien|357|7"
+              ],
+              "i0": 357,
+              "i_feat": 357,
+              "i1": 384,
+              "i_end": 385,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                -387.29,
+                108.57
+              ],
+              "rel": [
+                -387.29,
+                108.57
+              ],
+              "bbox": [
+                -387.29,
+                -50.85,
+                311.97,
+                121.01
+              ],
+              "bbox_w": 699.26,
+              "bbox_h": 171.86,
+              "dist": 402.22,
+              "range_x": 387.29,
+              "range_y": 121.01,
+              "range_px": 405.75,
+              "gaps_ms": [],
+              "dir": "left",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 10,
+              "killed_enemy": 10,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 3,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 647.23,
+          "range_x_max": 629.17,
+          "range_y_max": 151.82,
+          "kind_maj": "群",
+          "kind_group": 3,
+          "kill_mean": 10.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": []
         },
@@ -2275,8 +3053,8 @@
               ],
               "i0": 127,
               "i_feat": 127,
-              "i1": 146,
-              "i_end": 147,
+              "i1": 138,
+              "i_end": 139,
               "mon": 9,
               "boss": 0,
               "enemy": 9,
@@ -2335,8 +3113,8 @@
               ],
               "i0": 255,
               "i_feat": 255,
-              "i1": 274,
-              "i_end": 275,
+              "i1": 266,
+              "i_end": 267,
               "mon": 7,
               "boss": 0,
               "enemy": 7,
@@ -2366,12 +3144,12 @@
               "kind": "群",
               "boss_room": false,
               "mon_end": 0,
-              "boss_end": 1,
-              "enemy_end": 1,
+              "boss_end": 0,
+              "enemy_end": 0,
               "killed_mon": 7,
-              "killed_enemy": 6,
+              "killed_enemy": 7,
               "kill_ratio": 1.0,
-              "kill_ratio_enemy": 0.857,
+              "kill_ratio_enemy": 1.0,
               "fake": false,
               "after_cd_reset": true
             }
@@ -2393,327 +3171,6 @@
           "kill_mean": 8.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": []
-        },
-        "e>h>w>q>a": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>h>w>q>a",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222726_Varien|205|e>h>w>q>a",
-              "session": "recordings/深渊：最终调律者/20260907_222726_Varien",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>h>w>q>a",
-              "group_slots": [
-                7,
-                6,
-                2,
-                1,
-                4
-              ],
-              "group_keys": [
-                "e",
-                "h",
-                "w",
-                "q",
-                "a"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222726_Varien|205|7",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|235|6",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|240|2",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|242|1",
-                "recordings/深渊：最终调律者/20260907_222726_Varien|247|4"
-              ],
-              "i0": 205,
-              "i_feat": 205,
-              "i1": 276,
-              "i_end": 277,
-              "mon": 10,
-              "boss": 0,
-              "enemy": 10,
-              "start_n": 10,
-              "center": [
-                493.27,
-                85.96
-              ],
-              "rel": [
-                493.27,
-                85.96
-              ],
-              "bbox": [
-                -120.67,
-                -85.81,
-                493.27,
-                85.96
-              ],
-              "bbox_w": 613.94,
-              "bbox_h": 171.77,
-              "dist": 500.7,
-              "range_x": 493.27,
-              "range_y": 85.96,
-              "range_px": 500.7,
-              "gaps_ms": [
-                3087,
-                509,
-                205,
-                518
-              ],
-              "dir": "right",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 10,
-              "killed_enemy": 10,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            7,
-            6,
-            2,
-            1,
-            4
-          ],
-          "group_keys": [
-            "e",
-            "h",
-            "w",
-            "q",
-            "a"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 500.7,
-          "range_x_max": 493.27,
-          "range_y_max": 85.96,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 10.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            3087,
-            509,
-            205,
-            518
-          ]
-        },
-        "e>w>q>a": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>w>q>a",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|27|e>w>q>a",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>w>q>a",
-              "group_slots": [
-                7,
-                2,
-                1,
-                4
-              ],
-              "group_keys": [
-                "e",
-                "w",
-                "q",
-                "a"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|27|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|55|2",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|56|1",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|67|4"
-              ],
-              "i0": 27,
-              "i_feat": 27,
-              "i1": 96,
-              "i_end": 97,
-              "mon": 10,
-              "boss": 0,
-              "enemy": 10,
-              "start_n": 10,
-              "center": [
-                629.17,
-                151.82
-              ],
-              "rel": [
-                629.17,
-                151.82
-              ],
-              "bbox": [
-                -68.89,
-                -19.88,
-                629.17,
-                151.82
-              ],
-              "bbox_w": 698.06,
-              "bbox_h": 171.7,
-              "dist": 647.23,
-              "range_x": 629.17,
-              "range_y": 151.82,
-              "range_px": 647.23,
-              "gaps_ms": [
-                2885,
-                103,
-                1127
-              ],
-              "dir": "right",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 10,
-              "killed_enemy": 10,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": false
-            }
-          ],
-          "group_slots": [
-            7,
-            2,
-            1,
-            4
-          ],
-          "group_keys": [
-            "e",
-            "w",
-            "q",
-            "a"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 647.23,
-          "range_x_max": 629.17,
-          "range_y_max": 151.82,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 10.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            2885,
-            103,
-            1127
-          ]
-        },
-        "e>w>q": {
-          "slot": 7,
-          "key": "e",
-          "group_key": "e>w>q",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_222032_Varien|357|e>w>q",
-              "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 7,
-              "key": "e",
-              "group_key": "e>w>q",
-              "group_slots": [
-                7,
-                2,
-                1
-              ],
-              "group_keys": [
-                "e",
-                "w",
-                "q"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_222032_Varien|357|7",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|404|2",
-                "recordings/深渊：最终调律者/20260907_222032_Varien|411|1"
-              ],
-              "i0": 357,
-              "i_feat": 357,
-              "i1": 425,
-              "i_end": 426,
-              "mon": 10,
-              "boss": 0,
-              "enemy": 10,
-              "start_n": 10,
-              "center": [
-                -387.29,
-                108.57
-              ],
-              "rel": [
-                -387.29,
-                108.57
-              ],
-              "bbox": [
-                -387.29,
-                -50.85,
-                311.97,
-                121.01
-              ],
-              "bbox_w": 699.26,
-              "bbox_h": 171.86,
-              "dist": 402.22,
-              "range_x": 387.29,
-              "range_y": 121.01,
-              "range_px": 405.75,
-              "gaps_ms": [
-                4825,
-                720
-              ],
-              "dir": "left",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 10,
-              "killed_enemy": 10,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            7,
-            2,
-            1
-          ],
-          "group_keys": [
-            "e",
-            "w",
-            "q"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 405.75,
-          "range_x_max": 387.29,
-          "range_y_max": 121.01,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 10.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            4825,
-            720
-          ]
         }
       },
       "kind": "mob",
@@ -2731,7 +3188,7 @@
         74.37
       ],
       "bbox_w": 697.61,
-      "bbox_h": 171.82,
+      "bbox_h": 171.81,
       "n": 12
     },
     "X": {
@@ -2770,8 +3227,8 @@
               ],
               "i0": 130,
               "i_feat": 130,
-              "i1": 172,
-              "i_end": 192,
+              "i1": 164,
+              "i_end": 171,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -2793,11 +3250,11 @@
               "dir": null,
               "kind": "单",
               "boss_room": false,
-              "mon_end": 11,
+              "mon_end": 0,
               "boss_end": 0,
-              "enemy_end": 11,
-              "killed_mon": -11,
-              "killed_enemy": -11,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
               "kill_ratio": null,
               "kill_ratio_enemy": null,
               "fake": false,
@@ -2824,12 +3281,17 @@
           "range_y_max": null,
           "kind_maj": "单",
           "kind_group": 0,
-          "kill_mean": -11.0,
+          "kill_mean": 0.0,
           "kill_ratio_mean": null,
           "gaps_ms": [
             926,
             411,
             824
+          ],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
           ]
         }
       },
@@ -2848,23 +3310,11 @@
       "i": 102,
       "t_ns": 1788790843009774000,
       "t_s": 10.497,
-      "dist_key": "M0",
+      "dist_key": "B0",
       "slot": 2,
       "key": "w",
       "dt_s": 4.835,
       "cooldown_s": 26.6
-    },
-    {
-      "id": "recordings/深渊：最终调律者/20260907_222032_Varien|130|1",
-      "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-      "i": 130,
-      "t_ns": 1788790845894728200,
-      "t_s": 13.382,
-      "dist_key": "M0",
-      "slot": 1,
-      "key": "q",
-      "dt_s": 7.618,
-      "cooldown_s": 10.6
     },
     {
       "id": "recordings/深渊：最终调律者/20260907_222032_Varien|139|2",
@@ -2872,7 +3322,7 @@
       "i": 139,
       "t_ns": 1788790846820870400,
       "t_s": 14.308,
-      "dist_key": "M0",
+      "dist_key": "B0",
       "slot": 2,
       "key": "w",
       "dt_s": 3.811,
@@ -2884,7 +3334,7 @@
       "i": 143,
       "t_ns": 1788790847231452100,
       "t_s": 14.719,
-      "dist_key": "M0",
+      "dist_key": "B0",
       "slot": 7,
       "key": "e",
       "dt_s": 11.942,
@@ -2896,23 +3346,11 @@
       "i": 193,
       "t_ns": 1788790852359340100,
       "t_s": 19.847,
-      "dist_key": "M0",
+      "dist_key": "B0",
       "slot": 2,
       "key": "w",
       "dt_s": 5.538,
       "cooldown_s": 26.6
-    },
-    {
-      "id": "recordings/深渊：最终调律者/20260907_222032_Varien|213|1",
-      "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-      "i": 213,
-      "t_ns": 1788790854413457200,
-      "t_s": 21.901,
-      "dist_key": "M1",
-      "slot": 1,
-      "key": "q",
-      "dt_s": 8.519,
-      "cooldown_s": 10.6
     },
     {
       "id": "recordings/深渊：最终调律者/20260907_222032_Varien|255|6",
@@ -2920,7 +3358,7 @@
       "i": 255,
       "t_ns": 1788790858714993000,
       "t_s": 26.203,
-      "dist_key": "M1",
+      "dist_key": "M0",
       "slot": 6,
       "key": "h",
       "dt_s": 10.66,
@@ -2932,23 +3370,11 @@
       "i": 280,
       "t_ns": 1788790861279628900,
       "t_s": 28.767,
-      "dist_key": "M1",
+      "dist_key": "M0",
       "slot": 2,
       "key": "w",
       "dt_s": 8.92,
       "cooldown_s": 26.6
-    },
-    {
-      "id": "recordings/深渊：最终调律者/20260907_222032_Varien|296|1",
-      "session": "recordings/深渊：最终调律者/20260907_222032_Varien",
-      "i": 296,
-      "t_ns": 1788790862922354300,
-      "t_s": 30.41,
-      "dist_key": "B0",
-      "slot": 1,
-      "key": "q",
-      "dt_s": 8.509,
-      "cooldown_s": 10.6
     },
     {
       "id": "recordings/深渊：最终调律者/20260907_222032_Varien|301|4",
@@ -2980,7 +3406,7 @@
       "i": 404,
       "t_ns": 1788790874020610900,
       "t_s": 41.508,
-      "dist_key": "B0",
+      "dist_key": "M1",
       "slot": 2,
       "key": "w",
       "dt_s": 12.741,
@@ -2992,7 +3418,7 @@
       "i": 447,
       "t_ns": 1788790878429688700,
       "t_s": 45.917,
-      "dist_key": "B0",
+      "dist_key": "M1",
       "slot": 2,
       "key": "w",
       "dt_s": 4.409,
@@ -3016,7 +3442,7 @@
       "i": 530,
       "t_ns": 1788790886945584900,
       "t_s": 54.433,
-      "dist_key": "B0",
+      "dist_key": "M0",
       "slot": 2,
       "key": "w",
       "dt_s": 8.516,
@@ -3028,7 +3454,7 @@
       "i": 554,
       "t_ns": 1788790889419476000,
       "t_s": 56.907,
-      "dist_key": "X",
+      "dist_key": "M0",
       "slot": 7,
       "key": "e",
       "dt_s": 7.404,
@@ -3040,7 +3466,7 @@
       "i": 572,
       "t_ns": 1788790891259236300,
       "t_s": 58.747,
-      "dist_key": "X",
+      "dist_key": "B0",
       "slot": 6,
       "key": "h",
       "dt_s": 9.964,
@@ -3064,7 +3490,7 @@
       "i": 153,
       "t_ns": 1788791262280573300,
       "t_s": 15.702,
-      "dist_key": "B0",
+      "dist_key": "M0",
       "slot": 2,
       "key": "w",
       "dt_s": 12.422,
@@ -3076,7 +3502,7 @@
       "i": 235,
       "t_ns": 1788791270683094500,
       "t_s": 24.105,
-      "dist_key": "X",
+      "dist_key": "B0",
       "slot": 6,
       "key": "h",
       "dt_s": 11.07,
@@ -3088,7 +3514,7 @@
       "i": 240,
       "t_ns": 1788791271191865700,
       "t_s": 24.613,
-      "dist_key": "X",
+      "dist_key": "B0",
       "slot": 2,
       "key": "w",
       "dt_s": 8.911,
@@ -3100,7 +3526,7 @@
       "i": 247,
       "t_ns": 1788791271914175800,
       "t_s": 25.336,
-      "dist_key": "X",
+      "dist_key": "B0",
       "slot": 4,
       "key": "a",
       "dt_s": 9.222,
@@ -3108,7 +3534,7 @@
     }
   ],
   "skill_tags": {
-    "3": [
+    "1": [
       "多次释放"
     ]
   },
@@ -3117,19 +3543,20 @@
   ],
   "sequences": {
     "B0": [
+      7,
       6,
-      2,
+      6,
+      6,
       1,
       2,
-      6,
-      7
+      2,
+      2,
+      2
     ],
     "M0": [
       2,
-      6,
       7,
-      7,
-      7
+      6
     ],
     "X": [
       1
@@ -3137,6 +3564,6 @@
   },
   "f": 50,
   "skill_multi_n": {
-    "3": 2
+    "1": 2
   }
 }

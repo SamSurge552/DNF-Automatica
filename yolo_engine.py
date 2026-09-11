@@ -8,7 +8,7 @@ from pathlib import Path
 from cuda_runtime import ensure_cuda_runtime
 
 DEFAULT_YOLO_RUN = "mix_a"
-DEFAULT_YOLO_WEIGHTS = Path(r"D:/Atrain/runs/mix_a/weights/best.pt")
+DEFAULT_YOLO_WEIGHTS = Path(__file__).resolve().parent / "images" / "Atrain" / "runs" / "mix_a" / "weights" / "best.pt"
 
 
 class YoloEngine:

@@ -24,6 +24,7 @@ from fsm_core import (
     expand_fight_skills,
     parse_hold_ms,
 )
+from fsm_execute import parse_mash_n
 
 FEATURES_DIR = Path(__file__).resolve().parent / "skill_features"
 BINDS_DIR = Path(__file__).resolve().parent / "skill_binds"
@@ -835,11 +836,13 @@ def fight_plan_from_features(
     if not data:
         return ()
     binds = _bind_by_slot(skills)
-    have_bind_combo = any(isinstance(s, dict) and "combo" in s for s in (skills or []))
+    have_bind_combo = any(
+        isinstance(s, dict) and ("combo" in s or "mash" in s) for s in (skills or [])
+    )
     if have_bind_combo:
         combo = set()
         for s in skills or []:
-            if not isinstance(s, dict) or not s.get("combo"):
+            if not isinstance(s, dict) or not (s.get("mash") or s.get("combo")):
                 continue
             try:
                 slot = int(s.get("slot") or 0)
@@ -865,8 +868,9 @@ def fight_plan_from_features(
     else:
         multi_map = multi_n_of(data)
     mash_slots: set[int] = set()
+    mash_n_map: dict[int, int] = {}
     for s in skills or []:
-        if not isinstance(s, dict) or not s.get("mash"):
+        if not isinstance(s, dict) or not (s.get("mash") or s.get("combo")):
             continue
         try:
             slot = int(s.get("slot") or 0)
@@ -874,6 +878,7 @@ def fight_plan_from_features(
             continue
         if slot > 0:
             mash_slots.add(slot)
+            mash_n_map[slot] = parse_mash_n(s)
     hotbar_key: dict[int, str] = {}
     for s in skills or []:
         hk = bind_hotkey(s)
@@ -939,6 +944,7 @@ def fight_plan_from_features(
             hold_ms=max(0, int(hf)),
             multi=multi_map.get(slot, 1),
             mash=slot in mash_slots,
+            mash_n=mash_n_map.get(slot, 0) if slot in mash_slots else 0,
             group_key=str(group_key or ""),
             group_slots=slots,
             group_keys=keys,
@@ -946,7 +952,7 @@ def fight_plan_from_features(
             gaps_ms=_int_tuple(gaps_ms),
         )
 
-    def _seq(room: dict) -> tuple[FightSkill, ...]:
+    def _seq(room_key: str, room: dict) -> tuple[FightSkill, ...]:
         ordered = _sort_skills(room.get("skills") or {}, str(room.get("kind") or ""))
         items: list[FightSkill] = []
         for sk in ordered.values():
@@ -980,6 +986,13 @@ def fight_plan_from_features(
                 ry_f = float(sk["range_y_max"]) if sk.get("range_y_max") is not None else None
             except (TypeError, ValueError):
                 ry_f = None
+            if rx_f is None or ry_f is None:
+                xy = skill_range_xy_of(data, room_key, slot)
+                if xy is not None:
+                    rx_f = float(xy[0]) if rx_f is None else rx_f
+                    ry_f = float(xy[1]) if ry_f is None else ry_f
+            if rng_f is None:
+                rng_f = skill_range_of(data, room_key, slot)
             items.append(
                 _skill(
                     slot,
@@ -999,7 +1012,7 @@ def fight_plan_from_features(
 
     plans: list[DistSkillPlan] = []
     for rk, room in rooms.items():
-        seq = _seq(room or {})
+        seq = _seq(str(rk), room or {})
         tags = room.get("tags") or []
         reset = bool(room.get("reset_point") or TAG_RESET_POINT in tags)
         if seq or reset:
@@ -1016,13 +1029,15 @@ def hotbar_from_binds(skills: list[dict] | None) -> tuple[FightSkill, ...]:
         combo = False
         multi_n = 1
         mash = False
+        mash_n = 0
         for s in rows:
             try:
                 if int(s.get("slot") or 0) == slot:
                     hk = bind_hotkey(s)
-                    combo = bool(s.get("combo"))
+                    combo = bool(s.get("mash") or s.get("combo"))
                     multi_n = parse_multi_n(s)
-                    mash = bool(s.get("mash"))
+                    mash = bool(s.get("mash") or s.get("combo"))
+                    mash_n = parse_mash_n(s) if mash else 0
                     break
             except (TypeError, ValueError):
                 continue
@@ -1037,6 +1052,7 @@ def hotbar_from_binds(skills: list[dict] | None) -> tuple[FightSkill, ...]:
                 hold_ms=hf,
                 multi=multi_n,
                 mash=mash,
+                mash_n=mash_n,
             )
         )
     return expand_fight_skills(tuple(out))
@@ -1104,7 +1120,7 @@ def detect_cd_resets(
             continue
         if slot <= 0:
             continue
-        if s.get("combo") or parse_multi_n(s) > 1:
+        if s.get("combo") or s.get("mash") or parse_multi_n(s) > 1:
             skip.add(slot)
     cd_map = _cooldown_by_slot(skills)
     if not cd_map:
@@ -1483,9 +1499,11 @@ def format_report(data: dict | None, added: int = 0, skipped: int = 0) -> str:
 
 
 def skill_range_xy_of(data: dict | None, room, slot: int) -> tuple[float, float] | None:
-    """该分布该槽范围框 (|X|,|Y|)：优先 range_x_max/range_y_max。"""
+    """该分布该槽范围 (|X|,|Y|)。本分布缺 range_*_max 则用其它分布同 slot 均值；
+    再缺则用释放记录 rel/center 的 |dx|/|dy| 最大（BOSS 提取不写 range_x，免重提）。"""
     if not data:
         return None
+    slot_i = int(slot)
 
     def _xy(sk: dict) -> tuple[float, float] | None:
         try:
@@ -1497,37 +1515,87 @@ def skill_range_xy_of(data: dict | None, room, slot: int) -> tuple[float, float]
         except (TypeError, ValueError):
             return None
 
-    rooms = _rooms_or_dists(data)
-    skills = ((rooms.get(str(room)) or {}).get("skills") or {})
-    hit = skills.get(str(int(slot))) or {}
-    xy = _xy(hit)
-    if xy is None:
+    def _slot_skills(room_d: dict | None) -> list[dict]:
+        out: list[dict] = []
+        skills = ((room_d or {}).get("skills") or {})
+        hit = skills.get(str(slot_i))
+        if isinstance(hit, dict):
+            out.append(hit)
         for sk in skills.values():
+            if not isinstance(sk, dict) or sk in out:
+                continue
             try:
-                if int(sk.get("slot") or 0) == int(slot):
-                    xy = _xy(sk)
-                    if xy is not None:
-                        break
+                if int(sk.get("slot") or 0) == slot_i:
+                    out.append(sk)
             except (TypeError, ValueError):
                 continue
+        return out
+
+    def _rel_xy(sk: dict) -> tuple[float, float] | None:
+        xs, ys = [], []
+        for c in sk.get("casts") or []:
+            if not isinstance(c, dict) or c.get("fake"):
+                continue
+            try:
+                rx, ry = c.get("range_x"), c.get("range_y")
+                if rx is not None and ry is not None:
+                    xs.append(abs(float(rx)))
+                    ys.append(abs(float(ry)))
+                    continue
+            except (TypeError, ValueError):
+                pass
+            rel = c.get("rel")
+            if not (isinstance(rel, (list, tuple)) and len(rel) >= 2):
+                rel = c.get("center")
+            try:
+                if isinstance(rel, (list, tuple)) and len(rel) >= 2 and rel[0] is not None and rel[1] is not None:
+                    xs.append(abs(float(rel[0])))
+                    ys.append(abs(float(rel[1])))
+            except (TypeError, ValueError):
+                continue
+        if not xs or not ys:
+            return None
+        return (round(max(xs), 2), round(max(ys), 2))
+
+    def _first_xy(room_d: dict | None, fn) -> tuple[float, float] | None:
+        best = None
+        for sk in _slot_skills(room_d):
+            v = fn(sk)
+            if v is None:
+                continue
+            if best is None or v[0] > best[0] or (v[0] == best[0] and v[1] > best[1]):
+                best = v
+        return best
+
+    rooms = _rooms_or_dists(data)
+    here = rooms.get(str(room)) or {}
+    xy = _first_xy(here, _xy)
     if xy is not None:
         return xy
     xs, ys = [], []
-    for room_d in rooms.values():
-        for other in ((room_d or {}).get("skills") or {}).values():
-            try:
-                same = int(other.get("slot") or 0) == int(slot)
-            except (TypeError, ValueError):
-                same = False
-            if not same:
-                continue
-            v = _xy(other)
-            if v is not None:
-                xs.append(v[0])
-                ys.append(v[1])
+    for rk, room_d in rooms.items():
+        if str(rk) == str(room):
+            continue
+        v = _first_xy(room_d, _xy)
+        if v is not None:
+            xs.append(v[0])
+            ys.append(v[1])
+    if xs and ys:
+        return (round(sum(xs) / len(xs), 2), round(sum(ys) / len(ys), 2))
+    xy = _first_xy(here, _rel_xy)
+    if xy is not None:
+        return xy
+    xs, ys = [], []
+    for rk, room_d in rooms.items():
+        if str(rk) == str(room):
+            continue
+        v = _first_xy(room_d, _rel_xy)
+        if v is not None:
+            xs.append(v[0])
+            ys.append(v[1])
     if not xs or not ys:
         return None
-    return (round(float(max(xs)), 2), round(float(max(ys)), 2))
+    return (round(max(xs), 2), round(max(ys), 2))
 
 
 def skill_range_of(data: dict | None, room, slot: int) -> float | None:
@@ -1579,7 +1647,7 @@ def skill_range_of(data: dict | None, room, slot: int) -> float | None:
                 dists.append(v)
     if not dists:
         return None
-    return round(float(max(dists)), 2)
+    return round(sum(dists) / len(dists), 2)
 
 
 def pack_dist_from_player(view: dict | None) -> float | None:

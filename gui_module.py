@@ -25,7 +25,7 @@ from central_controller import CentralController
 from window_align import enable_dpi_awareness, get_virtual_screen, get_window_at_point, find_window_by_process
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
-from fsm_core import MON_CORR_MAX, mon_corr_from_dict, mon_off_from_corr, DEFAULT_PW_MS, DEFAULT_TOWN_S, DEFAULT_ADVANCE_TIMEOUT_MS, DEFAULT_APPROACH_TIMEOUT_MS, DEFAULT_STUCK_RECOVER_S, json_ms, json_s, parse_stuck_recover, stuck_recover_to_json
+from fsm_core import DEFAULT_PW_MS, DEFAULT_TOWN_S, DEFAULT_ADVANCE_TIMEOUT_MS, DEFAULT_APPROACH_TIMEOUT_MS, DEFAULT_ADVANCE_TIMEOUT_ESC_N, DEFAULT_STUCK_RECOVER_S, DEFAULT_RANGE_X, DEFAULT_RANGE_Y, json_ms, json_s, parse_stuck_recover, stuck_recover_to_json
 from fsm_execute import DEFAULT_TAP_MS_MIN, DEFAULT_TAP_MS_MAX, parse_tap_ms_range, clamp_tap_ms
 from skill_feature_extract import DEFAULT_E, DEFAULT_F, skill_table_missing
 
@@ -345,6 +345,9 @@ class App(tk.Tk):
         self.fsm_pw_var = tk.StringVar(value=str(DEFAULT_PW_MS))
         self.fsm_advance_timeout_var = tk.StringVar(value=str(DEFAULT_ADVANCE_TIMEOUT_MS))
         self.fsm_approach_timeout_var = tk.StringVar(value=str(DEFAULT_APPROACH_TIMEOUT_MS))
+        self.fsm_advance_timeout_esc_n_var = tk.StringVar(value=str(DEFAULT_ADVANCE_TIMEOUT_ESC_N))
+        self.fsm_default_range_x_var = tk.StringVar(value=str(DEFAULT_RANGE_X))
+        self.fsm_default_range_y_var = tk.StringVar(value=str(DEFAULT_RANGE_Y))
         self.fsm_e_var = tk.StringVar(value=str(DEFAULT_E))
         self.fsm_f_var = tk.StringVar(value=str(DEFAULT_F))
         self.fsm_town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
@@ -353,14 +356,7 @@ class App(tk.Tk):
         self.fsm_mash_count_var = tk.StringVar(value="3")
         self.fsm_mash_gap_var = tk.StringVar(value="50")
         self.fsm_th_var = tk.StringVar(value="50")
-        self.fsm_corr_u = tk.IntVar(value=0)
-        self.fsm_corr_d = tk.IntVar(value=0)
-        self.fsm_corr_l = tk.IntVar(value=0)
-        self.fsm_corr_r = tk.IntVar(value=0)
-        self._fsm_corr_lock = False
-        self._fsm_corr_prev = (0, 0, 0, 0)
         self._fsm_settings_win = None
-        self._fsm_corr_summary = None
         self._fsm_mlg_persist = False
         self._load_fsm_mlg_vars()
 
@@ -382,6 +378,11 @@ class App(tk.Tk):
             self.fsm_pc_var,
             self.fsm_pt_var,
             self.fsm_pw_var,
+            self.fsm_advance_timeout_var,
+            self.fsm_approach_timeout_var,
+            self.fsm_advance_timeout_esc_n_var,
+            self.fsm_default_range_x_var,
+            self.fsm_default_range_y_var,
             self.fsm_e_var,
             self.fsm_f_var,
             self.fsm_town_s_var,
@@ -392,8 +393,6 @@ class App(tk.Tk):
             self.fsm_th_var,
         ):
             var.trace_add("write", lambda *_: self._on_fsm_mlg_edit())
-        for cvar in (self.fsm_corr_u, self.fsm_corr_d, self.fsm_corr_l, self.fsm_corr_r):
-            cvar.trace_add("write", lambda *_: self._on_fsm_corr_edit())
 
         yolo_group = ttk.LabelFrame(main_frame, text="YOLO 设置", padding="8")
 
@@ -550,8 +549,8 @@ class App(tk.Tk):
         self._on_region_selected(aligned)
 
     def _refresh_yolo_versions(self, select_default=None):
-        """扫描 D:/Atrain/runs/*/weights/best.pt，填充版本下拉框。"""
-        runs_root = Path(r"D:/Atrain/runs")
+        """扫描 D:/Desktop/T/test/images/Atrain/runs/*/weights/best.pt，填充版本下拉框。"""
+        runs_root = Path(__file__).resolve().parent / "images" / "Atrain" / "runs"
         weight_map = {}
         if runs_root.is_dir():
             for best in sorted(runs_root.glob("*/weights/best.pt")):
@@ -583,7 +582,7 @@ class App(tk.Tk):
             if names:
                 self.log(f"YOLO 可用版本: {', '.join(names)}")
             else:
-                self.log("警告: 未在 D:/Atrain/runs 下找到任何 best.pt。")
+                self.log("警告: 未在 D:/Desktop/T/test/images/Atrain/runs 下找到任何 best.pt。")
 
     def _selected_yolo_weights(self):
         name = self.yolo_version_var.get().strip()
@@ -1071,10 +1070,13 @@ class App(tk.Tk):
         r2b = ttk.Frame(body)
         r2b.pack(fill=tk.X, pady=(6, 0))
         spin(r2b, "前进超时 ms", self.fsm_advance_timeout_var, 1, 60000, 6)
+        spin(r2b, "超时ESC N", self.fsm_advance_timeout_esc_n_var, 1, 20, 4)
 
         r2c = ttk.Frame(body)
         r2c.pack(fill=tk.X, pady=(6, 0))
         spin(r2c, "走近超时 ms", self.fsm_approach_timeout_var, 1, 60000, 6)
+        spin(r2c, "默认范围X", self.fsm_default_range_x_var, 1, 4000, 6)
+        spin(r2c, "Y", self.fsm_default_range_y_var, 1, 4000, 6)
 
         r3 = ttk.Frame(body)
         r3.pack(fill=tk.X, pady=(6, 0))
@@ -1106,65 +1108,9 @@ class App(tk.Tk):
         spin(r_ef, "假释放 F%", self.fsm_f_var, 0, 100)
         spin(r_ef, "回城秒", self.fsm_town_s_var, 1, 120, 5)
 
-        pad = ttk.LabelFrame(body, text="MON/BOSS 位置补正", padding=8)
-        pad.pack(fill=tk.X, pady=(10, 0))
-        self._fsm_corr_summary = ttk.Label(pad, text="", foreground="#06c")
-        self._fsm_corr_summary.pack(anchor=tk.W)
-        grid = ttk.Frame(pad)
-        grid.pack(pady=(6, 0))
-        mx = MON_CORR_MAX
-        tk.Scale(
-            grid,
-            from_=mx,
-            to=0,
-            orient=tk.VERTICAL,
-            length=100,
-            showvalue=True,
-            variable=self.fsm_corr_u,
-            label="上",
-        ).grid(row=0, column=1)
-        tk.Scale(
-            grid,
-            from_=mx,
-            to=0,
-            orient=tk.HORIZONTAL,
-            length=120,
-            showvalue=True,
-            variable=self.fsm_corr_l,
-            label="左",
-        ).grid(row=1, column=0)
-        tk.Scale(
-            grid,
-            from_=0,
-            to=mx,
-            orient=tk.HORIZONTAL,
-            length=120,
-            showvalue=True,
-            variable=self.fsm_corr_r,
-            label="右",
-        ).grid(row=1, column=2)
-        tk.Scale(
-            grid,
-            from_=0,
-            to=mx,
-            orient=tk.VERTICAL,
-            length=100,
-            showvalue=True,
-            variable=self.fsm_corr_d,
-            label="下",
-        ).grid(row=2, column=1)
-        ttk.Label(
-            pad,
-            text="滑块方向=你希望角色往哪边站。上：YOLO 的 MON/BOSS 的 Y 全部减去该值；左：X 全部减去。同轴互斥。检测框/jsonl 仍原始；FSM、提取、回放逻辑点用补正。改补正后请重提 skill_features。",
-            foreground="#666",
-            wraplength=420,
-            justify=tk.LEFT,
-        ).pack(anchor=tk.W, pady=(6, 0))
-        self._refresh_fsm_corr_summary()
-
         ttk.Label(
             body,
-            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒 tn_s：连续无地下城关键词达该秒数即回城（不换帧）。OCR 无关键词则沿用上一帧再进进图/回城。前进接近与捡物：点按 → TH 毫秒 → 按住。距门 >GX/>GY 才接近；两轴停或门没了再 AX/AY 毫秒。卡住后跑 json 里 stuck_recover 序列（默认 ESC 点按再按倍数×恢复s HOLD）。X 秒应大于 max(最长技能持续, AX, AY, PW, 恢复序列 HOLD)。S=分布相似百分比。PM/PT=掉落在动；PW=等停下上限毫秒，超时按当前掉落继续捡。数量>PC 一键拾取。E/F=提取。XXX=全 CD 普攻毫秒。点按 min/max=每次点按按下保持（默认 80–120，含移动 TAP）。连按 COUNT 在执行层。MON/BOSS 补正用于 FSM/提取/回放逻辑点，jsonl 仍原始，改后请重提。与回放共用 json：改完立刻写入；点开始会先读文件。",
+            text="M/L/G 连续同值才改判定。BOSS 暂与 MON 共用 M。回城秒 tn_s：连续无地下城关键词达该秒数即回城（不换帧）。OCR 无关键词则沿用上一帧再进进图/回城。前进接近与捡物：点按 → TH 毫秒 → 按住。距门 >GX/>GY 才接近；两轴停或门没了再 AX/AY 毫秒。前进超时重入同标签不重置卡住计时；连续超时达 N 次点按 ESC。卡住后跑 json 里 stuck_recover 序列（默认 ESC 点按再按倍数×恢复s HOLD）。X 秒应大于 max(最长技能持续, AX, AY, PW, 恢复序列 HOLD)。S=分布相似百分比。PM/PT=掉落在动；PW=等停下上限毫秒，超时按当前掉落继续捡。数量>PC 一键拾取。E/F=提取。XXX=全 CD 普攻毫秒。点按 min/max=每次点按按下保持（默认 80–120，含移动 TAP）。连按 COUNT 在执行层。默认范围X/Y：技能无提取 XY 且无 range_px 时的矩形半宽高。位置补正在回放工具；本窗不改 corr。与回放共用 json：改完立刻写入；点开始会先读文件。",
             foreground="#666",
             wraplength=460,
             justify=tk.LEFT,
@@ -1178,67 +1124,6 @@ class App(tk.Tk):
             pass
         if self._fsm_settings_win is win:
             self._fsm_settings_win = None
-        self._fsm_corr_summary = None
-
-    def _corr_tuple(self) -> tuple[int, int, int, int]:
-        def n(var: tk.IntVar) -> int:
-            try:
-                return max(0, min(MON_CORR_MAX, int(var.get())))
-            except (TypeError, ValueError, tk.TclError):
-                return 0
-
-        return n(self.fsm_corr_u), n(self.fsm_corr_d), n(self.fsm_corr_l), n(self.fsm_corr_r)
-
-    def _refresh_fsm_corr_summary(self):
-        lab = getattr(self, "_fsm_corr_summary", None)
-        if lab is None:
-            return
-        try:
-            if not lab.winfo_exists():
-                return
-        except tk.TclError:
-            return
-        ox, oy = mon_off_from_corr(*self._corr_tuple())
-        xs = "左" if ox < 0 else ("右" if ox > 0 else "无")
-        ys = "上" if oy < 0 else ("下" if oy > 0 else "无")
-        lab.config(text=f"当前：X {ox:+d}（{xs}）  Y {oy:+d}（{ys}）  → YOLO MON/BOSS 坐标加上该偏移")
-
-    def _on_fsm_corr_edit(self):
-        if self._fsm_corr_lock:
-            return
-        self._fsm_corr_lock = True
-        try:
-            cur = self._corr_tuple()
-            prev = getattr(self, "_fsm_corr_prev", (0, 0, 0, 0))
-            u, dwn, left, right = cur
-            if u > 0 and dwn > 0:
-                if u != prev[0]:
-                    self.fsm_corr_d.set(0)
-                elif dwn != prev[1]:
-                    self.fsm_corr_u.set(0)
-                elif u >= dwn:
-                    self.fsm_corr_d.set(0)
-                else:
-                    self.fsm_corr_u.set(0)
-            if left > 0 and right > 0:
-                if left != prev[2]:
-                    self.fsm_corr_r.set(0)
-                elif right != prev[3]:
-                    self.fsm_corr_l.set(0)
-                elif left >= right:
-                    self.fsm_corr_r.set(0)
-                else:
-                    self.fsm_corr_l.set(0)
-            self._fsm_corr_prev = self._corr_tuple()
-        finally:
-            self._fsm_corr_lock = False
-        self._refresh_fsm_corr_summary()
-        ox, oy = mon_off_from_corr(*self._corr_tuple())
-        prev_off = getattr(self, "_corr_off_warned", None)
-        if self._fsm_mlg_persist and prev_off is not None and prev_off != (ox, oy):
-            self.log("补正已改：旧 skill_features 作废，请在回放「重新提取本图」。jsonl 未改。")
-        self._corr_off_warned = (ox, oy)
-        self._on_fsm_mlg_edit()
 
     @staticmethod
     def _parse_mlg(var: tk.StringVar, default: int = 5) -> int:
@@ -1262,6 +1147,7 @@ class App(tk.Tk):
         pw_ms = DEFAULT_PW_MS
         advance_timeout_ms = DEFAULT_ADVANCE_TIMEOUT_MS
         approach_timeout_ms = DEFAULT_APPROACH_TIMEOUT_MS
+        advance_timeout_esc_n = DEFAULT_ADVANCE_TIMEOUT_ESC_N
         data = {}
         if FSM_UI_PATH.is_file():
             try:
@@ -1296,6 +1182,9 @@ class App(tk.Tk):
         ay_ms = json_ms(data, "ay_ms", 1000)
         advance_timeout_ms = json_ms(data, "advance_timeout_ms", DEFAULT_ADVANCE_TIMEOUT_MS, lo=1)
         approach_timeout_ms = json_ms(data, "approach_timeout_ms", DEFAULT_APPROACH_TIMEOUT_MS, lo=1)
+        advance_timeout_esc_n = json_ms(data, "advance_timeout_esc_n", DEFAULT_ADVANCE_TIMEOUT_ESC_N, lo=1)
+        default_range_x = json_ms(data, "default_range_x", DEFAULT_RANGE_X, lo=1)
+        default_range_y = json_ms(data, "default_range_y", DEFAULT_RANGE_Y, lo=1)
         y_ms = json_ms(data, "y_ms", 500, lo=1)
         xxx_ms = json_ms(data, "xxx_ms", 2000, lo=1)
         self.fsm_m_var.set(str(m))
@@ -1308,14 +1197,15 @@ class App(tk.Tk):
         self.fsm_ay_var.set(str(ay_ms))
         self.fsm_advance_timeout_var.set(str(advance_timeout_ms))
         self.fsm_approach_timeout_var.set(str(approach_timeout_ms))
+        self.fsm_advance_timeout_esc_n_var.set(str(advance_timeout_esc_n))
+        self.fsm_default_range_x_var.set(str(default_range_x))
+        self.fsm_default_range_y_var.set(str(default_range_y))
         self.fsm_stuck_recover_s_var.set(str(json_s(data, "stuck_recover_s", DEFAULT_STUCK_RECOVER_S, lo=0.05)))
         self.fsm_s_var.set(str(s))
         self.fsm_s_size_var.set(str(s_size))
         self.fsm_xxx_var.set(str(xxx_ms))
-        cu, cd, cl, cr = mon_corr_from_dict(data)
         prev = self._fsm_mlg_persist
         self._fsm_mlg_persist = False
-        self._fsm_corr_lock = True
         self.fsm_pm_var.set(str(pm))
         self.fsm_pc_var.set(str(pc))
         self.fsm_pt_var.set(str(pt))
@@ -1328,14 +1218,7 @@ class App(tk.Tk):
         self.fsm_mash_count_var.set(str(mash_count))
         self.fsm_mash_gap_var.set(str(mash_gap))
         self.fsm_th_var.set(str(th_ms))
-        self.fsm_corr_u.set(cu)
-        self.fsm_corr_d.set(cd)
-        self.fsm_corr_l.set(cl)
-        self.fsm_corr_r.set(cr)
-        self._fsm_corr_lock = False
         self._fsm_mlg_persist = prev
-        self._fsm_corr_prev = self._corr_tuple()
-        self._refresh_fsm_corr_summary()
 
     def _save_fsm_mlg_vars(self):
         data = {}
@@ -1436,6 +1319,27 @@ class App(tk.Tk):
         except (TypeError, ValueError):
             data["approach_timeout_ms"] = DEFAULT_APPROACH_TIMEOUT_MS
         try:
+            data["advance_timeout_esc_n"] = max(
+                1,
+                int(str(self.fsm_advance_timeout_esc_n_var.get()).strip() or DEFAULT_ADVANCE_TIMEOUT_ESC_N),
+            )
+        except (TypeError, ValueError):
+            data["advance_timeout_esc_n"] = DEFAULT_ADVANCE_TIMEOUT_ESC_N
+        try:
+            data["default_range_x"] = max(
+                1,
+                int(str(self.fsm_default_range_x_var.get()).strip() or DEFAULT_RANGE_X),
+            )
+        except (TypeError, ValueError):
+            data["default_range_x"] = DEFAULT_RANGE_X
+        try:
+            data["default_range_y"] = max(
+                1,
+                int(str(self.fsm_default_range_y_var.get()).strip() or DEFAULT_RANGE_Y),
+            )
+        except (TypeError, ValueError):
+            data["default_range_y"] = DEFAULT_RANGE_Y
+        try:
             data["e"] = max(0, int(str(self.fsm_e_var.get()).strip() or DEFAULT_E))
         except (TypeError, ValueError):
             data["e"] = DEFAULT_E
@@ -1449,11 +1353,6 @@ class App(tk.Tk):
             data["town_s"] = int(DEFAULT_TOWN_S)
         data.pop("lm", None)
         data.pop("lc", None)
-        u, dwn, left, right = self._corr_tuple()
-        data["mon_corr_u"] = u
-        data["mon_corr_d"] = dwn
-        data["mon_corr_l"] = left
-        data["mon_corr_r"] = right
         try:
             FSM_UI_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         except Exception as e:

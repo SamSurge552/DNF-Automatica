@@ -1,0 +1,116 @@
+{
+  "character": "Sam1ra",
+  "updated_at": "2026-09-11 11:12:02",
+  "source": "dnf_combat_stats",
+  "region": {
+    "x": 943,
+    "y": 483,
+    "width": 634,
+    "height": 583
+  },
+  "hover": {
+    "x": 68,
+    "y": 127,
+    "dy": 42,
+    "count": 8,
+    "dwell_s": 0.5
+  },
+  "skills": [
+    {
+      "slot": 1,
+      "command": "q",
+      "hotbar": true,
+      "hold_ms": 3200,
+      "cooldown_s": 32.6,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 2,
+      "command": "e",
+      "hotbar": true,
+      "hold_ms": 1900,
+      "cooldown_s": 21.8,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 3,
+      "command": "s",
+      "hotbar": true,
+      "hold_ms": 2100,
+      "cooldown_s": 24.5,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 4,
+      "command": "w",
+      "hotbar": true,
+      "hold_ms": 1000,
+      "cooldown_s": 24.5,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 5,
+      "command": "f",
+      "hotbar": true,
+      "hold_ms": 200,
+      "cooldown_s": 6.9,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": true,
+      "multi_n": 2
+    },
+    {
+      "slot": 6,
+      "command": "g",
+      "hotbar": true,
+      "hold_ms": 900,
+      "cooldown_s": 21.8,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 7,
+      "command": "d",
+      "hotbar": true,
+      "hold_ms": 1500,
+      "cooldown_s": 13.6,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2
+    },
+    {
+      "slot": 8,
+      "command": "v",
+      "hotbar": true,
+      "cooldown_s": 7,
+      "mash": false,
+      "combo": false,
+      "mash_n": 2,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 250
+    }
+  ]
+}

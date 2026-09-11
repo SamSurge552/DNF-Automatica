@@ -1,13 +1,13 @@
 {
   "dungeon": "深渊：最终调律者",
   "character": "SolarWarden",
-  "updated_at": "2026-09-08 22:12:20",
+  "updated_at": "2026-09-10 21:26:32",
   "e": 3,
   "dists": {
     "B0": {
       "skills": {
         "w": {
-          "slot": 2,
+          "slot": 4,
           "key": "w",
           "group_key": "w",
           "casts": [
@@ -17,22 +17,22 @@
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|335|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|335|4"
               ],
               "i0": 335,
               "i_feat": 335,
-              "i1": 354,
-              "i_end": 355,
+              "i1": 358,
+              "i_end": 359,
               "mon": 0,
               "boss": 2,
               "enemy": 2,
@@ -77,22 +77,22 @@
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|664|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|664|4"
               ],
               "i0": 664,
               "i_feat": 664,
-              "i1": 683,
-              "i_end": 684,
+              "i1": 687,
+              "i_end": 688,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -128,7 +128,7 @@
             }
           ],
           "group_slots": [
-            2
+            4
           ],
           "group_keys": [
             "w"
@@ -145,39 +145,36 @@
           "kill_ratio_mean": null,
           "gaps_ms": []
         },
-        "w>f>r": {
-          "slot": 2,
+        "w>f": {
+          "slot": 4,
           "key": "w",
-          "group_key": "w>f>r",
+          "group_key": "w>f",
           "casts": [
             {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|w>f>r",
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|w>f",
               "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
-              "group_key": "w>f>r",
+              "group_key": "w>f",
               "group_slots": [
-                2,
-                3,
-                7
+                4,
+                2
               ],
               "group_keys": [
                 "w",
-                "f",
-                "r"
+                "f"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|2",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|67|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|114|7"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|4",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|67|2"
               ],
               "i0": 60,
               "i_feat": 60,
-              "i1": 123,
-              "i_end": 124,
+              "i1": 90,
+              "i_end": 91,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -198,8 +195,7 @@
               "range_y": null,
               "range_px": null,
               "gaps_ms": [
-                712,
-                4803
+                712
               ],
               "dir": "right",
               "kind": null,
@@ -213,19 +209,77 @@
               "kill_ratio_enemy": null,
               "fake": false,
               "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|w>f",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "w",
+              "group_key": "w>f",
+              "group_slots": [
+                4,
+                2
+              ],
+              "group_keys": [
+                "w",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|4",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|257|2"
+              ],
+              "i0": 248,
+              "i_feat": 248,
+              "i1": 280,
+              "i_end": 281,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                212.03,
+                195.64
+              ],
+              "rel": [
+                212.03,
+                195.64
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 288.5,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                927
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
             }
           ],
           "group_slots": [
-            2,
-            3,
-            7
+            4,
+            2
           ],
           "group_keys": [
             "w",
-            "f",
-            "r"
+            "f"
           ],
-          "n": 1,
+          "n": 2,
           "n_fake": 0,
           "range_med": null,
           "range_max": null,
@@ -236,12 +290,11 @@
           "kill_mean": 1.0,
           "kill_ratio_mean": null,
           "gaps_ms": [
-            712,
-            4803
+            820
           ]
         },
         "f>w>r": {
-          "slot": 3,
+          "slot": 2,
           "key": "f",
           "group_key": "f>w>r",
           "casts": [
@@ -251,12 +304,12 @@
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 3,
+              "slot": 2,
               "key": "f",
               "group_key": "f>w>r",
               "group_slots": [
-                3,
                 2,
+                4,
                 7
               ],
               "group_keys": [
@@ -265,14 +318,14 @@
                 "r"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|146|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|149|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|146|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|149|4",
                 "recordings/深渊：最终调律者/20260907_220951_SolarWarden|165|7"
               ],
               "i0": 146,
               "i_feat": 146,
-              "i1": 174,
-              "i_end": 195,
+              "i1": 176,
+              "i_end": 177,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -311,8 +364,8 @@
             }
           ],
           "group_slots": [
-            3,
             2,
+            4,
             7
           ],
           "group_keys": [
@@ -333,94 +386,6 @@
           "gaps_ms": [
             309,
             1638
-          ]
-        },
-        "w>f": {
-          "slot": 2,
-          "key": "w",
-          "group_key": "w>f",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|w>f",
-              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
-              "dist_key": "B0",
-              "dist_kind": "boss",
-              "room": "B0",
-              "slot": 2,
-              "key": "w",
-              "group_key": "w>f",
-              "group_slots": [
-                2,
-                3
-              ],
-              "group_keys": [
-                "w",
-                "f"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|2",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|257|3"
-              ],
-              "i0": 248,
-              "i_feat": 248,
-              "i1": 305,
-              "i_end": 306,
-              "mon": 0,
-              "boss": 1,
-              "enemy": 1,
-              "start_n": 1,
-              "center": [
-                212.03,
-                195.64
-              ],
-              "rel": [
-                212.03,
-                195.64
-              ],
-              "bbox": null,
-              "bbox_w": 0.0,
-              "bbox_h": 0.0,
-              "dist": 288.5,
-              "range_x": null,
-              "range_y": null,
-              "range_px": null,
-              "gaps_ms": [
-                927
-              ],
-              "dir": "right",
-              "kind": null,
-              "boss_room": true,
-              "mon_end": 12,
-              "boss_end": 0,
-              "enemy_end": 12,
-              "killed_mon": -11,
-              "killed_enemy": null,
-              "kill_ratio": null,
-              "kill_ratio_enemy": null,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            2,
-            3
-          ],
-          "group_keys": [
-            "w",
-            "f"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": null,
-          "range_x_max": null,
-          "range_y_max": null,
-          "kind_maj": null,
-          "kind_group": 0,
-          "kill_mean": -11.0,
-          "kill_ratio_mean": null,
-          "gaps_ms": [
-            927
           ]
         }
       },
@@ -468,8 +433,8 @@
               ],
               "i0": 27,
               "i_feat": 27,
-              "i1": 36,
-              "i_end": 37,
+              "i1": 38,
+              "i_end": 39,
               "mon": 11,
               "boss": 0,
               "enemy": 11,
@@ -509,6 +474,66 @@
               "after_cd_reset": false
             },
             {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|114|r",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|114|7"
+              ],
+              "i0": 114,
+              "i_feat": 114,
+              "i1": 125,
+              "i_end": 126,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                731.62,
+                146.14
+              ],
+              "rel": [
+                731.62,
+                146.14
+              ],
+              "bbox": [
+                33.39,
+                -25.57,
+                731.62,
+                146.14
+              ],
+              "bbox_w": 698.23,
+              "bbox_h": 171.71,
+              "dist": 746.07,
+              "range_x": 731.62,
+              "range_y": 146.14,
+              "range_px": 746.07,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
               "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|215|r",
               "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
               "dist_key": "M0",
@@ -528,8 +553,8 @@
               ],
               "i0": 215,
               "i_feat": 215,
-              "i1": 224,
-              "i_end": 225,
+              "i1": 226,
+              "i_end": 227,
               "mon": 10,
               "boss": 0,
               "enemy": 10,
@@ -588,8 +613,8 @@
               ],
               "i0": 307,
               "i_feat": 307,
-              "i1": 316,
-              "i_end": 317,
+              "i1": 318,
+              "i_end": 319,
               "mon": 12,
               "boss": 0,
               "enemy": 12,
@@ -648,8 +673,8 @@
               ],
               "i0": 376,
               "i_feat": 376,
-              "i1": 385,
-              "i_end": 386,
+              "i1": 387,
+              "i_end": 388,
               "mon": 7,
               "boss": 0,
               "enemy": 7,
@@ -687,6 +712,126 @@
               "kill_ratio_enemy": 1.0,
               "fake": false,
               "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|32|r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|32|7"
+              ],
+              "i0": 32,
+              "i_feat": 32,
+              "i1": 43,
+              "i_end": 44,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                846.37,
+                107.91
+              ],
+              "rel": [
+                846.37,
+                107.91
+              ],
+              "bbox": [
+                147.32,
+                -63.77,
+                846.37,
+                107.91
+              ],
+              "bbox_w": 699.05,
+              "bbox_h": 171.68,
+              "dist": 853.22,
+              "range_x": 846.37,
+              "range_y": 107.91,
+              "range_px": 853.22,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|97|r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|97|7"
+              ],
+              "i0": 97,
+              "i_feat": 97,
+              "i1": 108,
+              "i_end": 109,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                890.42,
+                139.11
+              ],
+              "rel": [
+                890.42,
+                139.11
+              ],
+              "bbox": [
+                191.39,
+                -32.57,
+                890.42,
+                139.11
+              ],
+              "bbox_w": 699.03,
+              "bbox_h": 171.68,
+              "dist": 901.22,
+              "range_x": 890.42,
+              "range_y": 139.11,
+              "range_px": 901.22,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
             }
           ],
           "group_slots": [
@@ -695,142 +840,21 @@
           "group_keys": [
             "r"
           ],
-          "n": 4,
+          "n": 7,
           "n_fake": 0,
           "range_med": null,
-          "range_max": 899.37,
-          "range_x_max": 887.72,
-          "range_y_max": 144.31,
+          "range_max": 901.22,
+          "range_x_max": 890.42,
+          "range_y_max": 146.14,
           "kind_maj": "群",
-          "kind_group": 4,
-          "kill_mean": 10.0,
+          "kind_group": 7,
+          "kill_mean": 11.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": [],
           "multi": true,
           "multi_n": 2,
           "tags": [
             "多次释放"
-          ]
-        },
-        "f>w>f>r>space>w": {
-          "slot": 3,
-          "key": "f",
-          "group_key": "f>w>f>r>space>w",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|f>w>f>r>space>w",
-              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 3,
-              "key": "f",
-              "group_key": "f>w>f>r>space>w",
-              "group_slots": [
-                3,
-                2,
-                3,
-                7,
-                8,
-                2
-              ],
-              "group_keys": [
-                "f",
-                "w",
-                "f",
-                "r",
-                "space",
-                "w"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|469|2",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|471|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|479|7",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|508|8",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|523|2"
-              ],
-              "i0": 447,
-              "i_feat": 447,
-              "i1": 542,
-              "i_end": 543,
-              "mon": 11,
-              "boss": 0,
-              "enemy": 11,
-              "start_n": 11,
-              "center": [
-                539.67,
-                170.53
-              ],
-              "rel": [
-                539.67,
-                170.53
-              ],
-              "bbox": [
-                -158.4,
-                -1.16,
-                539.67,
-                170.53
-              ],
-              "bbox_w": 698.07,
-              "bbox_h": 171.69,
-              "dist": 565.97,
-              "range_x": 539.67,
-              "range_y": 170.53,
-              "range_px": 565.97,
-              "gaps_ms": [
-                2250,
-                202,
-                819,
-                2957,
-                1536
-              ],
-              "dir": "right",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 11,
-              "killed_enemy": 11,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            3,
-            2,
-            3,
-            7,
-            8,
-            2
-          ],
-          "group_keys": [
-            "f",
-            "w",
-            "f",
-            "r",
-            "space",
-            "w"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 565.97,
-          "range_x_max": 539.67,
-          "range_y_max": 170.53,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 11.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            2250,
-            202,
-            819,
-            2957,
-            1536
           ]
         },
         "r>space": {
@@ -849,7 +873,7 @@
               "group_key": "r>space",
               "group_slots": [
                 7,
-                8
+                9
               ],
               "group_keys": [
                 "r",
@@ -857,12 +881,12 @@
               ],
               "member_ids": [
                 "recordings/深渊：最终调律者/20260907_220951_SolarWarden|631|7",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|637|8"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|637|9"
               ],
               "i0": 631,
               "i_feat": 631,
               "i1": 663,
-              "i_end": 657,
+              "i_end": 661,
               "mon": 6,
               "boss": 0,
               "enemy": 6,
@@ -894,10 +918,75 @@
               "kind": "群",
               "boss_room": false,
               "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 6,
+              "killed_enemy": 5,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 0.833,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|244|r>space",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r>space",
+              "group_slots": [
+                7,
+                9
+              ],
+              "group_keys": [
+                "r",
+                "space"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|244|7",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|251|9"
+              ],
+              "i0": 244,
+              "i_feat": 244,
+              "i1": 280,
+              "i_end": 275,
+              "mon": 14,
+              "boss": 0,
+              "enemy": 14,
+              "start_n": 14,
+              "center": [
+                1027.45,
+                139.99
+              ],
+              "rel": [
+                1027.45,
+                139.99
+              ],
+              "bbox": [
+                340.51,
+                -31.62,
+                1027.45,
+                140.02
+              ],
+              "bbox_w": 686.94,
+              "bbox_h": 171.64,
+              "dist": 1036.94,
+              "range_x": 1027.45,
+              "range_y": 140.02,
+              "range_px": 1036.95,
+              "gaps_ms": [
+                718
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
               "boss_end": 0,
               "enemy_end": 0,
-              "killed_mon": 6,
-              "killed_enemy": 6,
+              "killed_mon": 14,
+              "killed_enemy": 14,
               "kill_ratio": 1.0,
               "kill_ratio_enemy": 1.0,
               "fake": false,
@@ -906,29 +995,817 @@
           ],
           "group_slots": [
             7,
-            8
+            9
           ],
           "group_keys": [
             "r",
             "space"
           ],
-          "n": 1,
+          "n": 2,
           "n_fake": 0,
           "range_med": null,
-          "range_max": 818.07,
-          "range_x_max": 808.91,
-          "range_y_max": 122.06,
+          "range_max": 1036.95,
+          "range_x_max": 1027.45,
+          "range_y_max": 140.02,
           "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 6.0,
+          "kind_group": 2,
+          "kill_mean": 10.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": [
-            610
+            664
           ],
           "multi": true,
           "multi_n": 2,
           "tags": [
             "多次释放"
+          ]
+        },
+        "space>w": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|508|space>w",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w",
+              "group_slots": [
+                9,
+                4
+              ],
+              "group_keys": [
+                "space",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|508|9",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|523|4"
+              ],
+              "i0": 508,
+              "i_feat": 508,
+              "i1": 546,
+              "i_end": 547,
+              "mon": 9,
+              "boss": 0,
+              "enemy": 9,
+              "start_n": 9,
+              "center": [
+                937.6,
+                81.8
+              ],
+              "rel": [
+                937.6,
+                81.8
+              ],
+              "bbox": [
+                373.64,
+                -14.4,
+                937.6,
+                143.88
+              ],
+              "bbox_w": 563.96,
+              "bbox_h": 158.28,
+              "dist": 941.16,
+              "range_x": 937.6,
+              "range_y": 143.88,
+              "range_px": 948.58,
+              "gaps_ms": [
+                1536
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 9,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|374|space>w",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w",
+              "group_slots": [
+                9,
+                4
+              ],
+              "group_keys": [
+                "space",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|374|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|391|4"
+              ],
+              "i0": 374,
+              "i_feat": 374,
+              "i1": 414,
+              "i_end": 415,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1008.43,
+                76.14
+              ],
+              "rel": [
+                1008.43,
+                76.14
+              ],
+              "bbox": [
+                415.28,
+                -19.23,
+                1008.43,
+                138.92
+              ],
+              "bbox_w": 593.15,
+              "bbox_h": 158.15,
+              "dist": 1011.3,
+              "range_x": 1008.43,
+              "range_y": 138.92,
+              "range_px": 1017.95,
+              "gaps_ms": [
+                1752
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            4
+          ],
+          "group_keys": [
+            "space",
+            "w"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 1017.95,
+          "range_x_max": 1008.43,
+          "range_y_max": 143.88,
+          "kind_maj": "群",
+          "kind_group": 2,
+          "kill_mean": 10.5,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1644
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "f>w>f>r": {
+          "slot": 2,
+          "key": "f",
+          "group_key": "f>w>f>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|f>w>f>r",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "f",
+              "group_key": "f>w>f>r",
+              "group_slots": [
+                2,
+                4,
+                2,
+                7
+              ],
+              "group_keys": [
+                "f",
+                "w",
+                "f",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|469|4",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|471|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|479|7"
+              ],
+              "i0": 447,
+              "i_feat": 447,
+              "i1": 490,
+              "i_end": 495,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                539.67,
+                170.53
+              ],
+              "rel": [
+                539.67,
+                170.53
+              ],
+              "bbox": [
+                -158.4,
+                -1.16,
+                539.67,
+                170.53
+              ],
+              "bbox_w": 698.07,
+              "bbox_h": 171.69,
+              "dist": 565.97,
+              "range_x": 539.67,
+              "range_y": 170.53,
+              "range_px": 565.97,
+              "gaps_ms": [
+                2250,
+                202,
+                819
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2,
+            4,
+            2,
+            7
+          ],
+          "group_keys": [
+            "f",
+            "w",
+            "f",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 565.97,
+          "range_x_max": 539.67,
+          "range_y_max": 170.53,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 11.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            2250,
+            202,
+            819
+          ]
+        },
+        "r>space>r>w>f": {
+          "slot": 7,
+          "key": "r",
+          "group_key": "r>space>r>w>f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|166|r>space>r>w>f",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r>space>r>w>f",
+              "group_slots": [
+                7,
+                9,
+                7,
+                4,
+                2
+              ],
+              "group_keys": [
+                "r",
+                "space",
+                "r",
+                "w",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|166|7",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|173|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|183|7",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|191|4",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|202|2"
+              ],
+              "i0": 166,
+              "i_feat": 166,
+              "i1": 225,
+              "i_end": 226,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                951.76,
+                127.06
+              ],
+              "rel": [
+                951.76,
+                127.06
+              ],
+              "bbox": [
+                252.57,
+                -43.93,
+                951.76,
+                127.42
+              ],
+              "bbox_w": 699.19,
+              "bbox_h": 171.35,
+              "dist": 960.2,
+              "range_x": 951.76,
+              "range_y": 127.42,
+              "range_px": 960.25,
+              "gaps_ms": [
+                722,
+                1033,
+                815,
+                1122
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            7,
+            9,
+            7,
+            4,
+            2
+          ],
+          "group_keys": [
+            "r",
+            "space",
+            "r",
+            "w",
+            "f"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 960.25,
+          "range_x_max": 951.76,
+          "range_y_max": 127.42,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            722,
+            1033,
+            815,
+            1122
+          ],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "space": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|561|space",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space",
+              "group_slots": [
+                9
+              ],
+              "group_keys": [
+                "space"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|561|9"
+              ],
+              "i0": 561,
+              "i_feat": 561,
+              "i1": 589,
+              "i_end": 585,
+              "mon": 14,
+              "boss": 0,
+              "enemy": 14,
+              "start_n": 14,
+              "center": [
+                1033.46,
+                140.15
+              ],
+              "rel": [
+                1033.46,
+                140.15
+              ],
+              "bbox": [
+                333.69,
+                -31.68,
+                1033.46,
+                140.15
+              ],
+              "bbox_w": 699.77,
+              "bbox_h": 171.83,
+              "dist": 1042.92,
+              "range_x": 1033.46,
+              "range_y": 140.15,
+              "range_px": 1042.92,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 14,
+              "killed_enemy": 14,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9
+          ],
+          "group_keys": [
+            "space"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 1042.92,
+          "range_x_max": 1033.46,
+          "range_y_max": 140.15,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 14.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "space>f>w>r": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>f>w>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|426|space>f>w>r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>f>w>r",
+              "group_slots": [
+                9,
+                2,
+                4,
+                7
+              ],
+              "group_keys": [
+                "space",
+                "f",
+                "w",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|426|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|442|2",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|450|4",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|464|7"
+              ],
+              "i0": 426,
+              "i_feat": 426,
+              "i1": 475,
+              "i_end": 476,
+              "mon": 9,
+              "boss": 0,
+              "enemy": 9,
+              "start_n": 9,
+              "center": [
+                963.09,
+                59.55
+              ],
+              "rel": [
+                963.09,
+                59.55
+              ],
+              "bbox": [
+                391.37,
+                -36.61,
+                963.09,
+                121.61
+              ],
+              "bbox_w": 571.72,
+              "bbox_h": 158.22,
+              "dist": 964.93,
+              "range_x": 963.09,
+              "range_y": 121.61,
+              "range_px": 970.74,
+              "gaps_ms": [
+                1641,
+                824,
+                1437
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 9,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            2,
+            4,
+            7
+          ],
+          "group_keys": [
+            "space",
+            "f",
+            "w",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 970.74,
+          "range_x_max": 963.09,
+          "range_y_max": 121.61,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 9.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1641,
+            824,
+            1437
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "space>r": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|505|space>r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>r",
+              "group_slots": [
+                9,
+                7
+              ],
+              "group_keys": [
+                "space",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|505|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|519|7"
+              ],
+              "i0": 505,
+              "i_feat": 505,
+              "i1": 530,
+              "i_end": 531,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                988.19,
+                138.11
+              ],
+              "rel": [
+                988.19,
+                138.11
+              ],
+              "bbox": [
+                288.6,
+                -33.66,
+                988.19,
+                138.11
+              ],
+              "bbox_w": 699.59,
+              "bbox_h": 171.77,
+              "dist": 997.79,
+              "range_x": 988.19,
+              "range_y": 138.11,
+              "range_px": 997.79,
+              "gaps_ms": [
+                1442
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            7
+          ],
+          "group_keys": [
+            "space",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 997.79,
+          "range_x_max": 988.19,
+          "range_y_max": 138.11,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 13.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1442
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "space>w>r": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>w>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|301|space>w>r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w>r",
+              "group_slots": [
+                9,
+                4,
+                7
+              ],
+              "group_keys": [
+                "space",
+                "w",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|301|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|318|4",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|329|7"
+              ],
+              "i0": 301,
+              "i_feat": 301,
+              "i1": 349,
+              "i_end": 342,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1081.85,
+                140.5
+              ],
+              "rel": [
+                1081.85,
+                140.5
+              ],
+              "bbox": [
+                403.51,
+                -31.35,
+                1081.85,
+                140.5
+              ],
+              "bbox_w": 678.34,
+              "bbox_h": 171.85,
+              "dist": 1090.94,
+              "range_x": 1081.85,
+              "range_y": 140.5,
+              "range_px": 1090.94,
+              "gaps_ms": [
+                1752,
+                1124
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            4,
+            7
+          ],
+          "group_keys": [
+            "space",
+            "w",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 1090.94,
+          "range_x_max": 1081.85,
+          "range_y_max": 140.5,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1752,
+            1124
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
           ]
         }
       },
@@ -946,14 +1823,141 @@
         515.43,
         134.39
       ],
-      "bbox_w": 346.32,
-      "bbox_h": 158.45,
-      "n": 6
+      "bbox_w": 699.77,
+      "bbox_h": 171.83,
+      "n": 14
     },
     "X": {
       "skills": {
+        "r": {
+          "slot": 7,
+          "key": "r",
+          "group_key": "r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|r",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|7"
+              ],
+              "i0": 580,
+              "i_feat": 580,
+              "i1": 591,
+              "i_end": 592,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 0,
+              "killed_enemy": -1,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|120|r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|120|7"
+              ],
+              "i0": 120,
+              "i_feat": 120,
+              "i1": 131,
+              "i_end": 132,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "r"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
         "w": {
-          "slot": 2,
+          "slot": 4,
           "key": "w",
           "group_key": "w",
           "casts": [
@@ -963,22 +1967,22 @@
               "dist_key": "X",
               "dist_kind": "abnormal",
               "room": "X",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|406|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|406|4"
               ],
               "i0": 406,
               "i_feat": 406,
-              "i1": 425,
-              "i_end": 426,
+              "i1": 429,
+              "i_end": 430,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -1012,22 +2016,22 @@
               "dist_key": "X",
               "dist_kind": "abnormal",
               "room": "X",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|597|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|597|4"
               ],
               "i0": 597,
               "i_feat": 597,
-              "i1": 616,
-              "i_end": 617,
+              "i1": 620,
+              "i_end": 621,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -1057,7 +2061,7 @@
             }
           ],
           "group_slots": [
-            2
+            4
           ],
           "group_keys": [
             "w"
@@ -1074,33 +2078,36 @@
           "kill_ratio_mean": null,
           "gaps_ms": []
         },
-        "r": {
-          "slot": 7,
-          "key": "r",
-          "group_key": "r",
+        "space>w": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>w",
           "casts": [
             {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|r",
-              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|47|space>w",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
               "dist_key": "X",
               "dist_kind": "abnormal",
               "room": "X",
-              "slot": 7,
-              "key": "r",
-              "group_key": "r",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w",
               "group_slots": [
-                7
+                9,
+                4
               ],
               "group_keys": [
-                "r"
+                "space",
+                "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|7"
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|47|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|59|4"
               ],
-              "i0": 580,
-              "i_feat": 580,
-              "i1": 589,
-              "i_end": 590,
+              "i0": 47,
+              "i_feat": 47,
+              "i1": 82,
+              "i_end": 83,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -1114,26 +2121,30 @@
               "range_x": null,
               "range_y": null,
               "range_px": null,
-              "gaps_ms": [],
+              "gaps_ms": [
+                1232
+              ],
               "dir": null,
               "kind": "单",
               "boss_room": false,
               "mon_end": 0,
-              "boss_end": 1,
-              "enemy_end": 1,
+              "boss_end": 0,
+              "enemy_end": 0,
               "killed_mon": 0,
-              "killed_enemy": -1,
+              "killed_enemy": 0,
               "kill_ratio": null,
               "kill_ratio_enemy": null,
               "fake": false,
-              "after_cd_reset": true
+              "after_cd_reset": false
             }
           ],
           "group_slots": [
-            7
+            9,
+            4
           ],
           "group_keys": [
-            "r"
+            "space",
+            "w"
           ],
           "n": 1,
           "n_fake": 0,
@@ -1145,11 +2156,12 @@
           "kind_group": 0,
           "kill_mean": 0.0,
           "kill_ratio_mean": null,
-          "gaps_ms": [],
-          "multi": true,
-          "multi_n": 2,
+          "gaps_ms": [
+            1232
+          ],
+          "combo": true,
           "tags": [
-            "多次释放"
+            "连续释放"
           ]
         }
       },
@@ -1165,7 +2177,7 @@
     "B0": {
       "skills": {
         "w": {
-          "slot": 2,
+          "slot": 4,
           "key": "w",
           "group_key": "w",
           "casts": [
@@ -1175,22 +2187,22 @@
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|335|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|335|4"
               ],
               "i0": 335,
               "i_feat": 335,
-              "i1": 354,
-              "i_end": 355,
+              "i1": 358,
+              "i_end": 359,
               "mon": 0,
               "boss": 2,
               "enemy": 2,
@@ -1235,22 +2247,22 @@
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|664|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|664|4"
               ],
               "i0": 664,
               "i_feat": 664,
-              "i1": 683,
-              "i_end": 684,
+              "i1": 687,
+              "i_end": 688,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -1286,7 +2298,7 @@
             }
           ],
           "group_slots": [
-            2
+            4
           ],
           "group_keys": [
             "w"
@@ -1303,39 +2315,36 @@
           "kill_ratio_mean": null,
           "gaps_ms": []
         },
-        "w>f>r": {
-          "slot": 2,
+        "w>f": {
+          "slot": 4,
           "key": "w",
-          "group_key": "w>f>r",
+          "group_key": "w>f",
           "casts": [
             {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|w>f>r",
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|w>f",
               "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
-              "group_key": "w>f>r",
+              "group_key": "w>f",
               "group_slots": [
-                2,
-                3,
-                7
+                4,
+                2
               ],
               "group_keys": [
                 "w",
-                "f",
-                "r"
+                "f"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|2",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|67|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|114|7"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|60|4",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|67|2"
               ],
               "i0": 60,
               "i_feat": 60,
-              "i1": 123,
-              "i_end": 124,
+              "i1": 90,
+              "i_end": 91,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -1356,8 +2365,7 @@
               "range_y": null,
               "range_px": null,
               "gaps_ms": [
-                712,
-                4803
+                712
               ],
               "dir": "right",
               "kind": null,
@@ -1371,19 +2379,77 @@
               "kill_ratio_enemy": null,
               "fake": false,
               "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|w>f",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "w",
+              "group_key": "w>f",
+              "group_slots": [
+                4,
+                2
+              ],
+              "group_keys": [
+                "w",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|4",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|257|2"
+              ],
+              "i0": 248,
+              "i_feat": 248,
+              "i1": 280,
+              "i_end": 281,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                212.03,
+                195.64
+              ],
+              "rel": [
+                212.03,
+                195.64
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 288.5,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                927
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
             }
           ],
           "group_slots": [
-            2,
-            3,
-            7
+            4,
+            2
           ],
           "group_keys": [
             "w",
-            "f",
-            "r"
+            "f"
           ],
-          "n": 1,
+          "n": 2,
           "n_fake": 0,
           "range_med": null,
           "range_max": null,
@@ -1394,12 +2460,11 @@
           "kill_mean": 1.0,
           "kill_ratio_mean": null,
           "gaps_ms": [
-            712,
-            4803
+            820
           ]
         },
         "f>w>r": {
-          "slot": 3,
+          "slot": 2,
           "key": "f",
           "group_key": "f>w>r",
           "casts": [
@@ -1409,12 +2474,12 @@
               "dist_key": "B0",
               "dist_kind": "boss",
               "room": "B0",
-              "slot": 3,
+              "slot": 2,
               "key": "f",
               "group_key": "f>w>r",
               "group_slots": [
-                3,
                 2,
+                4,
                 7
               ],
               "group_keys": [
@@ -1423,14 +2488,14 @@
                 "r"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|146|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|149|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|146|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|149|4",
                 "recordings/深渊：最终调律者/20260907_220951_SolarWarden|165|7"
               ],
               "i0": 146,
               "i_feat": 146,
-              "i1": 174,
-              "i_end": 195,
+              "i1": 176,
+              "i_end": 177,
               "mon": 0,
               "boss": 1,
               "enemy": 1,
@@ -1469,8 +2534,8 @@
             }
           ],
           "group_slots": [
-            3,
             2,
+            4,
             7
           ],
           "group_keys": [
@@ -1491,94 +2556,6 @@
           "gaps_ms": [
             309,
             1638
-          ]
-        },
-        "w>f": {
-          "slot": 2,
-          "key": "w",
-          "group_key": "w>f",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|w>f",
-              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
-              "dist_key": "B0",
-              "dist_kind": "boss",
-              "room": "B0",
-              "slot": 2,
-              "key": "w",
-              "group_key": "w>f",
-              "group_slots": [
-                2,
-                3
-              ],
-              "group_keys": [
-                "w",
-                "f"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|2",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|257|3"
-              ],
-              "i0": 248,
-              "i_feat": 248,
-              "i1": 305,
-              "i_end": 306,
-              "mon": 0,
-              "boss": 1,
-              "enemy": 1,
-              "start_n": 1,
-              "center": [
-                212.03,
-                195.64
-              ],
-              "rel": [
-                212.03,
-                195.64
-              ],
-              "bbox": null,
-              "bbox_w": 0.0,
-              "bbox_h": 0.0,
-              "dist": 288.5,
-              "range_x": null,
-              "range_y": null,
-              "range_px": null,
-              "gaps_ms": [
-                927
-              ],
-              "dir": "right",
-              "kind": null,
-              "boss_room": true,
-              "mon_end": 12,
-              "boss_end": 0,
-              "enemy_end": 12,
-              "killed_mon": -11,
-              "killed_enemy": null,
-              "kill_ratio": null,
-              "kill_ratio_enemy": null,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            2,
-            3
-          ],
-          "group_keys": [
-            "w",
-            "f"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": null,
-          "range_x_max": null,
-          "range_y_max": null,
-          "kind_maj": null,
-          "kind_group": 0,
-          "kill_mean": -11.0,
-          "kill_ratio_mean": null,
-          "gaps_ms": [
-            927
           ]
         }
       },
@@ -1626,8 +2603,8 @@
               ],
               "i0": 27,
               "i_feat": 27,
-              "i1": 36,
-              "i_end": 37,
+              "i1": 38,
+              "i_end": 39,
               "mon": 11,
               "boss": 0,
               "enemy": 11,
@@ -1667,6 +2644,66 @@
               "after_cd_reset": false
             },
             {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|114|r",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|114|7"
+              ],
+              "i0": 114,
+              "i_feat": 114,
+              "i1": 125,
+              "i_end": 126,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                731.62,
+                146.14
+              ],
+              "rel": [
+                731.62,
+                146.14
+              ],
+              "bbox": [
+                33.39,
+                -25.57,
+                731.62,
+                146.14
+              ],
+              "bbox_w": 698.23,
+              "bbox_h": 171.71,
+              "dist": 746.07,
+              "range_x": 731.62,
+              "range_y": 146.14,
+              "range_px": 746.07,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
               "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|215|r",
               "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
               "dist_key": "M0",
@@ -1686,8 +2723,8 @@
               ],
               "i0": 215,
               "i_feat": 215,
-              "i1": 224,
-              "i_end": 225,
+              "i1": 226,
+              "i_end": 227,
               "mon": 10,
               "boss": 0,
               "enemy": 10,
@@ -1746,8 +2783,8 @@
               ],
               "i0": 307,
               "i_feat": 307,
-              "i1": 316,
-              "i_end": 317,
+              "i1": 318,
+              "i_end": 319,
               "mon": 12,
               "boss": 0,
               "enemy": 12,
@@ -1806,8 +2843,8 @@
               ],
               "i0": 376,
               "i_feat": 376,
-              "i1": 385,
-              "i_end": 386,
+              "i1": 387,
+              "i_end": 388,
               "mon": 7,
               "boss": 0,
               "enemy": 7,
@@ -1845,6 +2882,126 @@
               "kill_ratio_enemy": 1.0,
               "fake": false,
               "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|32|r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|32|7"
+              ],
+              "i0": 32,
+              "i_feat": 32,
+              "i1": 43,
+              "i_end": 44,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                846.37,
+                107.91
+              ],
+              "rel": [
+                846.37,
+                107.91
+              ],
+              "bbox": [
+                147.32,
+                -63.77,
+                846.37,
+                107.91
+              ],
+              "bbox_w": 699.05,
+              "bbox_h": 171.68,
+              "dist": 853.22,
+              "range_x": 846.37,
+              "range_y": 107.91,
+              "range_px": 853.22,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|97|r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|97|7"
+              ],
+              "i0": 97,
+              "i_feat": 97,
+              "i1": 108,
+              "i_end": 109,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                890.42,
+                139.11
+              ],
+              "rel": [
+                890.42,
+                139.11
+              ],
+              "bbox": [
+                191.39,
+                -32.57,
+                890.42,
+                139.11
+              ],
+              "bbox_w": 699.03,
+              "bbox_h": 171.68,
+              "dist": 901.22,
+              "range_x": 890.42,
+              "range_y": 139.11,
+              "range_px": 901.22,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
             }
           ],
           "group_slots": [
@@ -1853,142 +3010,21 @@
           "group_keys": [
             "r"
           ],
-          "n": 4,
+          "n": 7,
           "n_fake": 0,
           "range_med": null,
-          "range_max": 899.37,
-          "range_x_max": 887.72,
-          "range_y_max": 144.31,
+          "range_max": 901.22,
+          "range_x_max": 890.42,
+          "range_y_max": 146.14,
           "kind_maj": "群",
-          "kind_group": 4,
-          "kill_mean": 10.0,
+          "kind_group": 7,
+          "kill_mean": 11.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": [],
           "multi": true,
           "multi_n": 2,
           "tags": [
             "多次释放"
-          ]
-        },
-        "f>w>f>r>space>w": {
-          "slot": 3,
-          "key": "f",
-          "group_key": "f>w>f>r>space>w",
-          "casts": [
-            {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|f>w>f>r>space>w",
-              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
-              "dist_key": "M0",
-              "dist_kind": "mob",
-              "room": "M0",
-              "slot": 3,
-              "key": "f",
-              "group_key": "f>w>f>r>space>w",
-              "group_slots": [
-                3,
-                2,
-                3,
-                7,
-                8,
-                2
-              ],
-              "group_keys": [
-                "f",
-                "w",
-                "f",
-                "r",
-                "space",
-                "w"
-              ],
-              "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|469|2",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|471|3",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|479|7",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|508|8",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|523|2"
-              ],
-              "i0": 447,
-              "i_feat": 447,
-              "i1": 542,
-              "i_end": 543,
-              "mon": 11,
-              "boss": 0,
-              "enemy": 11,
-              "start_n": 11,
-              "center": [
-                539.67,
-                170.53
-              ],
-              "rel": [
-                539.67,
-                170.53
-              ],
-              "bbox": [
-                -158.4,
-                -1.16,
-                539.67,
-                170.53
-              ],
-              "bbox_w": 698.07,
-              "bbox_h": 171.69,
-              "dist": 565.97,
-              "range_x": 539.67,
-              "range_y": 170.53,
-              "range_px": 565.97,
-              "gaps_ms": [
-                2250,
-                202,
-                819,
-                2957,
-                1536
-              ],
-              "dir": "right",
-              "kind": "群",
-              "boss_room": false,
-              "mon_end": 0,
-              "boss_end": 0,
-              "enemy_end": 0,
-              "killed_mon": 11,
-              "killed_enemy": 11,
-              "kill_ratio": 1.0,
-              "kill_ratio_enemy": 1.0,
-              "fake": false,
-              "after_cd_reset": true
-            }
-          ],
-          "group_slots": [
-            3,
-            2,
-            3,
-            7,
-            8,
-            2
-          ],
-          "group_keys": [
-            "f",
-            "w",
-            "f",
-            "r",
-            "space",
-            "w"
-          ],
-          "n": 1,
-          "n_fake": 0,
-          "range_med": null,
-          "range_max": 565.97,
-          "range_x_max": 539.67,
-          "range_y_max": 170.53,
-          "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 11.0,
-          "kill_ratio_mean": 1.0,
-          "gaps_ms": [
-            2250,
-            202,
-            819,
-            2957,
-            1536
           ]
         },
         "r>space": {
@@ -2007,7 +3043,7 @@
               "group_key": "r>space",
               "group_slots": [
                 7,
-                8
+                9
               ],
               "group_keys": [
                 "r",
@@ -2015,12 +3051,12 @@
               ],
               "member_ids": [
                 "recordings/深渊：最终调律者/20260907_220951_SolarWarden|631|7",
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|637|8"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|637|9"
               ],
               "i0": 631,
               "i_feat": 631,
               "i1": 663,
-              "i_end": 657,
+              "i_end": 661,
               "mon": 6,
               "boss": 0,
               "enemy": 6,
@@ -2052,10 +3088,75 @@
               "kind": "群",
               "boss_room": false,
               "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 6,
+              "killed_enemy": 5,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 0.833,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|244|r>space",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r>space",
+              "group_slots": [
+                7,
+                9
+              ],
+              "group_keys": [
+                "r",
+                "space"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|244|7",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|251|9"
+              ],
+              "i0": 244,
+              "i_feat": 244,
+              "i1": 280,
+              "i_end": 275,
+              "mon": 14,
+              "boss": 0,
+              "enemy": 14,
+              "start_n": 14,
+              "center": [
+                1027.45,
+                139.99
+              ],
+              "rel": [
+                1027.45,
+                139.99
+              ],
+              "bbox": [
+                340.51,
+                -31.62,
+                1027.45,
+                140.02
+              ],
+              "bbox_w": 686.94,
+              "bbox_h": 171.64,
+              "dist": 1036.94,
+              "range_x": 1027.45,
+              "range_y": 140.02,
+              "range_px": 1036.95,
+              "gaps_ms": [
+                718
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
               "boss_end": 0,
               "enemy_end": 0,
-              "killed_mon": 6,
-              "killed_enemy": 6,
+              "killed_mon": 14,
+              "killed_enemy": 14,
               "kill_ratio": 1.0,
               "kill_ratio_enemy": 1.0,
               "fake": false,
@@ -2064,29 +3165,817 @@
           ],
           "group_slots": [
             7,
-            8
+            9
           ],
           "group_keys": [
             "r",
             "space"
           ],
-          "n": 1,
+          "n": 2,
           "n_fake": 0,
           "range_med": null,
-          "range_max": 818.07,
-          "range_x_max": 808.91,
-          "range_y_max": 122.06,
+          "range_max": 1036.95,
+          "range_x_max": 1027.45,
+          "range_y_max": 140.02,
           "kind_maj": "群",
-          "kind_group": 1,
-          "kill_mean": 6.0,
+          "kind_group": 2,
+          "kill_mean": 10.0,
           "kill_ratio_mean": 1.0,
           "gaps_ms": [
-            610
+            664
           ],
           "multi": true,
           "multi_n": 2,
           "tags": [
             "多次释放"
+          ]
+        },
+        "space>w": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|508|space>w",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w",
+              "group_slots": [
+                9,
+                4
+              ],
+              "group_keys": [
+                "space",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|508|9",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|523|4"
+              ],
+              "i0": 508,
+              "i_feat": 508,
+              "i1": 546,
+              "i_end": 547,
+              "mon": 9,
+              "boss": 0,
+              "enemy": 9,
+              "start_n": 9,
+              "center": [
+                937.6,
+                81.8
+              ],
+              "rel": [
+                937.6,
+                81.8
+              ],
+              "bbox": [
+                373.64,
+                -14.4,
+                937.6,
+                143.88
+              ],
+              "bbox_w": 563.96,
+              "bbox_h": 158.28,
+              "dist": 941.16,
+              "range_x": 937.6,
+              "range_y": 143.88,
+              "range_px": 948.58,
+              "gaps_ms": [
+                1536
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 9,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|374|space>w",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w",
+              "group_slots": [
+                9,
+                4
+              ],
+              "group_keys": [
+                "space",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|374|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|391|4"
+              ],
+              "i0": 374,
+              "i_feat": 374,
+              "i1": 414,
+              "i_end": 415,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1008.43,
+                76.14
+              ],
+              "rel": [
+                1008.43,
+                76.14
+              ],
+              "bbox": [
+                415.28,
+                -19.23,
+                1008.43,
+                138.92
+              ],
+              "bbox_w": 593.15,
+              "bbox_h": 158.15,
+              "dist": 1011.3,
+              "range_x": 1008.43,
+              "range_y": 138.92,
+              "range_px": 1017.95,
+              "gaps_ms": [
+                1752
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            4
+          ],
+          "group_keys": [
+            "space",
+            "w"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 1017.95,
+          "range_x_max": 1008.43,
+          "range_y_max": 143.88,
+          "kind_maj": "群",
+          "kind_group": 2,
+          "kill_mean": 10.5,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1644
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "f>w>f>r": {
+          "slot": 2,
+          "key": "f",
+          "group_key": "f>w>f>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|f>w>f>r",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "f",
+              "group_key": "f>w>f>r",
+              "group_slots": [
+                2,
+                4,
+                2,
+                7
+              ],
+              "group_keys": [
+                "f",
+                "w",
+                "f",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|469|4",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|471|2",
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|479|7"
+              ],
+              "i0": 447,
+              "i_feat": 447,
+              "i1": 490,
+              "i_end": 495,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                539.67,
+                170.53
+              ],
+              "rel": [
+                539.67,
+                170.53
+              ],
+              "bbox": [
+                -158.4,
+                -1.16,
+                539.67,
+                170.53
+              ],
+              "bbox_w": 698.07,
+              "bbox_h": 171.69,
+              "dist": 565.97,
+              "range_x": 539.67,
+              "range_y": 170.53,
+              "range_px": 565.97,
+              "gaps_ms": [
+                2250,
+                202,
+                819
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2,
+            4,
+            2,
+            7
+          ],
+          "group_keys": [
+            "f",
+            "w",
+            "f",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 565.97,
+          "range_x_max": 539.67,
+          "range_y_max": 170.53,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 11.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            2250,
+            202,
+            819
+          ]
+        },
+        "r>space>r>w>f": {
+          "slot": 7,
+          "key": "r",
+          "group_key": "r>space>r>w>f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|166|r>space>r>w>f",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r>space>r>w>f",
+              "group_slots": [
+                7,
+                9,
+                7,
+                4,
+                2
+              ],
+              "group_keys": [
+                "r",
+                "space",
+                "r",
+                "w",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|166|7",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|173|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|183|7",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|191|4",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|202|2"
+              ],
+              "i0": 166,
+              "i_feat": 166,
+              "i1": 225,
+              "i_end": 226,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                951.76,
+                127.06
+              ],
+              "rel": [
+                951.76,
+                127.06
+              ],
+              "bbox": [
+                252.57,
+                -43.93,
+                951.76,
+                127.42
+              ],
+              "bbox_w": 699.19,
+              "bbox_h": 171.35,
+              "dist": 960.2,
+              "range_x": 951.76,
+              "range_y": 127.42,
+              "range_px": 960.25,
+              "gaps_ms": [
+                722,
+                1033,
+                815,
+                1122
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            7,
+            9,
+            7,
+            4,
+            2
+          ],
+          "group_keys": [
+            "r",
+            "space",
+            "r",
+            "w",
+            "f"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 960.25,
+          "range_x_max": 951.76,
+          "range_y_max": 127.42,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            722,
+            1033,
+            815,
+            1122
+          ],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "space": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|561|space",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space",
+              "group_slots": [
+                9
+              ],
+              "group_keys": [
+                "space"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|561|9"
+              ],
+              "i0": 561,
+              "i_feat": 561,
+              "i1": 589,
+              "i_end": 585,
+              "mon": 14,
+              "boss": 0,
+              "enemy": 14,
+              "start_n": 14,
+              "center": [
+                1033.46,
+                140.15
+              ],
+              "rel": [
+                1033.46,
+                140.15
+              ],
+              "bbox": [
+                333.69,
+                -31.68,
+                1033.46,
+                140.15
+              ],
+              "bbox_w": 699.77,
+              "bbox_h": 171.83,
+              "dist": 1042.92,
+              "range_x": 1033.46,
+              "range_y": 140.15,
+              "range_px": 1042.92,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 14,
+              "killed_enemy": 14,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9
+          ],
+          "group_keys": [
+            "space"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 1042.92,
+          "range_x_max": 1033.46,
+          "range_y_max": 140.15,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 14.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "space>f>w>r": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>f>w>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|426|space>f>w>r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>f>w>r",
+              "group_slots": [
+                9,
+                2,
+                4,
+                7
+              ],
+              "group_keys": [
+                "space",
+                "f",
+                "w",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|426|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|442|2",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|450|4",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|464|7"
+              ],
+              "i0": 426,
+              "i_feat": 426,
+              "i1": 475,
+              "i_end": 476,
+              "mon": 9,
+              "boss": 0,
+              "enemy": 9,
+              "start_n": 9,
+              "center": [
+                963.09,
+                59.55
+              ],
+              "rel": [
+                963.09,
+                59.55
+              ],
+              "bbox": [
+                391.37,
+                -36.61,
+                963.09,
+                121.61
+              ],
+              "bbox_w": 571.72,
+              "bbox_h": 158.22,
+              "dist": 964.93,
+              "range_x": 963.09,
+              "range_y": 121.61,
+              "range_px": 970.74,
+              "gaps_ms": [
+                1641,
+                824,
+                1437
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 9,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            2,
+            4,
+            7
+          ],
+          "group_keys": [
+            "space",
+            "f",
+            "w",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 970.74,
+          "range_x_max": 963.09,
+          "range_y_max": 121.61,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 9.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1641,
+            824,
+            1437
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "space>r": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|505|space>r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>r",
+              "group_slots": [
+                9,
+                7
+              ],
+              "group_keys": [
+                "space",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|505|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|519|7"
+              ],
+              "i0": 505,
+              "i_feat": 505,
+              "i1": 530,
+              "i_end": 531,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                988.19,
+                138.11
+              ],
+              "rel": [
+                988.19,
+                138.11
+              ],
+              "bbox": [
+                288.6,
+                -33.66,
+                988.19,
+                138.11
+              ],
+              "bbox_w": 699.59,
+              "bbox_h": 171.77,
+              "dist": 997.79,
+              "range_x": 988.19,
+              "range_y": 138.11,
+              "range_px": 997.79,
+              "gaps_ms": [
+                1442
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            7
+          ],
+          "group_keys": [
+            "space",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 997.79,
+          "range_x_max": 988.19,
+          "range_y_max": 138.11,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 13.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1442
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
+          ]
+        },
+        "space>w>r": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>w>r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|301|space>w>r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w>r",
+              "group_slots": [
+                9,
+                4,
+                7
+              ],
+              "group_keys": [
+                "space",
+                "w",
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|301|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|318|4",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|329|7"
+              ],
+              "i0": 301,
+              "i_feat": 301,
+              "i1": 349,
+              "i_end": 342,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1081.85,
+                140.5
+              ],
+              "rel": [
+                1081.85,
+                140.5
+              ],
+              "bbox": [
+                403.51,
+                -31.35,
+                1081.85,
+                140.5
+              ],
+              "bbox_w": 678.34,
+              "bbox_h": 171.85,
+              "dist": 1090.94,
+              "range_x": 1081.85,
+              "range_y": 140.5,
+              "range_px": 1090.94,
+              "gaps_ms": [
+                1752,
+                1124
+              ],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            9,
+            4,
+            7
+          ],
+          "group_keys": [
+            "space",
+            "w",
+            "r"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 1090.94,
+          "range_x_max": 1081.85,
+          "range_y_max": 140.5,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [
+            1752,
+            1124
+          ],
+          "combo": true,
+          "tags": [
+            "连续释放"
           ]
         }
       },
@@ -2104,14 +3993,141 @@
         515.43,
         134.39
       ],
-      "bbox_w": 346.32,
-      "bbox_h": 158.45,
-      "n": 6
+      "bbox_w": 699.77,
+      "bbox_h": 171.83,
+      "n": 14
     },
     "X": {
       "skills": {
+        "r": {
+          "slot": 7,
+          "key": "r",
+          "group_key": "r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|r",
+              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|7"
+              ],
+              "i0": 580,
+              "i_feat": 580,
+              "i1": 591,
+              "i_end": 592,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 0,
+              "killed_enemy": -1,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|120|r",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 7,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|120|7"
+              ],
+              "i0": 120,
+              "i_feat": 120,
+              "i1": 131,
+              "i_end": 132,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "r"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
         "w": {
-          "slot": 2,
+          "slot": 4,
           "key": "w",
           "group_key": "w",
           "casts": [
@@ -2121,22 +4137,22 @@
               "dist_key": "X",
               "dist_kind": "abnormal",
               "room": "X",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|406|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|406|4"
               ],
               "i0": 406,
               "i_feat": 406,
-              "i1": 425,
-              "i_end": 426,
+              "i1": 429,
+              "i_end": 430,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -2170,22 +4186,22 @@
               "dist_key": "X",
               "dist_kind": "abnormal",
               "room": "X",
-              "slot": 2,
+              "slot": 4,
               "key": "w",
               "group_key": "w",
               "group_slots": [
-                2
+                4
               ],
               "group_keys": [
                 "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|597|2"
+                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|597|4"
               ],
               "i0": 597,
               "i_feat": 597,
-              "i1": 616,
-              "i_end": 617,
+              "i1": 620,
+              "i_end": 621,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -2215,7 +4231,7 @@
             }
           ],
           "group_slots": [
-            2
+            4
           ],
           "group_keys": [
             "w"
@@ -2232,33 +4248,36 @@
           "kill_ratio_mean": null,
           "gaps_ms": []
         },
-        "r": {
-          "slot": 7,
-          "key": "r",
-          "group_key": "r",
+        "space>w": {
+          "slot": 9,
+          "key": "space",
+          "group_key": "space>w",
           "casts": [
             {
-              "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|r",
-              "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+              "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|47|space>w",
+              "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
               "dist_key": "X",
               "dist_kind": "abnormal",
               "room": "X",
-              "slot": 7,
-              "key": "r",
-              "group_key": "r",
+              "slot": 9,
+              "key": "space",
+              "group_key": "space>w",
               "group_slots": [
-                7
+                9,
+                4
               ],
               "group_keys": [
-                "r"
+                "space",
+                "w"
               ],
               "member_ids": [
-                "recordings/深渊：最终调律者/20260907_220951_SolarWarden|580|7"
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|47|9",
+                "recordings/深渊：最终调律者/20260910_212409_SolarWarden|59|4"
               ],
-              "i0": 580,
-              "i_feat": 580,
-              "i1": 589,
-              "i_end": 590,
+              "i0": 47,
+              "i_feat": 47,
+              "i1": 82,
+              "i_end": 83,
               "mon": 0,
               "boss": 0,
               "enemy": 0,
@@ -2272,26 +4291,30 @@
               "range_x": null,
               "range_y": null,
               "range_px": null,
-              "gaps_ms": [],
+              "gaps_ms": [
+                1232
+              ],
               "dir": null,
               "kind": "单",
               "boss_room": false,
               "mon_end": 0,
-              "boss_end": 1,
-              "enemy_end": 1,
+              "boss_end": 0,
+              "enemy_end": 0,
               "killed_mon": 0,
-              "killed_enemy": -1,
+              "killed_enemy": 0,
               "kill_ratio": null,
               "kill_ratio_enemy": null,
               "fake": false,
-              "after_cd_reset": true
+              "after_cd_reset": false
             }
           ],
           "group_slots": [
-            7
+            9,
+            4
           ],
           "group_keys": [
-            "r"
+            "space",
+            "w"
           ],
           "n": 1,
           "n_fake": 0,
@@ -2303,11 +4326,12 @@
           "kind_group": 0,
           "kill_mean": 0.0,
           "kill_ratio_mean": null,
-          "gaps_ms": [],
-          "multi": true,
-          "multi_n": 2,
+          "gaps_ms": [
+            1232
+          ],
+          "combo": true,
           "tags": [
-            "多次释放"
+            "连续释放"
           ]
         }
       },
@@ -2321,147 +4345,207 @@
   },
   "cd_resets": [
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|146|3",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|146|2",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 146,
       "t_ns": 1788790206825247800,
       "t_s": 14.947,
       "dist_key": "B0",
-      "slot": 3,
+      "slot": 2,
       "key": "f",
       "dt_s": 8.073,
       "cooldown_s": 44.9
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|149|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|149|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 149,
       "t_ns": 1788790207134705700,
       "t_s": 15.256,
       "dist_key": "B0",
-      "slot": 2,
+      "slot": 4,
       "key": "w",
       "dt_s": 9.094,
       "cooldown_s": 33.7
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|248|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 248,
       "t_ns": 1788790217282125000,
       "t_s": 25.404,
       "dist_key": "B0",
-      "slot": 2,
+      "slot": 4,
       "key": "w",
       "dt_s": 10.147,
       "cooldown_s": 33.7
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|257|3",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|257|2",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 257,
       "t_ns": 1788790218209437700,
       "t_s": 26.331,
       "dist_key": "B0",
-      "slot": 3,
+      "slot": 2,
       "key": "f",
       "dt_s": 11.384,
       "cooldown_s": 44.9
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|335|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|335|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 335,
       "t_ns": 1788790226184153800,
       "t_s": 34.306,
-      "dist_key": "B0",
-      "slot": 2,
+      "dist_key": "M0",
+      "slot": 4,
       "key": "w",
       "dt_s": 8.902,
       "cooldown_s": 33.7
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|406|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|406|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 406,
       "t_ns": 1788790233464205900,
       "t_s": 41.586,
-      "dist_key": "B0",
-      "slot": 2,
+      "dist_key": "X",
+      "slot": 4,
       "key": "w",
       "dt_s": 7.28,
       "cooldown_s": 33.7
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|3",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|447|2",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 447,
       "t_ns": 1788790237671834900,
       "t_s": 45.793,
-      "dist_key": "B0",
-      "slot": 3,
+      "dist_key": "M0",
+      "slot": 2,
       "key": "f",
       "dt_s": 19.462,
       "cooldown_s": 44.9
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|469|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|469|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 469,
       "t_ns": 1788790239922261700,
       "t_s": 48.044,
-      "dist_key": "B0",
-      "slot": 2,
+      "dist_key": "M0",
+      "slot": 4,
       "key": "w",
       "dt_s": 6.458,
       "cooldown_s": 33.7
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|471|3",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|471|2",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 471,
       "t_ns": 1788790240124613700,
       "t_s": 48.246,
-      "dist_key": "B0",
-      "slot": 3,
+      "dist_key": "M0",
+      "slot": 2,
       "key": "f",
       "dt_s": 2.453,
       "cooldown_s": 44.9
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|523|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|523|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 523,
       "t_ns": 1788790245436398800,
       "t_s": 53.558,
       "dist_key": "B0",
-      "slot": 2,
+      "slot": 4,
       "key": "w",
       "dt_s": 5.514,
       "cooldown_s": 33.7
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|597|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|597|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 597,
       "t_ns": 1788790253025224200,
       "t_s": 61.147,
       "dist_key": "M0",
-      "slot": 2,
+      "slot": 4,
       "key": "w",
       "dt_s": 7.589,
       "cooldown_s": 33.7
     },
     {
-      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|664|2",
+      "id": "recordings/深渊：最终调律者/20260907_220951_SolarWarden|664|4",
       "session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
       "i": 664,
       "t_ns": 1788790259886650400,
       "t_s": 68.008,
-      "dist_key": "M0",
-      "slot": 2,
+      "dist_key": "X",
+      "slot": 4,
       "key": "w",
       "dt_s": 6.861,
+      "cooldown_s": 33.7
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|191|4",
+      "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+      "i": 191,
+      "t_ns": 1789046669524549800,
+      "t_s": 19.61,
+      "dist_key": "M0",
+      "slot": 4,
+      "key": "w",
+      "dt_s": 13.557,
+      "cooldown_s": 33.7
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|318|4",
+      "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+      "i": 318,
+      "t_ns": 1789046682596175600,
+      "t_s": 32.682,
+      "dist_key": "B0",
+      "slot": 4,
+      "key": "w",
+      "dt_s": 13.072,
+      "cooldown_s": 33.7
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|391|4",
+      "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+      "i": 391,
+      "t_ns": 1789046690090211000,
+      "t_s": 40.176,
+      "dist_key": "B0",
+      "slot": 4,
+      "key": "w",
+      "dt_s": 7.494,
+      "cooldown_s": 33.7
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|442|2",
+      "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+      "i": 442,
+      "t_ns": 1789046695324602100,
+      "t_s": 45.41,
+      "dist_key": "B0",
+      "slot": 2,
+      "key": "f",
+      "dt_s": 24.678,
+      "cooldown_s": 44.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260910_212409_SolarWarden|450|4",
+      "session": "recordings/深渊：最终调律者/20260910_212409_SolarWarden",
+      "i": 450,
+      "t_ns": 1789046696148438300,
+      "t_s": 46.234,
+      "dist_key": "B0",
+      "slot": 4,
+      "key": "w",
+      "dt_s": 6.058,
       "cooldown_s": 33.7
     }
   ],
@@ -2469,7 +4553,7 @@
     "7": [
       "多次释放"
     ],
-    "8": [
+    "9": [
       "连续释放"
     ]
   },
@@ -2478,19 +4562,25 @@
   ],
   "sequences": {
     "B0": [
-      2,
-      2,
-      3,
+      4,
+      4,
       2
     ],
     "M0": [
       7,
-      3,
-      7
+      7,
+      9,
+      2,
+      7,
+      9,
+      9,
+      9,
+      9
     ],
     "X": [
-      2,
-      7
+      7,
+      4,
+      9
     ]
   },
   "f": 50,

@@ -1,0 +1,4043 @@
+{
+  "dungeon": "深渊：最终调律者",
+  "character": "Sam1ra",
+  "updated_at": "2026-09-09 16:07:10",
+  "e": 3,
+  "dists": {
+    "B0": {
+      "skills": {
+        "f": {
+          "slot": 5,
+          "key": "f",
+          "group_key": "f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|154|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|154|5"
+              ],
+              "i0": 154,
+              "i_feat": 154,
+              "i1": 155,
+              "i_end": 156,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                -238.09,
+                67.26
+              ],
+              "rel": [
+                -238.09,
+                67.26
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 247.41,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "left",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|497|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|497|5"
+              ],
+              "i0": 497,
+              "i_feat": 497,
+              "i1": 498,
+              "i_end": 499,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                219.25,
+                236.31
+              ],
+              "rel": [
+                219.25,
+                236.31
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 322.36,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "f"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "d>f": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|60|d>f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>f",
+              "group_slots": [
+                6,
+                5
+              ],
+              "group_keys": [
+                "d",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|60|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|64|5"
+              ],
+              "i0": 60,
+              "i_feat": 60,
+              "i1": 68,
+              "i_end": 69,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                539.8,
+                226.01
+              ],
+              "rel": [
+                539.8,
+                226.01
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 585.2,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                405
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            6,
+            5
+          ],
+          "group_keys": [
+            "d",
+            "f"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            405
+          ]
+        },
+        "d>f>s>w": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>f>s>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|307|d>f>s>w",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>f>s>w",
+              "group_slots": [
+                6,
+                5,
+                3,
+                4
+              ],
+              "group_keys": [
+                "d",
+                "f",
+                "s",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|307|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|312|5",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|315|3",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|324|4"
+              ],
+              "i0": 307,
+              "i_feat": 307,
+              "i1": 335,
+              "i_end": 336,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                594.7,
+                218.17
+              ],
+              "rel": [
+                594.7,
+                218.17
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 633.46,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                514,
+                307,
+                921
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            5,
+            3,
+            4
+          ],
+          "group_keys": [
+            "d",
+            "f",
+            "s",
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            514,
+            307,
+            921
+          ]
+        },
+        "d>s>d": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>s>d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|156|d>s>d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>s>d",
+              "group_slots": [
+                6,
+                3,
+                6
+              ],
+              "group_keys": [
+                "d",
+                "s",
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|156|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|162|3",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|166|6"
+              ],
+              "i0": 156,
+              "i_feat": 156,
+              "i1": 176,
+              "i_end": 183,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                -163.71,
+                199.37
+              ],
+              "rel": [
+                -163.71,
+                199.37
+              ],
+              "bbox": [
+                -163.71,
+                197.78,
+                -161.96,
+                199.37
+              ],
+              "bbox_w": 1.75,
+              "bbox_h": 1.59,
+              "dist": 257.97,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                615,
+                412
+              ],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            3,
+            6
+          ],
+          "group_keys": [
+            "d",
+            "s",
+            "d"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 2.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            615,
+            412
+          ]
+        },
+        "d>s>f": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>s>f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|227|d>s>f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>s>f",
+              "group_slots": [
+                6,
+                3,
+                5
+              ],
+              "group_keys": [
+                "d",
+                "s",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|227|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|234|3",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|241|5"
+              ],
+              "i0": 227,
+              "i_feat": 227,
+              "i1": 244,
+              "i_end": 255,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                -13.76,
+                243.95
+              ],
+              "rel": [
+                -13.76,
+                243.95
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 244.34,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                715,
+                718
+              ],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            3,
+            5
+          ],
+          "group_keys": [
+            "d",
+            "s",
+            "f"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            715,
+            718
+          ]
+        },
+        "s": {
+          "slot": 3,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|382|s",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|382|3"
+              ],
+              "i0": 382,
+              "i_feat": 382,
+              "i1": 402,
+              "i_end": 403,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                412.38,
+                199.68
+              ],
+              "rel": [
+                412.38,
+                199.68
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 458.18,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            3
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "w>e": {
+          "slot": 4,
+          "key": "w",
+          "group_key": "w>e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|70|w>e",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "w",
+              "group_key": "w>e",
+              "group_slots": [
+                4,
+                2
+              ],
+              "group_keys": [
+                "w",
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|70|4",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|74|2"
+              ],
+              "i0": 70,
+              "i_feat": 70,
+              "i1": 99,
+              "i_end": 93,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                301.25,
+                160.14
+              ],
+              "rel": [
+                301.25,
+                160.14
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 341.17,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                411
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            4,
+            2
+          ],
+          "group_keys": [
+            "w",
+            "e"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            411
+          ]
+        }
+      },
+      "kind": "boss",
+      "tags": [
+        "BOSS"
+      ],
+      "rel": [
+        539.8,
+        226.01
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0,
+      "bbox": [
+        -163.71,
+        197.78,
+        -161.96,
+        199.37
+      ]
+    },
+    "M0": {
+      "skills": {
+        "f": {
+          "slot": 5,
+          "key": "f",
+          "group_key": "f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|35|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|35|5"
+              ],
+              "i0": 35,
+              "i_feat": 35,
+              "i1": 36,
+              "i_end": 37,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                796.67,
+                109.65
+              ],
+              "rel": [
+                796.67,
+                109.65
+              ],
+              "bbox": [
+                100.36,
+                -62.15,
+                796.67,
+                109.65
+              ],
+              "bbox_w": 696.31,
+              "bbox_h": 171.8,
+              "dist": 804.18,
+              "range_x": 796.67,
+              "range_y": 109.65,
+              "range_px": 804.18,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|143|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|143|5"
+              ],
+              "i0": 143,
+              "i_feat": 143,
+              "i1": 144,
+              "i_end": 145,
+              "mon": 9,
+              "boss": 0,
+              "enemy": 9,
+              "start_n": 9,
+              "center": [
+                971.0,
+                26.62
+              ],
+              "rel": [
+                971.0,
+                26.62
+              ],
+              "bbox": [
+                258.55,
+                -38.2,
+                971.0,
+                133.31
+              ],
+              "bbox_w": 712.45,
+              "bbox_h": 171.51,
+              "dist": 971.36,
+              "range_x": 971.0,
+              "range_y": 133.31,
+              "range_px": 980.11,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 9,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|370|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|370|5"
+              ],
+              "i0": 370,
+              "i_feat": 370,
+              "i1": 371,
+              "i_end": 372,
+              "mon": 2,
+              "boss": 0,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                246.12,
+                149.16
+              ],
+              "rel": [
+                246.12,
+                149.16
+              ],
+              "bbox": [
+                245.78,
+                149.16,
+                246.12,
+                149.61
+              ],
+              "bbox_w": 0.34,
+              "bbox_h": 0.45,
+              "dist": 287.79,
+              "range_x": 246.12,
+              "range_y": 149.61,
+              "range_px": 288.02,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|437|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|437|5"
+              ],
+              "i0": 437,
+              "i_feat": 437,
+              "i1": 438,
+              "i_end": 439,
+              "mon": 1,
+              "boss": 0,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                231.24,
+                205.24
+              ],
+              "rel": [
+                231.24,
+                205.24
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 309.19,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|477|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|477|5"
+              ],
+              "i0": 477,
+              "i_feat": 477,
+              "i1": 478,
+              "i_end": 479,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                960.68,
+                151.83
+              ],
+              "rel": [
+                960.68,
+                151.83
+              ],
+              "bbox": [
+                261.49,
+                -19.88,
+                960.68,
+                151.83
+              ],
+              "bbox_w": 699.19,
+              "bbox_h": 171.71,
+              "dist": 972.6,
+              "range_x": 960.68,
+              "range_y": 151.83,
+              "range_px": 972.6,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|532|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|532|5"
+              ],
+              "i0": 532,
+              "i_feat": 532,
+              "i1": 533,
+              "i_end": 534,
+              "mon": 14,
+              "boss": 0,
+              "enemy": 14,
+              "start_n": 14,
+              "center": [
+                939.61,
+                188.34
+              ],
+              "rel": [
+                939.61,
+                188.34
+              ],
+              "bbox": [
+                239.39,
+                16.54,
+                939.61,
+                188.34
+              ],
+              "bbox_w": 700.22,
+              "bbox_h": 171.8,
+              "dist": 958.3,
+              "range_x": 939.61,
+              "range_y": 188.34,
+              "range_px": 958.3,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 14,
+              "killed_enemy": 14,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|605|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|605|5"
+              ],
+              "i0": 605,
+              "i_feat": 605,
+              "i1": 606,
+              "i_end": 607,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                869.56,
+                208.03
+              ],
+              "rel": [
+                869.56,
+                208.03
+              ],
+              "bbox": [
+                170.49,
+                36.2,
+                869.56,
+                208.03
+              ],
+              "bbox_w": 699.07,
+              "bbox_h": 171.83,
+              "dist": 894.1,
+              "range_x": 869.56,
+              "range_y": 208.03,
+              "range_px": 894.1,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "f"
+          ],
+          "n": 7,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 980.11,
+          "range_x_max": 971.0,
+          "range_y_max": 208.03,
+          "kind_maj": "群",
+          "kind_group": 5,
+          "kill_mean": 9.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "e": {
+          "slot": 2,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|279|e",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|279|2"
+              ],
+              "i0": 279,
+              "i_feat": 279,
+              "i1": 297,
+              "i_end": 298,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                746.75,
+                123.17
+              ],
+              "rel": [
+                746.75,
+                123.17
+              ],
+              "bbox": [
+                47.86,
+                -48.47,
+                746.75,
+                123.17
+              ],
+              "bbox_w": 698.89,
+              "bbox_h": 171.64,
+              "dist": 756.84,
+              "range_x": 746.75,
+              "range_y": 123.17,
+              "range_px": 756.84,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 756.84,
+          "range_x_max": 746.75,
+          "range_y_max": 123.17,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "w": {
+          "slot": 4,
+          "key": "w",
+          "group_key": "w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|199|w",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 4,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|199|4"
+              ],
+              "i0": 199,
+              "i_feat": 199,
+              "i1": 208,
+              "i_end": 209,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                927.33,
+                128.36
+              ],
+              "rel": [
+                927.33,
+                128.36
+              ],
+              "bbox": [
+                262.94,
+                -43.97,
+                927.66,
+                128.36
+              ],
+              "bbox_w": 664.72,
+              "bbox_h": 172.33,
+              "dist": 936.17,
+              "range_x": 927.66,
+              "range_y": 128.36,
+              "range_px": 936.5,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            4
+          ],
+          "group_keys": [
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 936.5,
+          "range_x_max": 927.66,
+          "range_y_max": 128.36,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 13.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "d": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|360|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|360|6"
+              ],
+              "i0": 360,
+              "i_feat": 360,
+              "i1": 368,
+              "i_end": 369,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                778.42,
+                129.62
+              ],
+              "rel": [
+                778.42,
+                129.62
+              ],
+              "bbox": [
+                36.27,
+                -68.71,
+                778.42,
+                129.62
+              ],
+              "bbox_w": 742.15,
+              "bbox_h": 198.33,
+              "dist": 789.14,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 1,
+              "boss_end": 0,
+              "enemy_end": 1,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 0.917,
+              "kill_ratio_enemy": 0.917,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|427|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|427|6"
+              ],
+              "i0": 427,
+              "i_feat": 427,
+              "i1": 435,
+              "i_end": 436,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                735.94,
+                91.31
+              ],
+              "rel": [
+                735.94,
+                91.31
+              ],
+              "bbox": [
+                37.82,
+                -80.15,
+                735.94,
+                91.31
+              ],
+              "bbox_w": 698.12,
+              "bbox_h": 171.46,
+              "dist": 741.58,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 1,
+              "boss_end": 0,
+              "enemy_end": 1,
+              "killed_mon": 10,
+              "killed_enemy": 10,
+              "kill_ratio": 0.909,
+              "kill_ratio_enemy": 0.909,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "群",
+          "kind_group": 2,
+          "kill_mean": 10.5,
+          "kill_ratio_mean": 0.913,
+          "gaps_ms": []
+        }
+      },
+      "kind": "mob",
+      "tags": [
+        "小怪"
+      ],
+      "rel": [
+        796.67,
+        109.65
+      ],
+      "bbox": [
+        100.36,
+        -62.15,
+        796.67,
+        109.65
+      ],
+      "bbox_w": 699.07,
+      "bbox_h": 171.83,
+      "n": 11
+    },
+    "X": {
+      "skills": {
+        "d": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|500|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|500|6"
+              ],
+              "i0": 500,
+              "i_feat": 500,
+              "i1": 510,
+              "i_end": 509,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|621|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|621|6"
+              ],
+              "i0": 621,
+              "i_feat": 621,
+              "i1": 629,
+              "i_end": 630,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "f": {
+          "slot": 5,
+          "key": "f",
+          "group_key": "f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|541|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|541|5"
+              ],
+              "i0": 541,
+              "i_feat": 541,
+              "i1": 542,
+              "i_end": 543,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|615|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|615|5"
+              ],
+              "i0": 615,
+              "i_feat": 615,
+              "i1": 616,
+              "i_end": 617,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "f"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "d>w": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|546|d>w",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>w",
+              "group_slots": [
+                6,
+                4
+              ],
+              "group_keys": [
+                "d",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|546|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|551|4"
+              ],
+              "i0": 546,
+              "i_feat": 546,
+              "i1": 565,
+              "i_end": 561,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                511
+              ],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            4
+          ],
+          "group_keys": [
+            "d",
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            511
+          ]
+        },
+        "e": {
+          "slot": 2,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|566|e",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 2,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|566|2"
+              ],
+              "i0": 566,
+              "i_feat": 566,
+              "i1": 586,
+              "i_end": 585,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "abnormal",
+      "tags": [
+        "异常"
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0
+    }
+  },
+  "rooms": {
+    "B0": {
+      "skills": {
+        "f": {
+          "slot": 5,
+          "key": "f",
+          "group_key": "f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|154|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|154|5"
+              ],
+              "i0": 154,
+              "i_feat": 154,
+              "i1": 155,
+              "i_end": 156,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                -238.09,
+                67.26
+              ],
+              "rel": [
+                -238.09,
+                67.26
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 247.41,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "left",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|497|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|497|5"
+              ],
+              "i0": 497,
+              "i_feat": 497,
+              "i1": 498,
+              "i_end": 499,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                219.25,
+                236.31
+              ],
+              "rel": [
+                219.25,
+                236.31
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 322.36,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "f"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "d>f": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|60|d>f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>f",
+              "group_slots": [
+                6,
+                5
+              ],
+              "group_keys": [
+                "d",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|60|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|64|5"
+              ],
+              "i0": 60,
+              "i_feat": 60,
+              "i1": 68,
+              "i_end": 69,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                539.8,
+                226.01
+              ],
+              "rel": [
+                539.8,
+                226.01
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 585.2,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                405
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            6,
+            5
+          ],
+          "group_keys": [
+            "d",
+            "f"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            405
+          ]
+        },
+        "d>f>s>w": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>f>s>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|307|d>f>s>w",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>f>s>w",
+              "group_slots": [
+                6,
+                5,
+                3,
+                4
+              ],
+              "group_keys": [
+                "d",
+                "f",
+                "s",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|307|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|312|5",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|315|3",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|324|4"
+              ],
+              "i0": 307,
+              "i_feat": 307,
+              "i1": 335,
+              "i_end": 336,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                594.7,
+                218.17
+              ],
+              "rel": [
+                594.7,
+                218.17
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 633.46,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                514,
+                307,
+                921
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            5,
+            3,
+            4
+          ],
+          "group_keys": [
+            "d",
+            "f",
+            "s",
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            514,
+            307,
+            921
+          ]
+        },
+        "d>s>d": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>s>d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|156|d>s>d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>s>d",
+              "group_slots": [
+                6,
+                3,
+                6
+              ],
+              "group_keys": [
+                "d",
+                "s",
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|156|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|162|3",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|166|6"
+              ],
+              "i0": 156,
+              "i_feat": 156,
+              "i1": 176,
+              "i_end": 183,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                -163.71,
+                199.37
+              ],
+              "rel": [
+                -163.71,
+                199.37
+              ],
+              "bbox": [
+                -163.71,
+                197.78,
+                -161.96,
+                199.37
+              ],
+              "bbox_w": 1.75,
+              "bbox_h": 1.59,
+              "dist": 257.97,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                615,
+                412
+              ],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            3,
+            6
+          ],
+          "group_keys": [
+            "d",
+            "s",
+            "d"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 2.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            615,
+            412
+          ]
+        },
+        "d>s>f": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>s>f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|227|d>s>f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>s>f",
+              "group_slots": [
+                6,
+                3,
+                5
+              ],
+              "group_keys": [
+                "d",
+                "s",
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|227|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|234|3",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|241|5"
+              ],
+              "i0": 227,
+              "i_feat": 227,
+              "i1": 244,
+              "i_end": 255,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                -13.76,
+                243.95
+              ],
+              "rel": [
+                -13.76,
+                243.95
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 244.34,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                715,
+                718
+              ],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            3,
+            5
+          ],
+          "group_keys": [
+            "d",
+            "s",
+            "f"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            715,
+            718
+          ]
+        },
+        "s": {
+          "slot": 3,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|382|s",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|382|3"
+              ],
+              "i0": 382,
+              "i_feat": 382,
+              "i1": 402,
+              "i_end": 403,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                412.38,
+                199.68
+              ],
+              "rel": [
+                412.38,
+                199.68
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 458.18,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            3
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "w>e": {
+          "slot": 4,
+          "key": "w",
+          "group_key": "w>e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|70|w>e",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "w",
+              "group_key": "w>e",
+              "group_slots": [
+                4,
+                2
+              ],
+              "group_keys": [
+                "w",
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|70|4",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|74|2"
+              ],
+              "i0": 70,
+              "i_feat": 70,
+              "i1": 99,
+              "i_end": 93,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                301.25,
+                160.14
+              ],
+              "rel": [
+                301.25,
+                160.14
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 341.17,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                411
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            4,
+            2
+          ],
+          "group_keys": [
+            "w",
+            "e"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            411
+          ]
+        }
+      },
+      "kind": "boss",
+      "tags": [
+        "BOSS"
+      ],
+      "rel": [
+        539.8,
+        226.01
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0,
+      "bbox": [
+        -163.71,
+        197.78,
+        -161.96,
+        199.37
+      ]
+    },
+    "M0": {
+      "skills": {
+        "f": {
+          "slot": 5,
+          "key": "f",
+          "group_key": "f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|35|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|35|5"
+              ],
+              "i0": 35,
+              "i_feat": 35,
+              "i1": 36,
+              "i_end": 37,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                796.67,
+                109.65
+              ],
+              "rel": [
+                796.67,
+                109.65
+              ],
+              "bbox": [
+                100.36,
+                -62.15,
+                796.67,
+                109.65
+              ],
+              "bbox_w": 696.31,
+              "bbox_h": 171.8,
+              "dist": 804.18,
+              "range_x": 796.67,
+              "range_y": 109.65,
+              "range_px": 804.18,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|143|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|143|5"
+              ],
+              "i0": 143,
+              "i_feat": 143,
+              "i1": 144,
+              "i_end": 145,
+              "mon": 9,
+              "boss": 0,
+              "enemy": 9,
+              "start_n": 9,
+              "center": [
+                971.0,
+                26.62
+              ],
+              "rel": [
+                971.0,
+                26.62
+              ],
+              "bbox": [
+                258.55,
+                -38.2,
+                971.0,
+                133.31
+              ],
+              "bbox_w": 712.45,
+              "bbox_h": 171.51,
+              "dist": 971.36,
+              "range_x": 971.0,
+              "range_y": 133.31,
+              "range_px": 980.11,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 9,
+              "killed_enemy": 9,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|370|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|370|5"
+              ],
+              "i0": 370,
+              "i_feat": 370,
+              "i1": 371,
+              "i_end": 372,
+              "mon": 2,
+              "boss": 0,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                246.12,
+                149.16
+              ],
+              "rel": [
+                246.12,
+                149.16
+              ],
+              "bbox": [
+                245.78,
+                149.16,
+                246.12,
+                149.61
+              ],
+              "bbox_w": 0.34,
+              "bbox_h": 0.45,
+              "dist": 287.79,
+              "range_x": 246.12,
+              "range_y": 149.61,
+              "range_px": 288.02,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|437|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|437|5"
+              ],
+              "i0": 437,
+              "i_feat": 437,
+              "i1": 438,
+              "i_end": 439,
+              "mon": 1,
+              "boss": 0,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                231.24,
+                205.24
+              ],
+              "rel": [
+                231.24,
+                205.24
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 309.19,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|477|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|477|5"
+              ],
+              "i0": 477,
+              "i_feat": 477,
+              "i1": 478,
+              "i_end": 479,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                960.68,
+                151.83
+              ],
+              "rel": [
+                960.68,
+                151.83
+              ],
+              "bbox": [
+                261.49,
+                -19.88,
+                960.68,
+                151.83
+              ],
+              "bbox_w": 699.19,
+              "bbox_h": 171.71,
+              "dist": 972.6,
+              "range_x": 960.68,
+              "range_y": 151.83,
+              "range_px": 972.6,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|532|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|532|5"
+              ],
+              "i0": 532,
+              "i_feat": 532,
+              "i1": 533,
+              "i_end": 534,
+              "mon": 14,
+              "boss": 0,
+              "enemy": 14,
+              "start_n": 14,
+              "center": [
+                939.61,
+                188.34
+              ],
+              "rel": [
+                939.61,
+                188.34
+              ],
+              "bbox": [
+                239.39,
+                16.54,
+                939.61,
+                188.34
+              ],
+              "bbox_w": 700.22,
+              "bbox_h": 171.8,
+              "dist": 958.3,
+              "range_x": 939.61,
+              "range_y": 188.34,
+              "range_px": 958.3,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 14,
+              "killed_enemy": 14,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|605|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|605|5"
+              ],
+              "i0": 605,
+              "i_feat": 605,
+              "i1": 606,
+              "i_end": 607,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                869.56,
+                208.03
+              ],
+              "rel": [
+                869.56,
+                208.03
+              ],
+              "bbox": [
+                170.49,
+                36.2,
+                869.56,
+                208.03
+              ],
+              "bbox_w": 699.07,
+              "bbox_h": 171.83,
+              "dist": 894.1,
+              "range_x": 869.56,
+              "range_y": 208.03,
+              "range_px": 894.1,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "f"
+          ],
+          "n": 7,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 980.11,
+          "range_x_max": 971.0,
+          "range_y_max": 208.03,
+          "kind_maj": "群",
+          "kind_group": 5,
+          "kill_mean": 9.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "e": {
+          "slot": 2,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|279|e",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|279|2"
+              ],
+              "i0": 279,
+              "i_feat": 279,
+              "i1": 297,
+              "i_end": 298,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                746.75,
+                123.17
+              ],
+              "rel": [
+                746.75,
+                123.17
+              ],
+              "bbox": [
+                47.86,
+                -48.47,
+                746.75,
+                123.17
+              ],
+              "bbox_w": 698.89,
+              "bbox_h": 171.64,
+              "dist": 756.84,
+              "range_x": 746.75,
+              "range_y": 123.17,
+              "range_px": 756.84,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 756.84,
+          "range_x_max": 746.75,
+          "range_y_max": 123.17,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "w": {
+          "slot": 4,
+          "key": "w",
+          "group_key": "w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|199|w",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 4,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|199|4"
+              ],
+              "i0": 199,
+              "i_feat": 199,
+              "i1": 208,
+              "i_end": 209,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                927.33,
+                128.36
+              ],
+              "rel": [
+                927.33,
+                128.36
+              ],
+              "bbox": [
+                262.94,
+                -43.97,
+                927.66,
+                128.36
+              ],
+              "bbox_w": 664.72,
+              "bbox_h": 172.33,
+              "dist": 936.17,
+              "range_x": 927.66,
+              "range_y": 128.36,
+              "range_px": 936.5,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 13,
+              "killed_enemy": 13,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            4
+          ],
+          "group_keys": [
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 936.5,
+          "range_x_max": 927.66,
+          "range_y_max": 128.36,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 13.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "d": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|360|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|360|6"
+              ],
+              "i0": 360,
+              "i_feat": 360,
+              "i1": 368,
+              "i_end": 369,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                778.42,
+                129.62
+              ],
+              "rel": [
+                778.42,
+                129.62
+              ],
+              "bbox": [
+                36.27,
+                -68.71,
+                778.42,
+                129.62
+              ],
+              "bbox_w": 742.15,
+              "bbox_h": 198.33,
+              "dist": 789.14,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 1,
+              "boss_end": 0,
+              "enemy_end": 1,
+              "killed_mon": 11,
+              "killed_enemy": 11,
+              "kill_ratio": 0.917,
+              "kill_ratio_enemy": 0.917,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|427|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|427|6"
+              ],
+              "i0": 427,
+              "i_feat": 427,
+              "i1": 435,
+              "i_end": 436,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                735.94,
+                91.31
+              ],
+              "rel": [
+                735.94,
+                91.31
+              ],
+              "bbox": [
+                37.82,
+                -80.15,
+                735.94,
+                91.31
+              ],
+              "bbox_w": 698.12,
+              "bbox_h": 171.46,
+              "dist": 741.58,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 1,
+              "boss_end": 0,
+              "enemy_end": 1,
+              "killed_mon": 10,
+              "killed_enemy": 10,
+              "kill_ratio": 0.909,
+              "kill_ratio_enemy": 0.909,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "群",
+          "kind_group": 2,
+          "kill_mean": 10.5,
+          "kill_ratio_mean": 0.913,
+          "gaps_ms": []
+        }
+      },
+      "kind": "mob",
+      "tags": [
+        "小怪"
+      ],
+      "rel": [
+        796.67,
+        109.65
+      ],
+      "bbox": [
+        100.36,
+        -62.15,
+        796.67,
+        109.65
+      ],
+      "bbox_w": 699.07,
+      "bbox_h": 171.83,
+      "n": 11
+    },
+    "X": {
+      "skills": {
+        "d": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|500|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|500|6"
+              ],
+              "i0": 500,
+              "i_feat": 500,
+              "i1": 510,
+              "i_end": 509,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|621|d",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|621|6"
+              ],
+              "i0": 621,
+              "i_feat": 621,
+              "i1": 629,
+              "i_end": 630,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "f": {
+          "slot": 5,
+          "key": "f",
+          "group_key": "f",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|541|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|541|5"
+              ],
+              "i0": 541,
+              "i_feat": 541,
+              "i1": 542,
+              "i_end": 543,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|615|f",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 5,
+              "key": "f",
+              "group_key": "f",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "f"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|615|5"
+              ],
+              "i0": 615,
+              "i_feat": 615,
+              "i1": 616,
+              "i_end": 617,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "f"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "d>w": {
+          "slot": 6,
+          "key": "d",
+          "group_key": "d>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|546|d>w",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "d",
+              "group_key": "d>w",
+              "group_slots": [
+                6,
+                4
+              ],
+              "group_keys": [
+                "d",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|546|6",
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|551|4"
+              ],
+              "i0": 546,
+              "i_feat": 546,
+              "i1": 565,
+              "i_end": 561,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                511
+              ],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            4
+          ],
+          "group_keys": [
+            "d",
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            511
+          ]
+        },
+        "e": {
+          "slot": 2,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|566|e",
+              "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 2,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260909_125648_Sam1ra|566|2"
+              ],
+              "i0": 566,
+              "i_feat": 566,
+              "i1": 586,
+              "i_end": 585,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "abnormal",
+      "tags": [
+        "异常"
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0
+    }
+  },
+  "cd_resets": [
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|156|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 156,
+      "t_ns": 1788929824636273100,
+      "t_s": 15.988,
+      "dist_key": "M0",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 9.839,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|166|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 166,
+      "t_ns": 1788929825663322400,
+      "t_s": 17.015,
+      "dist_key": "B1",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 1.027,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|199|4",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 199,
+      "t_ns": 1788929829047074300,
+      "t_s": 20.399,
+      "dist_key": "B1",
+      "slot": 4,
+      "key": "w",
+      "dt_s": 13.226,
+      "cooldown_s": 24.5
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|227|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 227,
+      "t_ns": 1788929831919957600,
+      "t_s": 23.272,
+      "dist_key": "B1",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 6.257,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|234|3",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 234,
+      "t_ns": 1788929832634882900,
+      "t_s": 23.986,
+      "dist_key": "B1",
+      "slot": 3,
+      "key": "s",
+      "dt_s": 7.383,
+      "cooldown_s": 24.5
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|279|2",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 279,
+      "t_ns": 1788929837253496900,
+      "t_s": 28.605,
+      "dist_key": "M0",
+      "slot": 2,
+      "key": "e",
+      "dt_s": 21.021,
+      "cooldown_s": 21.8
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|307|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 307,
+      "t_ns": 1788929840140323600,
+      "t_s": 31.492,
+      "dist_key": "M0",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 8.22,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|315|3",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 315,
+      "t_ns": 1788929840962123900,
+      "t_s": 32.314,
+      "dist_key": "B0",
+      "slot": 3,
+      "key": "s",
+      "dt_s": 8.327,
+      "cooldown_s": 24.5
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|324|4",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 324,
+      "t_ns": 1788929841883534700,
+      "t_s": 33.235,
+      "dist_key": "B0",
+      "slot": 4,
+      "key": "w",
+      "dt_s": 12.836,
+      "cooldown_s": 24.5
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|360|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 360,
+      "t_ns": 1788929845568712500,
+      "t_s": 36.92,
+      "dist_key": "B0",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 5.428,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|382|3",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 382,
+      "t_ns": 1788929847839982900,
+      "t_s": 39.192,
+      "dist_key": "B0",
+      "slot": 3,
+      "key": "s",
+      "dt_s": 6.878,
+      "cooldown_s": 24.5
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|427|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 427,
+      "t_ns": 1788929852454541900,
+      "t_s": 43.806,
+      "dist_key": "B0",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 6.886,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|500|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 500,
+      "t_ns": 1788929859952061400,
+      "t_s": 51.304,
+      "dist_key": "M0",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 7.498,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|546|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 546,
+      "t_ns": 1788929864681065600,
+      "t_s": 56.033,
+      "dist_key": "B0",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 4.729,
+      "cooldown_s": 13.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|551|4",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 551,
+      "t_ns": 1788929865191589500,
+      "t_s": 56.543,
+      "dist_key": "B0",
+      "slot": 4,
+      "key": "w",
+      "dt_s": 23.308,
+      "cooldown_s": 24.5
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260909_125648_Sam1ra|621|6",
+      "session": "recordings/深渊：最终调律者/20260909_125648_Sam1ra",
+      "i": 621,
+      "t_ns": 1788929872365306200,
+      "t_s": 63.717,
+      "dist_key": "B0",
+      "slot": 6,
+      "key": "d",
+      "dt_s": 7.684,
+      "cooldown_s": 13.6
+    }
+  ],
+  "skill_tags": {
+    "5": [
+      "多次释放"
+    ]
+  },
+  "map_tags": [
+    "CD重置"
+  ],
+  "sequences": {
+    "B0": [
+      5,
+      6,
+      6,
+      6,
+      6,
+      3,
+      4
+    ],
+    "M0": [
+      5,
+      2,
+      4,
+      6
+    ],
+    "X": [
+      6,
+      5,
+      6,
+      2
+    ]
+  },
+  "f": 50,
+  "skill_multi_n": {
+    "5": 2
+  }
+}

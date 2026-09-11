@@ -1,6 +1,6 @@
 {
   "character": "Varien",
-  "updated_at": "2026-09-07 22:49:09",
+  "updated_at": "2026-09-09 14:44:29",
   "source": "dnf_combat_stats",
   "region": {
     "x": 973,
@@ -22,10 +22,11 @@
       "hotbar": true,
       "cooldown_s": 10.6,
       "combo": false,
-      "multi": false,
+      "multi": true,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 1500
+      "hold_ms": 1200,
+      "mash_n": 3
     },
     {
       "slot": 2,
@@ -36,7 +37,8 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 1500
+      "hold_ms": 1200,
+      "mash_n": 3
     },
     {
       "slot": 3,
@@ -44,10 +46,11 @@
       "hotbar": true,
       "cooldown_s": 34,
       "combo": false,
-      "multi": true,
+      "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 2500
+      "hold_ms": 1900,
+      "mash_n": 3
     },
     {
       "slot": 4,
@@ -58,7 +61,8 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 3000
+      "hold_ms": 1700,
+      "mash_n": 3
     },
     {
       "slot": 5,
@@ -69,7 +73,8 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 5000
+      "hold_ms": 3000,
+      "mash_n": 3
     },
     {
       "slot": 6,
@@ -80,7 +85,8 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 2000
+      "hold_ms": 1200,
+      "mash_n": 3
     },
     {
       "slot": 7,
@@ -91,7 +97,8 @@
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 5000
+      "hold_ms": 2800,
+      "mash_n": 3
     }
   ]
 }

@@ -54,7 +54,10 @@ DEFAULT_TH_MS = 50
 DEFAULT_PW_MS = 3000
 DEFAULT_ADVANCE_TIMEOUT_MS = 3000
 DEFAULT_APPROACH_TIMEOUT_MS = 3000
+DEFAULT_ADVANCE_TIMEOUT_ESC_N = 2
 DEFAULT_STUCK_RECOVER_S = 1.0
+DEFAULT_RANGE_X = 250
+DEFAULT_RANGE_Y = 100
 
 
 def _norm_dirs(dirs) -> tuple[FsmDir, ...]:
@@ -185,6 +188,7 @@ class FightSkill:
     multi: int = 1
     charge: int = 0
     mash: bool = False  # 键位表【连按】：宿主/执行层用，核心不读
+    mash_n: int = 0  # 每槽连按次数；0=执行层回退全局 mash_count
     group_key: str = ""
     group_slots: tuple[int, ...] = ()
     group_keys: tuple[str, ...] = ()
@@ -298,7 +302,7 @@ class FsmParams:
     m: int = 5
     l: int = 5
     g: int = 5
-    x_s: float = 1.5  # 卡住：同一流程状态连续秒数
+    x_s: float = 1.5  # 卡住：同一流程状态标签连续秒数（超时重入同标签不重置）
     gx: int = 50
     gy: int = 10
     ax_ms: int = 250
@@ -317,6 +321,9 @@ class FsmParams:
     pw_ms: int = DEFAULT_PW_MS  # 捡物等停下上限；超时后按当前掉落继续步骤 2
     advance_timeout_ms: int = DEFAULT_ADVANCE_TIMEOUT_MS  # 前进方法超时；须>0；结束方法并重入判定
     approach_timeout_ms: int = DEFAULT_APPROACH_TIMEOUT_MS  # 开打范围外走近超时；须>0；结束走近并重选技能
+    advance_timeout_esc_n: int = DEFAULT_ADVANCE_TIMEOUT_ESC_N  # 前进连续超时 N 次点按 ESC
+    default_range_x: int = DEFAULT_RANGE_X  # 技能无 XY/px 时矩形半宽；须>0
+    default_range_y: int = DEFAULT_RANGE_Y  # 技能无 XY/px 时矩形半高；须>0
     tn_s: float = DEFAULT_TOWN_S  # 回城：连续无地下城关键词的秒数
     fight_plan: tuple[DistSkillPlan, ...] = ()
     hotbar: tuple[FightSkill, ...] = ()
@@ -379,6 +386,7 @@ class FsmContext:
     extra_v: int = 0
     adv_lock: tuple[int, int, int, int] = (0, 0, 0, 0)
     adv_dir_set: bool = False
+    adv_nolock_gate_miss: int = 0  # 未锁向丢门连续帧；满 1 后再丢则解除前进粘住
     recover_on: bool = False
     recover_dir_i: int = 0
     recover_ms: int = 0
@@ -414,6 +422,7 @@ class FsmContext:
     watch_state: FsmState | None = None
     watch_run: int = 0
     watch_start_t: int | None = None
+    adv_timeout_streak: int = 0  # 前进连续超时次数；正常完成清零
 
 
 @dataclass(frozen=True)
@@ -967,13 +976,24 @@ def snapshot_from_detect(
     )
 
 
-def _axis_dir(player: tuple[float, float], gate: tuple[float, float]) -> FsmDir:
-    """单轴接近（开打/捡物）。前进穿门用 `_gate_dirs`。"""
-    dx = gate[0] - player[0]
-    dy = gate[1] - player[1]
-    if abs(dx) >= abs(dy):
-        return FsmDir.RIGHT if dx >= 0 else FsmDir.LEFT
-    return FsmDir.DOWN if dy >= 0 else FsmDir.UP
+def _dual_axis_dirs(
+    pos: tuple[float, float] | None,
+    tgt: tuple[float, float] | None,
+    thr_x: float,
+    thr_y: float,
+) -> tuple[FsmDir, ...]:
+    """|dx|>thr_x → L/R；|dy|>thr_y → U/D；可同时两轴。与前进 phase0 一致。"""
+    if pos is None or tgt is None:
+        return ()
+    dx = tgt[0] - pos[0]
+    dy = tgt[1] - pos[1]
+    hold_h = None
+    if abs(dx) > float(thr_x):
+        hold_h = FsmDir.RIGHT if dx > 0 else FsmDir.LEFT
+    hold_v = None
+    if abs(dy) > float(thr_y):
+        hold_v = FsmDir.DOWN if dy > 0 else FsmDir.UP
+    return tuple(d for d in (hold_h, hold_v) if d is not None)
 
 
 def _gate_lock(pos: tuple[float, float], gate: tuple[float, float]) -> tuple[int, int, int, int]:
@@ -1142,15 +1162,7 @@ def _intent(
             if dir_set:
                 return _enter_through()
             return _pack(FsmAction.NONE, (), 0, 0, 0, False)
-        dx = gate_xy[0] - pos[0]
-        dy = gate_xy[1] - pos[1]
-        hold_h = None
-        if abs(dx) > gx:
-            hold_h = FsmDir.RIGHT if dx > 0 else FsmDir.LEFT
-        hold_v = None
-        if abs(dy) > gy:
-            hold_v = FsmDir.DOWN if dy > 0 else FsmDir.UP
-        dirs = tuple(d for d in (hold_h, hold_v) if d is not None)
+        dirs = _dual_axis_dirs(pos, gate_xy, gx, gy)
         if dirs:
             return _pack(FsmAction.HOLD, dirs, 0, 0, 0, False)
         return _enter_through()
@@ -1190,6 +1202,7 @@ def _copy_fight_skill(sk: FightSkill, *, charge: int | None = None, multi: int |
         multi=sk.multi if multi is None else multi,
         charge=sk.charge if charge is None else charge,
         mash=bool(sk.mash),
+        mash_n=max(0, int(sk.mash_n or 0)),
         group_key=sk.group_key,
         group_slots=sk.group_slots,
         group_keys=sk.group_keys,
@@ -1292,31 +1305,49 @@ def _group_tail_ms(holds: tuple[int, ...], gaps: tuple[int, ...]) -> int:
     return max(0, end - times[-1])
 
 
+def _pos_half(v) -> float | None:
+    """范围半轴：缺/非正视为无数据。"""
+    if v is None:
+        return None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f if f > 0 else None
+
+
+def _rect_in_range(
+    pos: tuple[float, float],
+    enemy_xy: tuple[tuple[float, float], ...],
+    rx: float,
+    ry: float,
+) -> bool:
+    far = max(enemy_xy, key=lambda p: (p[0] - pos[0]) ** 2 + (p[1] - pos[1]) ** 2)
+    return abs(far[0] - pos[0]) <= rx + 1e-9 and abs(far[1] - pos[1]) <= ry + 1e-9
+
+
 def _in_skill_range(
     pos: tuple[float, float] | None,
     enemy_xy: tuple[tuple[float, float], ...],
     rng: float | None,
     range_x: float | None = None,
     range_y: float | None = None,
+    default_range_x: float = DEFAULT_RANGE_X,
+    default_range_y: float = DEFAULT_RANGE_Y,
 ) -> tuple[bool, float | None]:
-    """优先 XY 范围框：最远敌对须 |dx|<=range_x 且 |dy|<=range_y；否则退回圆形 range_px。"""
+    """优先技能 XY 框；否则 range_px 圆；皆空则用 default_range_x/y 矩形。无玩家或无怪视为在范围内。"""
     dist = _farthest_dist(pos, enemy_xy)
     if pos is None or not enemy_xy:
         return True, dist
-    rx = range_x
-    ry = range_y
+    rx, ry = _pos_half(range_x), _pos_half(range_y)
     if rx is not None and ry is not None:
-        try:
-            rx_f, ry_f = float(rx), float(ry)
-        except (TypeError, ValueError):
-            rx_f = ry_f = None  # type: ignore
-        else:
-            far = max(enemy_xy, key=lambda p: (p[0] - pos[0]) ** 2 + (p[1] - pos[1]) ** 2)
-            ok = abs(far[0] - pos[0]) <= rx_f + 1e-9 and abs(far[1] - pos[1]) <= ry_f + 1e-9
-            return ok, dist
-    if rng is None or dist is None:
-        return True, dist
-    return dist <= float(rng) + 1e-9, dist
+        return _rect_in_range(pos, enemy_xy, rx, ry), dist
+    rng_f = _pos_half(rng)
+    if rng_f is not None:
+        return dist <= rng_f + 1e-9, dist
+    dx = max(1e-9, float(default_range_x))
+    dy = max(1e-9, float(default_range_y))
+    return _rect_in_range(pos, enemy_xy, dx, dy), dist
 
 
 def _dist_center(
@@ -1341,13 +1372,11 @@ def _cast_tgt(
     extra: tuple[DistSig, ...],
     enemy_xy: tuple[tuple[float, float], ...],
 ) -> tuple[float, float] | None:
-    """CAST 朝向目标：与范围异常走近同一套 _dist_center；缺则最远怪 / 敌对中心。"""
-    tgt = _dist_center(pos, dist_key, table, extra, enemy_xy)
-    if tgt is not None:
-        return tgt
-    if pos is not None and enemy_xy:
-        return max(enemy_xy, key=lambda p: (p[0] - pos[0]) ** 2 + (p[1] - pos[1]) ** 2)
-    return _pack_center(enemy_xy)
+    """CAST 朝向：当前帧 boss+mon 均值；缺检再退 _dist_center；再空 None。不用于走近。"""
+    c = _pack_center(enemy_xy)
+    if c is not None:
+        return c
+    return _dist_center(pos, dist_key, table, extra, enemy_xy)
 
 
 def _cast_face_dir(
@@ -1364,6 +1393,7 @@ def _start_attack(xxx_ms: int, step_ms: int) -> tuple:
     return (
         FsmAction.ATTACK,
         None,
+        (),
         None,
         None,
         "x",
@@ -1400,8 +1430,12 @@ def _fight_intent(
     fight_gaps: tuple[int, ...] = (),
     fight_tail: int = 0,
     approach_skip: tuple[tuple[int, int], ...] = (),
+    default_range_x: int = DEFAULT_RANGE_X,
+    default_range_y: int = DEFAULT_RANGE_Y,
+    gx: int = 50,
+    gy: int = 10,
 ) -> tuple:
-    """action, move_dir, fight_dir, slot, key, range, dist, new_cd, note, wait, atk, rest, gaps, tail。"""
+    """action, move_dir, move_dirs, fight_dir, slot, key, range, dist, new_cd, note, wait, atk, rest, gaps, tail。"""
     wait = max(0, int(cast_wait_left))
     atk = max(0, int(attack_left))
     step_ms = max(0, int(dt_ms))
@@ -1414,6 +1448,7 @@ def _fight_intent(
         return (
             FsmAction.NONE,
             None,
+            (),
             None,
             last_slot,
             last_key,
@@ -1434,6 +1469,7 @@ def _fight_intent(
         return (
             FsmAction.ATTACK,
             None,
+            (),
             None,
             None,
             "x",
@@ -1463,6 +1499,7 @@ def _fight_intent(
         return (
             FsmAction.CAST,
             None,
+            (),
             face,
             int(slot),
             key,
@@ -1491,14 +1528,26 @@ def _fight_intent(
         note_prefix = "无技能可放"
     if picked is not None:
         in_range, dist = _in_skill_range(
-            pos, enemy_xy, picked.range_px, picked.range_x, picked.range_y
+            pos,
+            enemy_xy,
+            picked.range_px,
+            picked.range_x,
+            picked.range_y,
+            default_range_x,
+            default_range_y,
         )
         if not in_range:
-            tgt = _dist_center(pos, dist_key, dist_table, extra_sigs, enemy_xy)
-            md = _axis_dir(pos, tgt) if pos is not None and tgt is not None else None
+            tgt = _pack_center(enemy_xy)
+            if tgt is None:
+                tgt = _dist_center(pos, dist_key, dist_table, extra_sigs, enemy_xy)
+            dirs = _dual_axis_dirs(pos, tgt, gx, gy)
+            if not dirs:
+                dirs = _dual_axis_dirs(pos, tgt, 0, 0)
+            md = dirs[0] if dirs else None
             return (
-                FsmAction.HOLD if md is not None else FsmAction.NONE,
+                FsmAction.HOLD if dirs else FsmAction.NONE,
                 md,
+                dirs,
                 None,
                 picked.slot,
                 picked.key,
@@ -1527,6 +1576,7 @@ def _fight_intent(
         return (
             FsmAction.CAST,
             None,
+            (),
             face,
             first_slot,
             first_key,
@@ -1540,8 +1590,8 @@ def _fight_intent(
             gaps_m,
             tail_m if rest_m else 0,
         )
-    act, md, fd, slot, key, rng, dist, cd, note, cw, aw, r, g, tl = _start_attack(xxx_ms, step_ms)
-    return act, md, fd, slot, key, rng, dist, skill_cd, note, cw, aw, r, g, tl
+    act, md, mds, fd, slot, key, rng, dist, cd, note, cw, aw, r, g, tl = _start_attack(xxx_ms, step_ms)
+    return act, md, mds, fd, slot, key, rng, dist, skill_cd, note, cw, aw, r, g, tl
 
 
 def _xy_dist(a: tuple[float, float], b: tuple[float, float]) -> float:
@@ -1583,8 +1633,10 @@ def _loot_intent(
     still_ok: bool,
     pm: int,
     pc: int,
-) -> tuple[FsmAction, FsmDir | None, tuple[tuple[float, float], ...], FsmDir | None, str]:
-    """action, move_dir, loot_targets, loot_dir, note。"""
+    gx: int = 50,
+    gy: int = 10,
+) -> tuple[FsmAction, FsmDir | None, tuple[FsmDir, ...], tuple[tuple[float, float], ...], FsmDir | None, str]:
+    """action, move_dir, move_dirs, loot_targets, loot_dir, note。双轴走近；停靠 PM 重合。"""
     pm_px = max(0, int(pm))
     pc_n = max(0, int(pc))
     pts = loot_xy
@@ -1593,9 +1645,9 @@ def _loot_intent(
         targets = ()
         loot_dir = None
     if not still_ok:
-        return FsmAction.NONE, None, (), None, "等待停下"
+        return FsmAction.NONE, None, (), (), None, "等待停下"
     if n > pc_n:
-        return FsmAction.PICK, None, (), None, "一键拾取"
+        return FsmAction.PICK, None, (), (), None, "一键拾取"
     match_r = max(float(pm_px) * 3.0, 24.0)
     kept: list[tuple[float, float]] = []
     for tgt in targets:
@@ -1607,14 +1659,19 @@ def _loot_intent(
         else:
             kept = sorted(pts, key=lambda p: _xy_dist(p, pos))
     if not kept:
-        return FsmAction.NONE, None, (), None, ""
+        return FsmAction.NONE, None, (), (), None, ""
     tgt = kept[0]
     if pos is None:
-        return FsmAction.NONE, None, tuple(kept), None, "无坐标"
+        return FsmAction.NONE, None, (), tuple(kept), None, "无坐标"
     if _xy_dist(pos, tgt) <= max(float(pm_px), 8.0):
-        return FsmAction.NONE, None, tuple(kept), loot_dir, "等消失"
-    want = _axis_dir(pos, tgt)
-    return FsmAction.HOLD, want, tuple(kept), want, "依次捡"
+        return FsmAction.NONE, None, (), tuple(kept), loot_dir, "等消失"
+    dirs = _dual_axis_dirs(pos, tgt, gx, gy)
+    if not dirs:
+        dirs = _dual_axis_dirs(pos, tgt, 0, 0)
+    want = dirs[0] if dirs else None
+    if not dirs:
+        return FsmAction.NONE, None, (), tuple(kept), loot_dir, "依次捡"
+    return FsmAction.HOLD, want, dirs, tuple(kept), want, "依次捡"
 
 
 def _intent_label(
@@ -1632,6 +1689,7 @@ def _intent_label(
     adv_phase: int = 0,
     fsm_run: int = 0,
     cast_wait_left: int = 0,
+    fight_dir: FsmDir | None = None,
 ) -> str:
     recover = "恢复 " if FsmFlag.STUCK in flags else ""
     dirs = move_dirs or (() if move_dir is None else (move_dir,))
@@ -1662,6 +1720,8 @@ def _intent_label(
         if action is FsmAction.CAST:
             if fight_note == "无技能可放":
                 return f"{head} 无技能可放 最短释放 {sk}".strip()
+            if fight_dir in (FsmDir.LEFT, FsmDir.RIGHT):
+                return f"{head} 释放 {sk} 先点按 {fight_dir.value}".strip()
             return f"{head} 释放 {sk}".strip()
         return f"{head} {fight_note}".strip() if fight_note else head
     if state is FsmState.LOOT:
@@ -1859,7 +1919,11 @@ def _method_hold(
     """方法未跑完时不让总流程短路切走。"""
     prev = ctx.state
     if prev is FsmState.ADVANCE and not ctx.through_done:
-        if drafted is not FsmState.ADVANCE:
+        if drafted is FsmState.ADVANCE:
+            return None, ""
+        if ctx.adv_dir_set:
+            return FsmState.ADVANCE, "方法未完·前进"
+        if int(ctx.adv_nolock_gate_miss) < 1:
             return FsmState.ADVANCE, "方法未完·前进"
         return None, ""
     if prev is FsmState.FIGHT and (
@@ -1901,6 +1965,9 @@ def step(
     pw_ms = max(0, int(params.pw_ms))
     advance_timeout_ms = max(1, int(params.advance_timeout_ms))
     approach_timeout_ms = max(1, int(params.approach_timeout_ms))
+    advance_timeout_esc_n = max(1, int(params.advance_timeout_esc_n))
+    default_range_x = max(1, int(params.default_range_x))
+    default_range_y = max(1, int(params.default_range_y))
     tn_s = max(0.0, float(params.tn_s))
     step_ms = dt_ms(ctx.last_t_ns, t)
     ox, oy = int(params.mon_off_x), int(params.mon_off_y)
@@ -1968,12 +2035,25 @@ def step(
         g=g,
     )
     adv_timeout = False
-    if (
+    adv_timing = (
         ctx.state is FsmState.ADVANCE
         and ctx.adv_start_t is not None
         and (t - ctx.adv_start_t) / 1e6 >= advance_timeout_ms
-    ):
-        adv_timeout = True
+    )
+    if adv_timing and ctx.adv_phase != 1 and not ctx.through_done:
+        # 已过门 / 本帧将进过门：超时会 just_entered 按门背面重锁向，AX/AY 会反走。
+        about_through = False
+        if ctx.adv_dir_set:
+            p = snap.player_xy if snap.player_xy is not None else ctx.last_player_xy
+            gxy = snap.gate_xy
+            if p is None:
+                about_through = False
+            elif gxy is None:
+                about_through = True
+            else:
+                about_through = abs(gxy[0] - p[0]) <= gx and abs(gxy[1] - p[1]) <= gy
+        if not about_through:
+            adv_timeout = True
     appr_timeout = False
     if (
         ctx.state is FsmState.FIGHT
@@ -1998,7 +2078,7 @@ def step(
         watch_run = ctx.watch_run
         state = FsmState.STUCK
     else:
-        watch_same = ctx.watch_state is flow and ctx.watch_start_t is not None and not method_timeout
+        watch_same = ctx.watch_state is flow and ctx.watch_start_t is not None
         if watch_same:
             watch_start_t = ctx.watch_start_t
             watch_run = ctx.watch_run + 1
@@ -2008,7 +2088,7 @@ def step(
         watch_s = (t - watch_start_t) / 1e9
         if watch_s >= x_s:
             flow = drafted
-            if ctx.watch_state is flow and ctx.watch_start_t is not None and not method_timeout:
+            if ctx.watch_state is flow and ctx.watch_start_t is not None:
                 watch_start_t = ctx.watch_start_t
                 watch_run = ctx.watch_run + 1
             else:
@@ -2208,6 +2288,7 @@ def step(
         (
             action,
             move_dir,
+            move_dirs,
             fight_dir,
             skill_slot,
             skill_key,
@@ -2240,6 +2321,10 @@ def step(
             fight_gaps=() if appr_timeout else (ctx.fight_gaps if ctx.state is FsmState.FIGHT else ()),
             fight_tail=0 if appr_timeout else (ctx.fight_tail if ctx.state is FsmState.FIGHT else 0),
             approach_skip=fight_skip,
+            default_range_x=default_range_x,
+            default_range_y=default_range_y,
+            gx=gx,
+            gy=gy,
         )
         if fight_note:
             why += f"  {fight_note}"
@@ -2273,7 +2358,7 @@ def step(
                 loot_wait_t = None
             else:
                 still_ok = False
-        action, move_dir, loot_targets, loot_dir, loot_note = _loot_intent(
+        action, move_dir, loot_move_dirs, loot_targets, loot_dir, loot_note = _loot_intent(
             pos=pos,
             loot_xy=snap.loot_xy,
             loot_n=int(snap.loot),
@@ -2283,7 +2368,10 @@ def step(
             still_ok=still_ok,
             pm=pm,
             pc=pc,
+            gx=gx,
+            gy=gy,
         )
+        move_dirs = loot_move_dirs
         if timed_out or loot_wait_done:
             if loot_note == "等待停下":
                 loot_note = "捡物等待超时 PW"
@@ -2293,6 +2381,25 @@ def step(
             why += f"  {loot_note}"
     else:
         action, move_dir = FsmAction.NONE, None
+
+    adv_esc = False
+    if state is FsmState.ADVANCE and through_done:
+        adv_timeout_streak = 0
+    elif adv_timeout and not stuck:
+        adv_timeout_streak = (ctx.adv_timeout_streak if ctx.state is FsmState.ADVANCE else 0) + 1
+        if adv_timeout_streak >= advance_timeout_esc_n:
+            adv_esc = True
+            adv_timeout_streak = 0
+    elif state is FsmState.ADVANCE:
+        adv_timeout_streak = ctx.adv_timeout_streak if ctx.state is FsmState.ADVANCE else 0
+    else:
+        adv_timeout_streak = 0
+    if adv_esc:
+        action = FsmAction.TAP
+        move_dir = None
+        move_dirs = ()
+        skill_key = "esc"
+        why += "  前进超时ESC"
 
     dash_want: tuple[FsmDir, ...] = ()
     dash_phase = 0
@@ -2308,7 +2415,7 @@ def step(
             or state is FsmState.FIGHT
         )
     )
-    if approaching:
+    if approaching and not adv_esc:
         want = _norm_dirs(move_dirs or ((move_dir,) if move_dir else ()))
         same_move = (not method_timeout) and ctx.state in (
             FsmState.ADVANCE,
@@ -2339,6 +2446,7 @@ def step(
         adv_phase=adv_phase,
         fsm_run=fsm_run,
         cast_wait_left=cast_wait_left,
+        fight_dir=fight_dir,
     )
     skill_cds = _cd_remain(
         t,
@@ -2410,6 +2518,16 @@ def step(
             else ""
         ),
         through_done=through_done if state is FsmState.ADVANCE else False,
+        adv_nolock_gate_miss=(
+            int(ctx.adv_nolock_gate_miss) + 1
+            if (
+                state is FsmState.ADVANCE
+                and not through_done
+                and not adv_dir_set
+                and drafted is not FsmState.ADVANCE
+            )
+            else 0
+        ),
         adv_start_t=(
             t
             if state is FsmState.ADVANCE and (ctx.state is not FsmState.ADVANCE or adv_timeout or ctx.adv_start_t is None)
@@ -2444,6 +2562,7 @@ def step(
         watch_state=flow,
         watch_run=watch_run,
         watch_start_t=watch_start_t,
+        adv_timeout_streak=adv_timeout_streak,
     )
     decision = FsmDecision(
         state=state,

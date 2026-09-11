@@ -1,103 +1,115 @@
 {
-  "character": "SolarWarden",
-  "updated_at": "2026-09-04 18:18:48",
+  "character": "Sam1ra",
+  "updated_at": "2026-09-11 11:09:15",
   "source": "dnf_combat_stats",
   "region": {
-    "x": 960,
-    "y": 457,
-    "width": 630,
-    "height": 587
+    "x": 943,
+    "y": 483,
+    "width": 634,
+    "height": 583
   },
   "hover": {
-    "x": 71,
-    "y": 128,
-    "dy": 43,
+    "x": 68,
+    "y": 127,
+    "dy": 42,
     "count": 8,
     "dwell_s": 0.5
   },
   "skills": [
     {
       "slot": 1,
-      "command": "t",
+      "command": "e",
       "hotbar": true,
-      "cooldown_s": 270,
+      "hold_ms": 1000,
+      "cooldown_s": 22.8,
       "combo": false,
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 7000
+      "mash_n": 3
     },
     {
       "slot": 2,
-      "command": "w",
+      "command": "q",
       "hotbar": true,
-      "cooldown_s": 33.7,
+      "hold_ms": 2000,
+      "cooldown_s": 22.8,
       "combo": false,
       "multi": false,
       "multi_n": 2,
       "mash": false,
-      "hold_ms": 2000
+      "mash_n": 3
     },
     {
       "slot": 3,
-      "command": "f",
+      "command": "g",
       "hotbar": true,
-      "cooldown_s": 44.9,
-      "combo": false,
-      "multi": false,
-      "multi_n": 2,
-      "mash": false,
-      "hold_ms": 5000
-    },
-    {
-      "slot": 4,
-      "command": "right+space",
-      "cooldown_s": 37.4,
-      "combo": false,
-      "multi": false,
-      "multi_n": 2,
-      "hold_ms": 250
-    },
-    {
-      "slot": 5,
-      "command": "down right+z",
-      "hotbar": true,
-      "cooldown_s": 26.2,
-      "combo": false,
-      "multi": false,
-      "multi_n": 2,
-      "hold_ms": 350
-    },
-    {
-      "slot": 6,
-      "command": "d",
-      "hotbar": true,
-      "cooldown_s": 26.2,
-      "combo": false,
-      "multi": false,
-      "multi_n": 2,
-      "mash": false,
-      "hold_ms": 6000
-    },
-    {
-      "slot": 7,
-      "command": "r",
-      "hotbar": true,
-      "cooldown_s": 18.7,
-      "combo": false,
-      "multi": true,
-      "multi_n": 2,
-      "mash": false,
-      "hold_ms": 1000
-    },
-    {
-      "slot": 8,
-      "command": "space",
-      "cooldown_s": 12.7,
+      "hold_ms": 2000,
+      "cooldown_s": 34.3,
       "combo": true,
       "multi": false,
       "multi_n": 2,
       "mash": true,
+      "mash_n": 2
+    },
+    {
+      "slot": 4,
+      "command": "w",
+      "hotbar": true,
+      "hold_ms": 1000,
+      "cooldown_s": 25.7,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "mash_n": 3
+    },
+    {
+      "slot": 5,
+      "command": "d",
+      "hotbar": true,
+      "hold_ms": 1000,
+      "cooldown_s": 21.8,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "mash_n": 3
+    },
+    {
+      "slot": 6,
+      "command": "s",
+      "hotbar": true,
+      "hold_ms": 500,
+      "cooldown_s": 4.9,
+      "combo": false,
+      "multi": true,
+      "multi_n": 2,
+      "mash": false,
+      "mash_n": 3
+    },
+    {
+      "slot": 7,
+      "command": "a",
+      "hotbar": true,
+      "hold_ms": 500,
+      "cooldown_s": 8.6,
+      "combo": false,
+      "multi": false,
+      "multi_n": 2,
+      "mash": false,
+      "mash_n": 3
+    },
+    {
+      "slot": 8,
+      "command": "f",
+      "hotbar": true,
+      "cooldown_s": 8.6,
+      "mash": true,
+      "combo": true,
+      "mash_n": 2,
+      "multi": false,
+      "multi_n": 2,
       "hold_ms": 2000
     }
   ]

@@ -1,32 +1,32 @@
-{
-  "dungeon": "深渊：最终调律者",
-  "started_at": "20260907_220951",
-  "started_t_ns": 1788790191875909600,
-  "interval": 0.1,
-  "region": {
-    "x": 792,
-    "y": 456,
-    "width": 1600,
-    "height": 900
-  },
-  "format": "keys.jsonl + frames.jsonl (t_ns absolute)",
-  "yolo_weights": "D:\\Atrain\\runs\\mix_a\\weights\\best.pt",
-  "yolo_classes": [
-    "boss",
-    "gate",
-    "loot",
-    "mon",
-    "player"
-  ],
-  "yolo": {
-    "weights": "D:\\Atrain\\runs\\mix_a\\weights\\best.pt",
-    "conf": 0.1,
-    "iou": 0.7
-  },
-  "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260907_220951_SolarWarden",
-  "png_dir": "D:\\Desktop\\T\\test\\images\\Solarwarden",
-  "character": "SolarWarden",
-  "keys_held_at_start": [],
-  "keys_count": 965,
-  "frames_count": 716
+{
+  "dungeon": "深渊：最终调律者",
+  "started_at": "20260907_220951",
+  "started_t_ns": 1788790191875909600,
+  "interval": 0.1,
+  "region": {
+    "x": 792,
+    "y": 456,
+    "width": 1600,
+    "height": 900
+  },
+  "format": "keys.jsonl + frames.jsonl (t_ns absolute)",
+  "yolo_weights": "D:\\Desktop\\T\\test\\images\\Atrain\\runs\\mix_a\\weights\\best.pt",
+  "yolo_classes": [
+    "boss",
+    "gate",
+    "loot",
+    "mon",
+    "player"
+  ],
+  "yolo": {
+    "weights": "D:\\Desktop\\T\\test\\images\\Atrain\\runs\\mix_a\\weights\\best.pt",
+    "conf": 0.1,
+    "iou": 0.7
+  },
+  "session_dir": "D:\\Desktop\\T\\test\\recordings\\深渊：最终调律者\\20260907_220951_SolarWarden",
+  "png_dir": "D:\\Desktop\\T\\test\\images\\Solarwarden",
+  "character": "SolarWarden",
+  "keys_held_at_start": [],
+  "keys_count": 965,
+  "frames_count": 716
 }

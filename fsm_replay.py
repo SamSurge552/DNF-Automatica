@@ -40,7 +40,10 @@ from fsm_core import (
     DEFAULT_TOWN_S,
     DEFAULT_ADVANCE_TIMEOUT_MS,
     DEFAULT_APPROACH_TIMEOUT_MS,
+    DEFAULT_ADVANCE_TIMEOUT_ESC_N,
     DEFAULT_STUCK_RECOVER_S,
+    DEFAULT_RANGE_X,
+    DEFAULT_RANGE_Y,
     parse_stuck_recover,
     stuck_recover_to_json,
     send_keys_label,
@@ -50,7 +53,18 @@ from fsm_core import (
     warn_legacy_key,
     HOLD_MS_KEY,
 )
-from fsm_execute import mash_n_for_slot, parse_tap_ms_range, DEFAULT_TAP_MS_MIN, DEFAULT_TAP_MS_MAX
+from fsm_execute import (
+    mash_n_for_slot,
+    parse_mash_n,
+    parse_tap_ms_range,
+    DEFAULT_TAP_MS_MIN,
+    DEFAULT_TAP_MS_MAX,
+    DEFAULT_MASH_COUNT,
+    MASH_COUNT_MIN,
+    MASH_COUNT_MAX,
+    MASH_N_KEY,
+    clamp_mash_count,
+)
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
 from skill_feature_extract import (
@@ -94,6 +108,7 @@ ROOT = Path(__file__).resolve().parent
 RECORDINGS = ROOT / "recordings"
 FSM_TEST_DIR = ROOT / "FSM_TEST"
 IMAGES = ROOT / "images"
+MISS_PNG_DIR = IMAGES / "miss_png"  # 漏检图收集：放 images 下，避免根目录自动上传
 ICON_DIR = ROOT / "fsm_icons"
 SETTINGS_PATH = ROOT / "_fsm_replay_ui.json"
 BINDS_DIR = ROOT / "skill_binds"
@@ -129,22 +144,22 @@ HELP_PARAMS = (
     "S_pos%：分布中心相似。S_size%：多 MON 范围框尺寸相似。全表取最相似再过阈值。\n"
     "F%：杀 MON 效率低于该百分比记假释放（不进序列 / 范围 / CD）。\n"
     "PM：掉落位移超过该像素算在动。连续 PT 帧不动才判定停下。PW：等停下上限毫秒，超时结束等待并按当前掉落继续捡（蓝字「捡物等待超时 PW」）。数量 > PC 一键拾取，否则挨个捡。\n"
-    "卡住：同一流程状态连续 X 秒则改为卡住，然后跑配置序列 stuck_recover（默认：ESC 点按，再右/左 HOLD 2×恢复s、上/下 HOLD 1×恢复s）。步骤在 json 的 stuck_recover 里改，不必改代码。基准秒字段 stuck_recover_s。一轮跑完退出卡住并重置监测（可再入）。X 秒应大于 max(最长技能持续, AX, AY, PW, 恢复序列 HOLD)（秒）。\n"
-    "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。开打范围外同样走近（朝分布中心）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。前进超时：方法开始计时，超过 advance_timeout_ms 结束本次前进并重入状态判定（重识门/重记过门方向，不进卡住）。走近超时：开打范围外走近超过 approach_timeout_ms 结束本次走近并重选技能（不进卡住、不强行对该技能 CAST/CD）。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
+    "卡住：同一流程状态标签连续 X 秒则改为卡住（同标签方法重入含前进/走近超时不重置计时）。然后跑配置序列 stuck_recover（默认：ESC 点按，再右/左 HOLD 2×恢复s、上/下 HOLD 1×恢复s）。步骤在 json 的 stuck_recover 里改，不必改代码。基准秒字段 stuck_recover_s。一轮跑完退出卡住并重置监测（可再入）。X 秒应大于 max(最长技能持续, AX, AY, PW, 恢复序列 HOLD)（秒）。\n"
+    "GX/GY：相对当前门，距离大于该像素才继续接近。接近与捡物依次走：点按方向 → 等移动间隔 TH 毫秒 → 按住（TH 默认等于连按间隔）。开打范围外同样走近（朝分布中心）。AX/AY：两轴停后、或前进时门消失，按过门方向走的毫秒。前进超时：方法开始计时，超过 advance_timeout_ms 结束本次前进并重入状态判定（重识门/重记过门方向）。连续超时达 advance_timeout_esc_n 次点按 ESC 并清零计数；正常过门也清零。走近超时：开打范围外走近超过 approach_timeout_ms 结束本次走近并重选技能（不进卡住、不强行对该技能 CAST/CD）。技能无提取 XY 且无 range_px 时用 default_range_x/y 矩形（默认 250/100）。XXX：快捷栏全 CD 时按住普攻 X 的毫秒。\n"
     "点按 min/max：发键层每次点按（移动 TAP、技能 CAST/连按每次、左Alt 拾取）按下保持 uniform[min,max] 毫秒。默认 80–120。HOLD/普攻不是点按。PICK 节流 = max×5。与主面板共用 json。\n"
-    "连按 COUNT / 间隔 ms：执行层参数（不进核心）。红字由回放按槽是否勾连按 + COUNT 拼出来。\n"
+    "连按 COUNT / 间隔 ms：全局默认（不进核心）。该槽有 mash_n 用槽值，否则用这里的 COUNT。红字按槽 COUNT 拼。\n"
     "MON/BOSS、LOOT、GATE 补正：各类上下左右滑块。FSM / 回放逻辑点用同一偏移；jsonl 与叠图 PNG 仍是原始检测。改 MON/BOSS 补正后旧 skill_features 作废，请重新提取本图；改 LOOT/GATE 不必重提。\n"
     "叠图：把该帧 PNG 铺到坐标网上（半透明、最上层）。对齐=截屏像素与 jsonl 同一套；相对坐标时图平移使 player 落在盘面中心。\n"
     "改完立刻写入共用 json，回放当场重算；FSM测试点开始（或测试中再改）会读这份，不必另同步。"
 )
 HELP_SKILLS = (
     "只列出已勾选快捷栏的技能（space 即使未勾快捷栏也保留）。普攻 X 无 CD，不在这张表里。\n"
-    "连续释放：该槽 CD 按 270 秒。\n"
     "多次释放：勾选后填 MULTI（默认 2），FSM 拆成多份独立 CD。\n"
-    "连按：执行层把该技能展开成 COUNT 次点按（COUNT/间隔在参数区）。与连续释放/多次释放不是一回事。\n"
-    "连续释放 / 多次释放都不触发提取时的 CD 重置检测。\n"
-    "持续/连续/多次/连按会在切录像、勾选变更、提取前、关闭回放时自动写入该角色键位表。键位工具改完后点「重新读取」。"
+    "连按：执行层按该槽 COUNT 点按（无槽值用参数区全局 COUNT；间隔仍全局）。勾选连按=连续释放（CD 270 秒、提取 CD 重置跳过）；表上不再单独一列连续。\n"
+    "多次释放不并进连按；连按/多次都会让提取跳过该槽的 CD 重置启发。\n"
+    "持续/多次/连按会在切录像、勾选变更、提取前、关闭回放时自动写入该角色键位表。键位工具改完后点「重新读取」。"
 )
+
 HELP_EXTRACT = (
     "按下快捷栏技能（含 SPACE）即提取，不要求开打。hold_ms 未结束又按下下一个 → 技能组（group_key 如 a>b）。\n"
     "组结束 = 组内 (按下+hold_ms) 最大。组间隔 gaps_ms 取中位数，FSM 按间隔复现。起始数量 = 按下时 MON+BOSS。效率 100% 才记范围框；不足不计范围。该分布对已记范围取最大值。\n"
@@ -411,6 +426,9 @@ def compute_draft_track(
     pw_ms: int = 3000,
     advance_timeout_ms: int = DEFAULT_ADVANCE_TIMEOUT_MS,
     approach_timeout_ms: int = DEFAULT_APPROACH_TIMEOUT_MS,
+    advance_timeout_esc_n: int = DEFAULT_ADVANCE_TIMEOUT_ESC_N,
+    default_range_x: int = DEFAULT_RANGE_X,
+    default_range_y: int = DEFAULT_RANGE_Y,
     fight_plan=(),
     hotbar=(),
     dist_table=(),
@@ -449,6 +467,9 @@ def compute_draft_track(
             pw_ms=int(pw_ms),
             advance_timeout_ms=max(1, int(advance_timeout_ms)),
             approach_timeout_ms=max(1, int(approach_timeout_ms)),
+            advance_timeout_esc_n=max(1, int(advance_timeout_esc_n)),
+            default_range_x=max(1, int(default_range_x)),
+            default_range_y=max(1, int(default_range_y)),
             fight_plan=tuple(fight_plan or ()),
             hotbar=tuple(hotbar or ()),
             dist_table=tuple(dist_table or ()),
@@ -606,6 +627,7 @@ def write_skill_table(
     combo_slots: set[int] | None = None,
     multi_n: dict[int, int] | None = None,
     mash_slots: set[int] | None = None,
+    mash_n: dict[int, int] | None = None,
     edit_slots: set[int] | None = None,
 ) -> bool:
     """把持续毫秒 / 连续释放 / 多次释放 / 连按写进键位表，其它字段原样保留。"""
@@ -663,7 +685,7 @@ def write_skill_table(
                 item[HOLD_MS_KEY] = n
                 item.pop("hold_frames", None)
                 changed = True
-        if want_combo is not None:
+        if want_combo is not None and want_mash is None:
             on = slot in want_combo
             if bool(item.get(COMBO_KEY)) is not on or COMBO_KEY not in item:
                 item[COMBO_KEY] = on
@@ -687,6 +709,17 @@ def write_skill_table(
             if bool(item.get(MASH_KEY)) is not on or MASH_KEY not in item:
                 item[MASH_KEY] = on
                 changed = True
+            if bool(item.get(COMBO_KEY)) is not on or COMBO_KEY not in item:
+                item[COMBO_KEY] = on
+                changed = True
+            if mash_n is not None and on:
+                n_val = mash_n.get(slot)
+                if n_val is None:
+                    n_val = parse_mash_n(item, DEFAULT_MASH_COUNT)
+                n_val = clamp_mash_count(n_val)
+                if item.get(MASH_N_KEY) != n_val:
+                    item[MASH_N_KEY] = n_val
+                    changed = True
     if changed:
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return changed
@@ -712,11 +745,12 @@ def skill_rows(data: dict | None) -> list[dict]:
         if hf is not None:
             row[HOLD_FRAMES_KEY] = hf
         row["_combo_set"] = COMBO_KEY in item
-        row[COMBO_KEY] = bool(item.get(COMBO_KEY))
+        row[COMBO_KEY] = bool(item.get(COMBO_KEY) or item.get(MASH_KEY))
         row["_multi_set"] = MULTI_KEY in item
         row[MULTI_KEY] = bool(item.get(MULTI_KEY))
         row[MULTI_N_KEY] = parse_multi_n(item) if item.get(MULTI_KEY) else DEFAULT_MULTI
-        row[MASH_KEY] = bool(item.get(MASH_KEY))
+        row[MASH_KEY] = bool(item.get(MASH_KEY) or item.get(COMBO_KEY))
+        row[MASH_N_KEY] = parse_mash_n(item, DEFAULT_MASH_COUNT)
         try:
             stored = int(item.get(MULTI_N_KEY) or DEFAULT_MULTI)
             if stored >= DEFAULT_MULTI:
@@ -1543,6 +1577,9 @@ class FsmReplayApp(tk.Tk):
         self.pw_var = tk.StringVar(value=str(DEFAULT_PW_MS))
         self.advance_timeout_var = tk.StringVar(value=str(DEFAULT_ADVANCE_TIMEOUT_MS))
         self.approach_timeout_var = tk.StringVar(value=str(DEFAULT_APPROACH_TIMEOUT_MS))
+        self.default_range_x_var = tk.StringVar(value=str(DEFAULT_RANGE_X))
+        self.default_range_y_var = tk.StringVar(value=str(DEFAULT_RANGE_Y))
+        self.advance_timeout_esc_n_var = tk.StringVar(value=str(DEFAULT_ADVANCE_TIMEOUT_ESC_N))
         self.town_s_var = tk.StringVar(value=str(int(DEFAULT_TOWN_S)))
         self.run_press_var = tk.StringVar(value=str(RUN_PRESS_GT))
         self.loot_hold_var = tk.StringVar(value=str(LOOT_HOLD_DEFAULT))
@@ -1571,6 +1608,8 @@ class FsmReplayApp(tk.Tk):
         self._combo_vars: dict[int, tk.BooleanVar] = {}
         self._combo_ui_guard = False
         self._mash_vars: dict[int, tk.BooleanVar] = {}
+        self._mash_n_vars: dict[int, tk.StringVar] = {}
+        self._mash_n_spins: dict[int, ttk.Spinbox] = {}
         self._mash_ui_guard = False
         self._multi_vars: dict[int, tk.BooleanVar] = {}
         self._multi_n_vars: dict[int, tk.StringVar] = {}
@@ -1617,6 +1656,9 @@ class FsmReplayApp(tk.Tk):
         self.extract_reset_btn.pack(side=tk.LEFT)
         self.rollback_btn = ttk.Button(feat_btns2, text="回退上次叠加", command=self._rollback_extract)
         self.rollback_btn.pack(side=tk.LEFT, padx=(4, 0))
+        ttk.Button(feat_btns2, text="查看当前过图技能特征", command=self._show_current_features).pack(
+            side=tk.LEFT, padx=(4, 0)
+        )
         self.map_reset_host = ttk.Frame(feat)
         self.map_reset_host.pack(fill=tk.X, pady=(4, 0))
         feat_p = ttk.Frame(feat)
@@ -1682,7 +1724,9 @@ class FsmReplayApp(tk.Tk):
         self._spin(r_ax, self.ay_var, frm=0, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         r_adv_to = _prow(box_gate)
         ttk.Label(r_adv_to, text="前进超时 ms").pack(side=tk.LEFT)
-        self._spin(r_adv_to, self.advance_timeout_var, frm=1, to=60000, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        self._spin(r_adv_to, self.advance_timeout_var, frm=1, to=60000, width=6).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_adv_to, text="超时ESC N").pack(side=tk.LEFT)
+        self._spin(r_adv_to, self.advance_timeout_esc_n_var, frm=1, to=20, width=4).pack(side=tk.LEFT, padx=(2, 0))
         box_fight = _pf("开打")
         r_sf = _prow(box_fight)
         ttk.Label(r_sf, text="S_pos%").pack(side=tk.LEFT)
@@ -1697,6 +1741,11 @@ class FsmReplayApp(tk.Tk):
         r_appr_to = _prow(box_fight)
         ttk.Label(r_appr_to, text="走近超时 ms").pack(side=tk.LEFT)
         self._spin(r_appr_to, self.approach_timeout_var, frm=1, to=60000, width=6).pack(side=tk.LEFT, padx=(2, 0))
+        r_rng = _prow(box_fight)
+        ttk.Label(r_rng, text="默认范围X").pack(side=tk.LEFT)
+        self._spin(r_rng, self.default_range_x_var, frm=1, to=4000, width=6).pack(side=tk.LEFT, padx=(2, 8))
+        ttk.Label(r_rng, text="Y").pack(side=tk.LEFT)
+        self._spin(r_rng, self.default_range_y_var, frm=1, to=4000, width=6).pack(side=tk.LEFT, padx=(2, 0))
         r_tap = _prow(box_fight)
         ttk.Label(r_tap, text="点按 min").pack(side=tk.LEFT)
         self._spin(r_tap, self.tap_ms_min_var, frm=1, to=200).pack(side=tk.LEFT, padx=(2, 8))
@@ -1825,10 +1874,10 @@ class FsmReplayApp(tk.Tk):
         skill_cols.pack(fill=tk.X, pady=(4, 0))
         ttk.Label(skill_cols, text="槽 / 键", width=12).pack(side=tk.LEFT)
         ttk.Label(skill_cols, text="持续", width=5).pack(side=tk.LEFT)
-        ttk.Label(skill_cols, text="连续", width=4).pack(side=tk.LEFT)
         ttk.Label(skill_cols, text="多次", width=4).pack(side=tk.LEFT)
         ttk.Label(skill_cols, text="MULTI", width=6).pack(side=tk.LEFT)
         ttk.Label(skill_cols, text="连按", width=4).pack(side=tk.LEFT)
+        ttk.Label(skill_cols, text="COUNT", width=6).pack(side=tk.LEFT)
         self.skill_hold_host = ttk.Frame(skill_box)
         self.skill_hold_host.pack(fill=tk.X)
         for box in (box_judge, box_stuck, box_gate, box_fight, box_mash, box_loot, box_misc, box_corr):
@@ -1936,6 +1985,9 @@ class FsmReplayApp(tk.Tk):
         jump_ent.pack(side=tk.LEFT)
         jump_ent.bind("<Return>", self._jump_to_frame)
         ttk.Button(ctrl, text="跳转", width=4, command=self._jump_to_frame).pack(side=tk.LEFT, padx=(2, 0))
+        ttk.Button(ctrl, text="保存PNG", width=8, command=self._save_current_png).pack(
+            side=tk.RIGHT, padx=(8, 0)
+        )
 
         self._refresh_sessions()
         self._persist_ok = True
@@ -2014,6 +2066,11 @@ class FsmReplayApp(tk.Tk):
             "approach_timeout_ms": self._spin_n(
                 self.approach_timeout_var, DEFAULT_APPROACH_TIMEOUT_MS, lo=1
             ),
+            "advance_timeout_esc_n": self._spin_n(
+                self.advance_timeout_esc_n_var, DEFAULT_ADVANCE_TIMEOUT_ESC_N, lo=1
+            ),
+            "default_range_x": self._spin_n(self.default_range_x_var, DEFAULT_RANGE_X, lo=1),
+            "default_range_y": self._spin_n(self.default_range_y_var, DEFAULT_RANGE_Y, lo=1),
             "xxx_ms": self._spin_n(self.xxx_var, 1000),
             "th_ms": self._spin_n(self.th_var, 50, lo=0),
             "fight_plan": self._fight_plan(),
@@ -2034,6 +2091,7 @@ class FsmReplayApp(tk.Tk):
             dr.get("skill_slot"),
             self._mash_slots_from_ui(),
             self._spin_n(self.mash_count_var, 3),
+            self._mash_n_from_ui(),
         )
         return send_keys_label(
             dr.get("action"),
@@ -2578,6 +2636,9 @@ class FsmReplayApp(tk.Tk):
             ("pw_ms", self.pw_var, DEFAULT_PW_MS, 0),
             ("advance_timeout_ms", self.advance_timeout_var, DEFAULT_ADVANCE_TIMEOUT_MS, 1),
             ("approach_timeout_ms", self.approach_timeout_var, DEFAULT_APPROACH_TIMEOUT_MS, 1),
+            ("advance_timeout_esc_n", self.advance_timeout_esc_n_var, DEFAULT_ADVANCE_TIMEOUT_ESC_N, 1),
+            ("default_range_x", self.default_range_x_var, DEFAULT_RANGE_X, 1),
+            ("default_range_y", self.default_range_y_var, DEFAULT_RANGE_Y, 1),
             ("town_s", self.town_s_var, int(DEFAULT_TOWN_S), 1),
             ("run_press", self.run_press_var, RUN_PRESS_GT, 0),
             ("e", self.e_var, 3, 0),
@@ -2611,6 +2672,9 @@ class FsmReplayApp(tk.Tk):
         )
         self.approach_timeout_var.set(
             str(json_ms(data, "approach_timeout_ms", DEFAULT_APPROACH_TIMEOUT_MS, lo=1))
+        )
+        self.advance_timeout_esc_n_var.set(
+            str(json_ms(data, "advance_timeout_esc_n", DEFAULT_ADVANCE_TIMEOUT_ESC_N, lo=1))
         )
         if "a" in data:
             warn_legacy_key("a")
@@ -2730,6 +2794,11 @@ class FsmReplayApp(tk.Tk):
             "approach_timeout_ms": self._spin_n(
                 self.approach_timeout_var, DEFAULT_APPROACH_TIMEOUT_MS, lo=1
             ),
+            "advance_timeout_esc_n": self._spin_n(
+                self.advance_timeout_esc_n_var, DEFAULT_ADVANCE_TIMEOUT_ESC_N, lo=1
+            ),
+            "default_range_x": self._spin_n(self.default_range_x_var, DEFAULT_RANGE_X, lo=1),
+            "default_range_y": self._spin_n(self.default_range_y_var, DEFAULT_RANGE_Y, lo=1),
             "town_s": self._spin_f(self.town_s_var, float(DEFAULT_TOWN_S), lo=0.05),
             "run_press": self._spin_n(self.run_press_var, RUN_PRESS_GT, lo=0),
             "loot_hold_ms": self._spin_n(self.loot_hold_var, LOOT_HOLD_DEFAULT),
@@ -2807,6 +2876,7 @@ class FsmReplayApp(tk.Tk):
             combo_slots=self._combo_slots_from_ui(),
             multi_n=self._multi_n_from_ui(),
             mash_slots=self._mash_slots_from_ui(),
+            mash_n=self._mash_n_from_ui(),
             edit_slots=self._edit_slots_from_ui(),
         )
 
@@ -2906,6 +2976,8 @@ class FsmReplayApp(tk.Tk):
             self._skill_hold_vars = {}
             self._combo_vars = {}
             self._mash_vars = {}
+            self._mash_n_vars = {}
+            self._mash_n_spins = {}
             self._multi_vars = {}
             self._multi_n_vars = {}
             self._multi_spins = {}
@@ -2939,9 +3011,10 @@ class FsmReplayApp(tk.Tk):
                 var = tk.StringVar(value=str(prev))
                 self._spin(row, var, to=20000, width=6).pack(side=tk.LEFT, padx=(2, 4))
                 self._skill_hold_vars[slot] = var
-                cvar = tk.BooleanVar(value=slot in marked)
+                # 连按与连续释放合并：无单独「连续」勾选；勾选连按即写 combo 标签
+                mash_on = bool(sk.get(MASH_KEY)) or slot in marked
+                cvar = tk.BooleanVar(value=mash_on)
                 self._combo_vars[slot] = cvar
-                ttk.Checkbutton(row, variable=cvar, command=self._on_combo_toggle).pack(side=tk.LEFT)
                 on_m = slot in marked_m
                 mvar = tk.BooleanVar(value=on_m)
                 self._multi_vars[slot] = mvar
@@ -2962,9 +3035,25 @@ class FsmReplayApp(tk.Tk):
                 sp.pack(side=tk.LEFT, padx=(2, 0))
                 nvar.trace_add("write", lambda *_: self._on_multi_n_change())
                 self._multi_spins[slot] = sp
-                mash_var = tk.BooleanVar(value=bool(sk.get(MASH_KEY)))
+                mash_var = tk.BooleanVar(value=mash_on)
                 self._mash_vars[slot] = mash_var
                 ttk.Checkbutton(row, variable=mash_var, command=self._on_mash_toggle).pack(side=tk.LEFT, padx=(6, 0))
+                mn = parse_mash_n(sk, self._spin_n(self.mash_count_var, DEFAULT_MASH_COUNT))
+                mash_n_var = tk.StringVar(value=str(mn))
+                self._mash_n_vars[slot] = mash_n_var
+                mash_sp = ttk.Spinbox(
+                    row,
+                    from_=MASH_COUNT_MIN,
+                    to=MASH_COUNT_MAX,
+                    width=3,
+                    textvariable=mash_n_var,
+                    command=self._on_mash_n_change,
+                    state=tk.NORMAL if mash_on else tk.DISABLED,
+                )
+                self._shield_right_wheel(mash_sp)
+                mash_sp.pack(side=tk.LEFT, padx=(2, 0))
+                mash_n_var.trace_add("write", lambda *_: self._on_mash_n_change())
+                self._mash_n_spins[slot] = mash_sp
             if self._bind_character:
                 self._skill_hold_saved[self._bind_character] = {
                     **saved,
@@ -3551,6 +3640,7 @@ class FsmReplayApp(tk.Tk):
             {int(s) for s in self._skill_hold_vars}
             | {int(s) for s in self._combo_vars}
             | {int(s) for s in self._mash_vars}
+            | {int(s) for s in self._mash_n_vars}
         )
 
     def _combo_slots_from_ui(self) -> set[int]:
@@ -3560,6 +3650,20 @@ class FsmReplayApp(tk.Tk):
 
     def _mash_slots_from_ui(self) -> set[int]:
         return {slot for slot, var in self._mash_vars.items() if var.get()}
+
+    def _mash_n_from_ui(self) -> dict[int, int]:
+        default = self._spin_n(self.mash_count_var, DEFAULT_MASH_COUNT)
+        out: dict[int, int] = {}
+        for slot, var in self._mash_vars.items():
+            if not var.get():
+                continue
+            nvar = self._mash_n_vars.get(slot)
+            try:
+                n = int(str((nvar.get() if nvar else "") or default))
+            except ValueError:
+                n = default
+            out[int(slot)] = clamp_mash_count(n, default)
+        return out
 
     def _multi_n_from_ui(self) -> dict[int, int]:
         if self._multi_vars:
@@ -3622,6 +3726,35 @@ class FsmReplayApp(tk.Tk):
             self._show()
 
     def _on_mash_toggle(self):
+        if getattr(self, "_mash_ui_guard", False) or self._skill_ui_guard:
+            return
+        self._combo_ui_guard = True
+        try:
+            for slot, mvar in self._mash_vars.items():
+                on = bool(mvar.get())
+                cvar = self._combo_vars.get(slot)
+                if cvar is not None:
+                    cvar.set(on)
+                sp = self._mash_n_spins.get(slot)
+                if sp is not None:
+                    sp.config(state=tk.NORMAL if on else tk.DISABLED)
+                    if on:
+                        nvar = self._mash_n_vars.get(slot)
+                        try:
+                            n = int(str((nvar.get() if nvar else "") or DEFAULT_MASH_COUNT))
+                        except ValueError:
+                            n = 0
+                        if nvar is not None and (n < MASH_COUNT_MIN or n > MASH_COUNT_MAX):
+                            nvar.set(str(self._spin_n(self.mash_count_var, DEFAULT_MASH_COUNT)))
+        finally:
+            self._combo_ui_guard = False
+        self._sync_combo_to_features(save=True)
+        self._write_hold_frames_to_binds()
+        if self.data:
+            self._rebuild_draft()
+            self._show()
+
+    def _on_mash_n_change(self):
         if getattr(self, "_mash_ui_guard", False) or self._skill_ui_guard:
             return
         self._write_hold_frames_to_binds()
@@ -3809,7 +3942,7 @@ class FsmReplayApp(tk.Tk):
         self.extract_prog_var.set("提取 0/" + str(len(sessions)))
         threading.Thread(
             target=self._extract_worker,
-            args=(char, dun, sessions, e, wipe, set(self._combo_slots_from_ui()), dict(self._multi_n_from_ui()), slot_durs, f, lag),
+            args=(char, dun, sessions, e, wipe, set(self._combo_slots_from_ui()) | set(self._mash_slots_from_ui()), dict(self._multi_n_from_ui()), slot_durs, f, lag),
             daemon=True,
         ).start()
 
@@ -3932,13 +4065,36 @@ class FsmReplayApp(tk.Tk):
             self._set_extract_result(report)
             messagebox.showerror("过图技能特征", report, parent=self)
 
-    def _show_extract_window(self, report: str):
+    def _show_current_features(self):
+        """打开当前录像对应地下城/角色的特征表（磁盘最新）。"""
+        char = self._bind_character
+        dun = self._current_dungeon() if self.data else ""
+        if not char:
+            messagebox.showinfo("过图技能特征", "当前录像没有角色名。", parent=self)
+            return
+        if not dun or dun == "未知":
+            messagebox.showinfo("过图技能特征", "当前录像没有地下城名。", parent=self)
+            return
+        self._reload_feature_cache()
+        dest = feature_path(char, dun)
+        data = self._feature_cache
+        if not data:
+            messagebox.showinfo("过图技能特征", f"没有特征表：\n{dest}", parent=self)
+            return
+        report = format_report(data)
+        self._set_extract_result(report)
+        self._show_extract_window(report, title=f"过图技能特征 · {dun} / {char}")
+
+    def _show_extract_window(self, report: str, title: str = "过图技能特征 · 结果"):
         win = tk.Toplevel(self)
-        win.title("过图技能特征 · 结果")
+        win.title(title)
         win.geometry("720x480")
         apply_window_geom(win, "fsm_extract", min_w=480, min_h=280, fallback="720x480")
-        txt = tk.Text(win, font=("Consolas", 10))
-        txt.pack(fill=tk.BOTH, expand=True)
+        txt = tk.Text(win, font=("Consolas", 10), wrap=tk.WORD)
+        ys = ttk.Scrollbar(win, orient=tk.VERTICAL, command=txt.yview)
+        txt.configure(yscrollcommand=ys.set)
+        txt.grid(row=0, column=0, sticky="nsew")
+        ys.grid(row=0, column=1, sticky="ns")
         txt.insert("1.0", report)
         txt.config(state=tk.DISABLED)
 
@@ -3946,7 +4102,9 @@ class FsmReplayApp(tk.Tk):
             remember_window_geom(win, "fsm_extract")
             win.destroy()
 
-        ttk.Button(win, text="关闭", command=_close).pack(pady=6)
+        ttk.Button(win, text="关闭", command=_close).grid(row=1, column=0, columnspan=2, pady=6)
+        win.grid_rowconfigure(0, weight=1)
+        win.grid_columnconfigure(0, weight=1)
         win.protocol("WM_DELETE_WINDOW", _close)
 
     def _rollback_extract(self):
@@ -3970,6 +4128,37 @@ class FsmReplayApp(tk.Tk):
             messagebox.showinfo("回退上次叠加", msg, parent=self)
         else:
             messagebox.showinfo("回退上次叠加", msg, parent=self)
+
+
+    def _save_current_png(self):
+        """把当前帧叠图用的背景 PNG 拷到 images/miss_png，便于漏检收集。"""
+        d = self.data
+        if not d or not d.get("frames"):
+            messagebox.showinfo("保存PNG", "没有加载录像。", parent=self)
+            return
+        i = int(self.idx)
+        frames = d["frames"]
+        if i < 0 or i >= len(frames):
+            messagebox.showinfo("保存PNG", "帧号无效。", parent=self)
+            return
+        fr = frames[i]
+        src = self._png_path_for_frame(fr)
+        if src is None or not src.is_file():
+            messagebox.showinfo(
+                "保存PNG",
+                "当前帧没有对应 PNG（帧字段 png 为空或文件不存在）。",
+                parent=self,
+            )
+            return
+        MISS_PNG_DIR.mkdir(parents=True, exist_ok=True)
+        sess = getattr(d.get("session"), "name", None) or "session"
+        dest = MISS_PNG_DIR / f"{sess}_f{i + 1:05d}_{src.name}"
+        n = 1
+        while dest.exists():
+            dest = MISS_PNG_DIR / f"{sess}_f{i + 1:05d}_{n}_{src.name}"
+            n += 1
+        shutil.copy2(src, dest)
+        messagebox.showinfo("保存PNG", f"已保存：\n{dest}", parent=self)
 
     def _png_path_for_frame(self, fr: dict) -> Path | None:
         d = self.data

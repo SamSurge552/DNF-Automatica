@@ -14,7 +14,7 @@
 
 1. **用词：** 「txt 没推翻」= 草案没改的条款代码接着用（前进/捡物/卡住/OCR 建段/S_pos 等）。不是「DECISIONS 整份都不落地」。
 2. **DECISIONS §4 仍不落地**（每状态超时 / 不对称迟滞 / `gate.x > player.x`），不得覆盖 txt。
-3. **默认过图 YOLO → `mix_a`**（`D:/Atrain/runs/mix_a/weights/best.pt`）。覆盖 GUI 默认 `solarwarden_b`。`varien_*` 仍禁止当过图。`auto_label.py` 默认权重未改。
+3. **默认过图 YOLO → `mix_a`**（`D:/Desktop/T/test/images/Atrain/runs/mix_a/weights/best.pt`）。覆盖 GUI 默认 `solarwarden_b`。`varien_*` 仍禁止当过图。`auto_label.py` 默认权重未改。
 4. **开打：** 范围内才 CAST；范围外蓝字「范围异常」，捡物同款 TAP→TH→HOLD 朝分布中心走，直到本帧最远敌对进范围。无 `range_px`（效率不足未记范围）视为在范围内。
 5. **技能组：** 提取写 `gaps_ms`（相邻按下间隔，跨次中位数）。FSM 按间隔 CAST 组内后续技能；结束后等到组结束时刻。
 6. **提取范围：** 非 BOSS 且效率 =100% 才用步骤 3 范围框；不足不计范围；该分布该组对已记范围取 max。

@@ -1,0 +1,116 @@
+{
+  "character": "SolarSeul",
+  "updated_at": "2026-09-11 11:22:21",
+  "source": "dnf_combat_stats",
+  "region": {
+    "x": 943,
+    "y": 483,
+    "width": 634,
+    "height": 583
+  },
+  "hover": {
+    "x": 68,
+    "y": 127,
+    "dy": 42,
+    "count": 8,
+    "dwell_s": 0.5
+  },
+  "skills": [
+    {
+      "slot": 1,
+      "command": "d",
+      "hotbar": true,
+      "cooldown_s": 34.3,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 1500
+    },
+    {
+      "slot": 2,
+      "command": "v",
+      "hotbar": true,
+      "cooldown_s": 41.2,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 2000
+    },
+    {
+      "slot": 3,
+      "command": "w",
+      "hotbar": true,
+      "cooldown_s": 24,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 2000
+    },
+    {
+      "slot": 4,
+      "command": "r",
+      "hotbar": true,
+      "cooldown_s": 27.4,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 1000
+    },
+    {
+      "slot": 5,
+      "command": "q",
+      "hotbar": true,
+      "cooldown_s": 30.9,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 2000
+    },
+    {
+      "slot": 6,
+      "command": "s",
+      "hotbar": true,
+      "cooldown_s": 20.6,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 500
+    },
+    {
+      "slot": 7,
+      "command": "g",
+      "hotbar": true,
+      "cooldown_s": 8.7,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": false,
+      "multi_n": 2,
+      "hold_ms": 500
+    },
+    {
+      "slot": 8,
+      "command": "e",
+      "hotbar": true,
+      "cooldown_s": 6.5,
+      "mash": false,
+      "combo": false,
+      "mash_n": 3,
+      "multi": true,
+      "multi_n": 2,
+      "hold_ms": 2000
+    }
+  ]
+}

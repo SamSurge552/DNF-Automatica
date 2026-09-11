@@ -16,7 +16,10 @@ from fsm_core import (
     DEFAULT_TOWN_S,
     DEFAULT_ADVANCE_TIMEOUT_MS,
     DEFAULT_APPROACH_TIMEOUT_MS,
+    DEFAULT_ADVANCE_TIMEOUT_ESC_N,
     DEFAULT_STUCK_RECOVER_S,
+    DEFAULT_RANGE_X,
+    DEFAULT_RANGE_Y,
     parse_stuck_recover,
     stuck_recover_to_json,
     dungeon_deb_step,
@@ -66,6 +69,49 @@ DETECT_LOG_S = 8.0
 OCR_LOG_S = 3.0
 ROOT = Path(__file__).resolve().parent
 FSM_TEST_DIR = ROOT / "FSM_TEST"
+TOWN_RETURN_OCR = "返回城镇"
+
+
+def ocr_pairs_has(pairs, needle: str, conf: float) -> bool:
+    """小框 OCR 子串命中且分数达 ocr_conf（score 缺省视为过线）。"""
+    thr = float(conf)
+    sub = str(needle or "")
+    if not sub:
+        return False
+    for text, score in pairs or []:
+        if sub not in str(text or ""):
+            continue
+        if score is None or float(score) >= thr:
+            return True
+    return False
+
+
+def town_return_btn_step(hit: bool, t_ns: int, tn_s: float, st: dict | None) -> tuple[dict, tuple[str, ...]]:
+    """返回城镇按钮粘滞：文案消失清零；满 tn_s 点一次 F10；文案仍在则冷却不连按。
+    events: hit / sticky / f10
+    """
+    t_ns = int(t_ns)
+    tn_s = max(0.0, float(tn_s))
+    if not hit:
+        return {"hit": False, "t0": None, "sent": False, "sticky_logged": False}, ()
+    st = dict(st or {})
+    ev: list[str] = []
+    if not st.get("hit"):
+        st = {"hit": True, "t0": t_ns, "sent": False, "sticky_logged": False}
+        ev.append("hit")
+    if st.get("sent"):
+        return st, tuple(ev)
+    t0 = int(st["t0"] if st.get("t0") is not None else t_ns)
+    st["t0"] = t0
+    elapsed = (t_ns - t0) / 1e9
+    if elapsed + 1e-12 < tn_s:
+        if not st.get("sticky_logged"):
+            st["sticky_logged"] = True
+            ev.append("sticky")
+        return st, tuple(ev)
+    st["sent"] = True
+    ev.append("f10")
+    return st, tuple(ev)
 
 
 class StatusAnalysisModule:
@@ -120,6 +166,7 @@ class StatusAnalysisModule:
         self._last_ocr_log_t = 0.0
         self._last_ocr_roi_wh = None
         self._last_key_fail_t = 0.0
+        self._town_btn = {"hit": False, "t0": None, "sent": False, "sticky_logged": False}
 
         self.dungeon_keywords = self._load_keywords("dun_keywords_custom.txt")
         self.gui.log("状态分析模块: 正在初始化 RapidOCR (CUDA 13)...")
@@ -193,6 +240,7 @@ class StatusAnalysisModule:
         self._ocr_kw_last = False
         self._ocr_dun = FsmContext().dungeon
         self._saw_dungeon = False
+        self._town_btn = {"hit": False, "t0": None, "sent": False, "sticky_logged": False}
         self._plan_missing_logged = False
         self._logged_loot_pw = False
 
@@ -393,10 +441,16 @@ class StatusAnalysisModule:
         if exe is None:
             return
         slots = {int(sk.slot) for sk in (self._fsm_params.hotbar or ()) if sk.mash}
+        slot_n = {
+            int(sk.slot): int(sk.mash_n)
+            for sk in (self._fsm_params.hotbar or ())
+            if sk.mash and int(sk.mash_n or 0) > 0
+        }
         exe.set_mash(
             getattr(self, "_mash_count", DEFAULT_MASH_COUNT),
             getattr(self, "_mash_gap_ms", DEFAULT_MASH_GAP_MS),
             slots,
+            slot_n=slot_n,
         )
 
     def _send_text(self, decision) -> str:
@@ -407,6 +461,11 @@ class StatusAnalysisModule:
             decision.skill_slot,
             slots,
             getattr(self, "_mash_count", DEFAULT_MASH_COUNT),
+            {
+                int(sk.slot): int(sk.mash_n)
+                for sk in (self._fsm_params.hotbar or ())
+                if sk.mash and int(sk.mash_n or 0) > 0
+            },
         )
         return send_keys_label(
             decision.action,
@@ -536,6 +595,9 @@ class StatusAnalysisModule:
                 "pw_ms": p.pw_ms,
                 "advance_timeout_ms": p.advance_timeout_ms,
                 "approach_timeout_ms": p.approach_timeout_ms,
+                "advance_timeout_esc_n": p.advance_timeout_esc_n,
+                "default_range_x": p.default_range_x,
+                "default_range_y": p.default_range_y,
                 "tn_s": p.tn_s,
                 "town_s": getattr(self, "_town_s", DEFAULT_TOWN_S),
                 "mon_off_x": p.mon_off_x,
@@ -741,6 +803,9 @@ class StatusAnalysisModule:
             pw_ms = DEFAULT_PW_MS
         advance_timeout_ms = json_ms(data, "advance_timeout_ms", DEFAULT_ADVANCE_TIMEOUT_MS, lo=1)
         approach_timeout_ms = json_ms(data, "approach_timeout_ms", DEFAULT_APPROACH_TIMEOUT_MS, lo=1)
+        advance_timeout_esc_n = json_ms(data, "advance_timeout_esc_n", DEFAULT_ADVANCE_TIMEOUT_ESC_N, lo=1)
+        default_range_x = json_ms(data, "default_range_x", DEFAULT_RANGE_X, lo=1)
+        default_range_y = json_ms(data, "default_range_y", DEFAULT_RANGE_Y, lo=1)
         tap_lo, tap_hi = parse_tap_ms_range(data)
         self._f = f
         self._town_s = town_s
@@ -784,6 +849,9 @@ class StatusAnalysisModule:
             pw_ms=pw_ms,
             advance_timeout_ms=advance_timeout_ms,
             approach_timeout_ms=approach_timeout_ms,
+            advance_timeout_esc_n=advance_timeout_esc_n,
+            default_range_x=default_range_x,
+            default_range_y=default_range_y,
             tn_s=float(town_s),
             fight_plan=load_fight_plan(char, dun, f=f) if char and dun else (),
             hotbar=load_hotbar(char) if char else (),
@@ -1035,6 +1103,7 @@ class StatusAnalysisModule:
             if detected_texts is not None:
                 self._log_ocr(detected_texts)
                 self._update_dungeon_state(detected_texts)
+                self._tick_town_return_f10(detected_texts)
                 self._refresh_runtime_display()
         self.gui.log("状态分析模块: 退出OCR循环。")
 
@@ -1159,6 +1228,33 @@ class StatusAnalysisModule:
                 if self.fsm_test:
                     self._stop_fsm_record()
                     self._start_fsm_record(self._fsm_record_config or {})
+
+    def _tick_town_return_f10(self, pairs) -> None:
+        """OCR「返回城镇」粘满 tn_s 后点按一次 F10；消失后可再触发。不替代无关键词回城。"""
+        thr = float(getattr(self, "ocr_conf", 0.95))
+        hit = ocr_pairs_has(pairs, TOWN_RETURN_OCR, thr)
+        tn_s = float(getattr(self, "_town_s", DEFAULT_TOWN_S))
+        self._town_btn, events = town_return_btn_step(
+            hit, time.time_ns(), tn_s, getattr(self, "_town_btn", None)
+        )
+        for ev in events:
+            if ev == "hit":
+                self.gui.log(f"  - OCR 返回城镇 命中（conf>={thr:g}，粘满 {tn_s:g}s 后点按 F10）")
+            elif ev == "sticky":
+                self.gui.log(f"  - OCR 返回城镇 粘滞中（已见文案，未满 {tn_s:g}s）")
+            elif ev == "f10":
+                self._press_town_f10()
+
+    def _press_town_f10(self) -> None:
+        exe = self._executor
+        if exe is None or not getattr(exe, "_on", False):
+            self.gui.log("  - OCR 返回城镇 已满粘滞，未发 F10（仅 FSM测试发键）")
+            return
+        try:
+            exe.tap_key("f10")
+            self.gui.log("  - OCR 返回城镇 已按 F10")
+        except Exception as e:
+            self._log_key_fail(e)
 
     def offer_ocr_frame(self, frame) -> None:
         if not self.is_running or frame is None:

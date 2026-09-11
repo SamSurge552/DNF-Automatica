@@ -7,9 +7,9 @@ from pathlib import Path
 
 from ultralytics import YOLO
 
-BLANK = Path(r"D:/Atrain/Aset/blank")
+BLANK = Path(__file__).resolve().parent / "images" / "Atrain" / "Aset" / "blank"
 MODELS = {
-    "solarwarden_b": Path(r"D:/Atrain/runs/solarwarden_b/weights/best.pt"),
+    "solarwarden_b": Path(__file__).resolve().parent / "images" / "Atrain" / "runs" / "solarwarden_b" / "weights" / "best.pt",
 }
 
 

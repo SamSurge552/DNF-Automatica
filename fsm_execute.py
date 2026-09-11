@@ -74,8 +74,23 @@ def parse_command(cmd: str) -> list[list[str]]:
     return steps
 
 
-def mash_n_for_slot(slot, mash_slots, mash_count: int) -> int:
-    """和 apply() 同一套：槽在连按表里则返回 COUNT，否则 0。"""
+MASH_N_KEY = "mash_n"
+
+
+def parse_mash_n(item, default: int = DEFAULT_MASH_COUNT) -> int:
+    """键位行每槽 COUNT：mash_n，其次 mash_count；缺省用 default（全局默认）。"""
+    if not isinstance(item, dict):
+        return clamp_mash_count(default)
+    raw = item.get(MASH_N_KEY)
+    if raw is None:
+        raw = item.get("mash_count")
+    if raw is None:
+        return clamp_mash_count(default)
+    return clamp_mash_count(raw, default)
+
+
+def mash_n_for_slot(slot, mash_slots, mash_count: int, mash_n_by_slot=None) -> int:
+    """和 apply() 同一套：槽在连按表里则返回该槽 COUNT，否则 0；无槽值回退全局 mash_count。"""
     if slot is None:
         return 0
     try:
@@ -85,6 +100,9 @@ def mash_n_for_slot(slot, mash_slots, mash_count: int) -> int:
     slots = {int(s) for s in (mash_slots or ()) if int(s) > 0}
     if sid not in slots:
         return 0
+    by = mash_n_by_slot if isinstance(mash_n_by_slot, dict) else {}
+    if sid in by:
+        return clamp_mash_count(by[sid], mash_count)
     return clamp_mash_count(mash_count)
 
 
@@ -96,6 +114,7 @@ class FsmExecutor:
         self._bad: set[str] = set()
         self._last_pick_t = 0.0
         self._mash_slots: set[int] = set()
+        self._mash_n_by_slot: dict[int, int] = {}
         if tap_ms_min is None and tap_ms_max is None and tap_ms is not None:
             self.set_tap_ms(tap_ms)
         else:
@@ -130,12 +149,18 @@ class FsmExecutor:
             self._held.discard(name)
         key_tap(name, random.randint(self.tap_ms_min, self.tap_ms_max))
 
-    def set_mash(self, count: int, gap_ms: int, slots=None) -> None:
+    def set_mash(self, count: int, gap_ms: int, slots=None, slot_n=None) -> None:
         self.mash_count = clamp_mash_count(count)
         self.mash_gap_ms = clamp_mash_gap_ms(gap_ms)
         self._mash_gap_s = self.mash_gap_ms / 1000.0
         if slots is not None:
             self._mash_slots = {int(s) for s in slots if int(s) > 0}
+        if slot_n is not None:
+            self._mash_n_by_slot = {
+                int(k): clamp_mash_count(v, self.mash_count)
+                for k, v in dict(slot_n).items()
+                if int(k) > 0
+            }
 
     def set_mash_slots(self, slots) -> None:
         self._mash_slots = {int(s) for s in (slots or ()) if int(s) > 0}
@@ -173,7 +198,10 @@ class FsmExecutor:
                 self._tap(fd.value)
             slot = decision.skill_slot
             mash = slot is not None and int(slot) in self._mash_slots
-            self._cast(str(decision.skill_key or ""), mash=mash)
+            n = None
+            if mash and slot is not None:
+                n = self._mash_n_by_slot.get(int(slot))
+            self._cast(str(decision.skill_key or ""), mash=mash, mash_n=n)
             return
         if action is FsmAction.ATTACK:
             self._hold_only({"x"})
@@ -216,8 +244,20 @@ class FsmExecutor:
     def _tap(self, name: str) -> None:
         self._tap_down_up(name)
 
-    def _cast(self, cmd: str, mash: bool = False) -> None:
-        n = self.mash_count if mash else 1
+    def tap_key(self, name: str) -> None:
+        """全局点按 ms 的单键（如 OCR 回城 F10）。不走技能表。"""
+        if not self._on:
+            return
+        key = str(name or "").strip().lower()
+        if key:
+            self._tap(key)
+
+    def _cast(self, cmd: str, mash: bool = False, mash_n=None) -> None:
+        if mash:
+            n = self.mash_count if mash_n is None else mash_n
+            n = clamp_mash_count(n, self.mash_count)
+        else:
+            n = 1
         n = max(1, int(n))
         for i in range(n):
             self._cast_once(cmd)

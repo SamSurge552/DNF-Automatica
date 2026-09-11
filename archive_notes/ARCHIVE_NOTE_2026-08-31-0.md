@@ -54,7 +54,7 @@
 
 ### 2.3 关键约定速查
 
-- 权重默认：`D:/Atrain/runs/dnf_detect_v6/weights/best.pt`  
+- 权重默认：`D:/Desktop/T/test/images/Atrain/runs/dnf_detect_v6/weights/best.pt`  
 - GUI：conf **0.1** / iou **0.7**；OCR 关键词匹配 **>0.95**  
 - 帧 `t_ns`：在 `capture()` 返回后打（含 Grab+BGR，**不含**推理）  
 - 推理忙：丢旧帧、只留最新；忙帧不写 frames 行，键仍写  

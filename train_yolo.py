@@ -10,7 +10,7 @@ from pathlib import Path
 import torch
 from ultralytics import YOLO
 
-ROOT = Path(r"D:/Atrain")
+ROOT = Path(__file__).resolve().parent / "images" / "Atrain"
 PROJECT_DIR = ROOT / "runs"
 # 过图集：Aset/solarwarden/<name>/*.png + labels/*.txt。Xout 只给 X-AnyLabeling 导出。
 # GUI 过图默认权重已切 mix_a。

@@ -92,7 +92,7 @@
 - **实机宿主：** `status_analysis_module` 截屏+YOLO → `step`（FSM测试）。FSM测试启动即发键（无勾选），由 `fsm_execute` 注入。核心仍不碰键盘。前进 / 开打 / 提取 / 怪物分布以 **`FSM_DESIGN.txt` 为准**。卡住：状态改为卡住，上下左右各 HOLD `y_ms` 毫秒（不是前进；A4 恢复方向本轮不动）。CAST 用键位表已勾选快捷栏的**单键** `command`（`bind_hotkey`；组合键不进序列）。全 CD 按住普攻 X（无 CD）。捡物 PICK = 左 Alt；等停下上限 **PW**（`pw_ms`）。回城只按 **`tn_s` 秒**。MON/BOSS 补正用于 FSM+提取+回放逻辑点（jsonl 原始）。过图文件与技能表在**进图前**加载；无技能表则中止 FSM测试/自动化。卡住 `x_s` 应大于 max(最长技能持续, AX, AY, PW, 四向 Y)。
 - **开打距离（2026-09-07 晚 txt，已落地，覆盖 09-04「范围异常仍然释放」）：** 最远敌对是否在技能（组）范围内。在范围内 → CAST，等待 `hold_ms` / 组结束；组内后续技能按 `gaps_ms` 复现。不在范围内 → 提示范围异常，捡物同款 TAP→TH→HOLD 朝分布中心走，直到本帧最远敌对在范围内再放。无范围记录（效率不足 100%）视为在范围内。
 - **提取范围 / 技能组间隔（已落地）：** 效率 =100% 才用范围框记范围；不足不计。该分布该组对已记范围取 max。组存 `gaps_ms` 中位数。
-- **过图 YOLO（2026-09-07，覆盖 GUI 默认 `solarwarden_b`）：** 默认 **`mix_a`**（`D:/Atrain/runs/mix_a/weights/best.pt`）。`varien_*` 仍禁止当过图。自动标注脚本默认权重未改。
+- **过图 YOLO（2026-09-07，覆盖 GUI 默认 `solarwarden_b`）：** 默认 **`mix_a`**（`D:/Desktop/T/test/images/Atrain/runs/mix_a/weights/best.pt`）。`varien_*` 仍禁止当过图。自动标注脚本默认权重未改。
 - **防抖是因果的**（现行规则：只看当前帧和 ctx，不向后看）。「旧批量从左扫到右，与逐步 step 等价」是**断言，不是实测**——见 §4。开头 `max(M,L,G)` 帧打 `WARMUP`：初始 judged=False，这是预热不是两套算法不一致。已删除的 400 帧窗口才会在窗口左沿错误重启 debounce。
 
 **连按分层（已定）：**

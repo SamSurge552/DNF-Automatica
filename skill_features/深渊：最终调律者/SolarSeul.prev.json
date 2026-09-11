@@ -1,0 +1,6843 @@
+{
+  "dungeon": "深渊：最终调律者",
+  "character": "SolarSeul",
+  "updated_at": "2026-09-11 11:25:12",
+  "e": 3,
+  "dists": {
+    "B0": {
+      "skills": {
+        "q": {
+          "slot": 5,
+          "key": "q",
+          "group_key": "q",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|100|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|100|5"
+              ],
+              "i0": 100,
+              "i_feat": 100,
+              "i1": 105,
+              "i_end": 103,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                386.75,
+                201.22
+              ],
+              "rel": [
+                386.75,
+                201.22
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 435.96,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|206|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|206|5"
+              ],
+              "i0": 206,
+              "i_feat": 206,
+              "i1": 208,
+              "i_end": 209,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                449.45,
+                141.92
+              ],
+              "rel": [
+                449.45,
+                141.92
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 471.32,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|331|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|331|5"
+              ],
+              "i0": 331,
+              "i_feat": 331,
+              "i1": 334,
+              "i_end": 334,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                373.36,
+                194.7
+              ],
+              "rel": [
+                373.36,
+                194.7
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 421.08,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|442|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|442|5"
+              ],
+              "i0": 442,
+              "i_feat": 442,
+              "i1": 449,
+              "i_end": 445,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                541.18,
+                194.34
+              ],
+              "rel": [
+                541.18,
+                194.34
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 575.02,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|539|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|539|5"
+              ],
+              "i0": 539,
+              "i_feat": 539,
+              "i1": 544,
+              "i_end": 542,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                315.12,
+                189.88
+              ],
+              "rel": [
+                315.12,
+                189.88
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 367.91,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|638|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|638|5"
+              ],
+              "i0": 638,
+              "i_feat": 638,
+              "i1": 640,
+              "i_end": 641,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                480.63,
+                237.36
+              ],
+              "rel": [
+                480.63,
+                237.36
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 536.05,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|737|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|737|5"
+              ],
+              "i0": 737,
+              "i_feat": 737,
+              "i1": 739,
+              "i_end": 740,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                512.87,
+                206.25
+              ],
+              "rel": [
+                512.87,
+                206.25
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 552.79,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|860|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|860|5"
+              ],
+              "i0": 860,
+              "i_feat": 860,
+              "i1": 862,
+              "i_end": 863,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                527.49,
+                195.12
+              ],
+              "rel": [
+                527.49,
+                195.12
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 562.42,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|983|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|983|5"
+              ],
+              "i0": 983,
+              "i_feat": 983,
+              "i1": 985,
+              "i_end": 986,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                410.9,
+                179.83
+              ],
+              "rel": [
+                410.9,
+                179.83
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 448.53,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "q"
+          ],
+          "n": 9,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "e": {
+          "slot": 8,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|106|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|106|8"
+              ],
+              "i0": 106,
+              "i_feat": 106,
+              "i1": 111,
+              "i_end": 109,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                357.34,
+                207.92
+              ],
+              "rel": [
+                357.34,
+                207.92
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 413.43,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|214|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|214|8"
+              ],
+              "i0": 214,
+              "i_feat": 214,
+              "i1": 219,
+              "i_end": 217,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                463.58,
+                143.23
+              ],
+              "rel": [
+                463.58,
+                143.23
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 485.2,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|338|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|338|8"
+              ],
+              "i0": 338,
+              "i_feat": 338,
+              "i1": 340,
+              "i_end": 341,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                365.6,
+                214.66
+              ],
+              "rel": [
+                365.6,
+                214.66
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 423.96,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|437|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|437|8"
+              ],
+              "i0": 437,
+              "i_feat": 437,
+              "i1": 441,
+              "i_end": 440,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                556.27,
+                204.09
+              ],
+              "rel": [
+                556.27,
+                204.09
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 592.53,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|531|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|531|8"
+              ],
+              "i0": 531,
+              "i_feat": 531,
+              "i1": 533,
+              "i_end": 534,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                348.4,
+                203.59
+              ],
+              "rel": [
+                348.4,
+                203.59
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 403.52,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|651|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|651|8"
+              ],
+              "i0": 651,
+              "i_feat": 651,
+              "i1": 657,
+              "i_end": 654,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                300.94,
+                211.74
+              ],
+              "rel": [
+                300.94,
+                211.74
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 367.97,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|868|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|868|8"
+              ],
+              "i0": 868,
+              "i_feat": 868,
+              "i1": 874,
+              "i_end": 871,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                484.01,
+                220.07
+              ],
+              "rel": [
+                484.01,
+                220.07
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 531.69,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|986|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|986|8"
+              ],
+              "i0": 986,
+              "i_feat": 986,
+              "i1": 991,
+              "i_end": 989,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                378.14,
+                204.53
+              ],
+              "rel": [
+                378.14,
+                204.53
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 429.91,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            8
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 8,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "w": {
+          "slot": 3,
+          "key": "w",
+          "group_key": "w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|95|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|95|3"
+              ],
+              "i0": 95,
+              "i_feat": 95,
+              "i1": 97,
+              "i_end": 98,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                420.21,
+                197.88
+              ],
+              "rel": [
+                420.21,
+                197.88
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 464.47,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|209|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|209|3"
+              ],
+              "i0": 209,
+              "i_feat": 209,
+              "i1": 213,
+              "i_end": 212,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                470.78,
+                143.75
+              ],
+              "rel": [
+                470.78,
+                143.75
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 492.24,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|534|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|534|3"
+              ],
+              "i0": 534,
+              "i_feat": 534,
+              "i1": 538,
+              "i_end": 537,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                374.84,
+                169.2
+              ],
+              "rel": [
+                374.84,
+                169.2
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 411.26,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|648|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|648|3"
+              ],
+              "i0": 648,
+              "i_feat": 648,
+              "i1": 650,
+              "i_end": 651,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                314.31,
+                167.75
+              ],
+              "rel": [
+                314.31,
+                167.75
+              ],
+              "bbox": [
+                -244.18,
+                145.2,
+                314.31,
+                167.75
+              ],
+              "bbox_w": 558.49,
+              "bbox_h": 22.55,
+              "dist": 356.27,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|863|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|863|3"
+              ],
+              "i0": 863,
+              "i_feat": 863,
+              "i1": 867,
+              "i_end": 866,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                549.88,
+                216.69
+              ],
+              "rel": [
+                549.88,
+                216.69
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 591.04,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|978|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|978|3"
+              ],
+              "i0": 978,
+              "i_feat": 978,
+              "i1": 980,
+              "i_end": 981,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                445.82,
+                133.15
+              ],
+              "rel": [
+                445.82,
+                133.15
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 465.28,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            3
+          ],
+          "group_keys": [
+            "w"
+          ],
+          "n": 6,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.17,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "r": {
+          "slot": 4,
+          "key": "r",
+          "group_key": "r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|112|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|112|4"
+              ],
+              "i0": 112,
+              "i_feat": 112,
+              "i1": 115,
+              "i_end": 115,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                -209.75,
+                336.41
+              ],
+              "rel": [
+                -209.75,
+                336.41
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 396.44,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|220|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|220|4"
+              ],
+              "i0": 220,
+              "i_feat": 220,
+              "i1": 225,
+              "i_end": 223,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                417.14,
+                177.24
+              ],
+              "rel": [
+                417.14,
+                177.24
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 453.23,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|341|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|341|4"
+              ],
+              "i0": 341,
+              "i_feat": 341,
+              "i1": 347,
+              "i_end": 344,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                -302.32,
+                381.65
+              ],
+              "rel": [
+                -302.32,
+                381.65
+              ],
+              "bbox": [
+                -302.32,
+                192.09,
+                376.16,
+                381.65
+              ],
+              "bbox_w": 678.48,
+              "bbox_h": 189.56,
+              "dist": 486.88,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|992|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|992|4"
+              ],
+              "i0": 992,
+              "i_feat": 992,
+              "i1": 995,
+              "i_end": 995,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                415.03,
+                162.12
+              ],
+              "rel": [
+                415.03,
+                162.12
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 445.57,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            4
+          ],
+          "group_keys": [
+            "r"
+          ],
+          "n": 4,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.25,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "s": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|430|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|430|6"
+              ],
+              "i0": 430,
+              "i_feat": 430,
+              "i1": 436,
+              "i_end": 433,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                607.39,
+                197.22
+              ],
+              "rel": [
+                607.39,
+                197.22
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 638.61,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|545|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|545|6"
+              ],
+              "i0": 545,
+              "i_feat": 545,
+              "i1": 550,
+              "i_end": 548,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                286.46,
+                190.2
+              ],
+              "rel": [
+                286.46,
+                190.2
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 343.85,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|764|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|764|6"
+              ],
+              "i0": 764,
+              "i_feat": 764,
+              "i1": 766,
+              "i_end": 767,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                307.49,
+                209.08
+              ],
+              "rel": [
+                307.49,
+                209.08
+              ],
+              "bbox": [
+                307.49,
+                208.75,
+                307.54,
+                209.08
+              ],
+              "bbox_w": 0.05,
+              "bbox_h": 0.33,
+              "dist": 371.84,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 3,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.33,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "d": {
+          "slot": 1,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|423|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|423|1"
+              ],
+              "i0": 423,
+              "i_feat": 423,
+              "i1": 425,
+              "i_end": 426,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                616.69,
+                158.27
+              ],
+              "rel": [
+                616.69,
+                158.27
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 636.68,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|769|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|769|1"
+              ],
+              "i0": 769,
+              "i_feat": 769,
+              "i1": 773,
+              "i_end": 772,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                305.23,
+                251.27
+              ],
+              "rel": [
+                305.23,
+                251.27
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 395.35,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            1
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "g": {
+          "slot": 7,
+          "key": "g",
+          "group_key": "g",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|232|g",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 7,
+              "key": "g",
+              "group_key": "g",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "g"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|232|7"
+              ],
+              "i0": 232,
+              "i_feat": 232,
+              "i1": 235,
+              "i_end": 235,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                190.21,
+                141.96
+              ],
+              "rel": [
+                190.21,
+                141.96
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 237.34,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "g"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "s>w": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|322|s>w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s>w",
+              "group_slots": [
+                6,
+                3
+              ],
+              "group_keys": [
+                "s",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|322|6",
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|324|3"
+              ],
+              "i0": 322,
+              "i_feat": 322,
+              "i1": 330,
+              "i_end": 327,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                403.14,
+                196.19
+              ],
+              "rel": [
+                403.14,
+                196.19
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 448.34,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                205
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            3
+          ],
+          "group_keys": [
+            "s",
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            205
+          ]
+        },
+        "v": {
+          "slot": 2,
+          "key": "v",
+          "group_key": "v",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|742|v",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 2,
+              "key": "v",
+              "group_key": "v",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "v"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|742|2"
+              ],
+              "i0": 742,
+              "i_feat": 742,
+              "i1": 746,
+              "i_end": 745,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                492.89,
+                200.68
+              ],
+              "rel": [
+                492.89,
+                200.68
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 532.18,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "v"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "boss",
+      "tags": [
+        "BOSS"
+      ],
+      "rel": [
+        420.21,
+        197.88
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0,
+      "bbox": [
+        -302.32,
+        192.09,
+        376.16,
+        381.65
+      ]
+    },
+    "M0": {
+      "skills": {
+        "g": {
+          "slot": 7,
+          "key": "g",
+          "group_key": "g",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|712|g",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "g",
+              "group_key": "g",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "g"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|712|7"
+              ],
+              "i0": 712,
+              "i_feat": 712,
+              "i1": 714,
+              "i_end": 715,
+              "mon": 2,
+              "boss": 0,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                -11.36,
+                40.13
+              ],
+              "rel": [
+                -11.36,
+                40.13
+              ],
+              "bbox": [
+                -11.36,
+                40.13,
+                -10.14,
+                40.34
+              ],
+              "bbox_w": 1.22,
+              "bbox_h": 0.21,
+              "dist": 41.71,
+              "range_x": 11.36,
+              "range_y": 40.34,
+              "range_px": 41.91,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "g"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 41.91,
+          "range_x_max": 11.36,
+          "range_y_max": 40.34,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 2.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "v": {
+          "slot": 2,
+          "key": "v",
+          "group_key": "v",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|931|v",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "v",
+              "group_key": "v",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "v"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|931|2"
+              ],
+              "i0": 931,
+              "i_feat": 931,
+              "i1": 933,
+              "i_end": 934,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                812.5,
+                152.2
+              ],
+              "rel": [
+                812.5,
+                152.2
+              ],
+              "bbox": [
+                120.41,
+                -18.04,
+                812.5,
+                152.2
+              ],
+              "bbox_w": 692.09,
+              "bbox_h": 170.24,
+              "dist": 826.63,
+              "range_x": 812.5,
+              "range_y": 152.2,
+              "range_px": 826.63,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "v"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 826.63,
+          "range_x_max": 812.5,
+          "range_y_max": 152.2,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "d": {
+          "slot": 1,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|165|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|165|1"
+              ],
+              "i0": 165,
+              "i_feat": 165,
+              "i1": 167,
+              "i_end": 168,
+              "mon": 2,
+              "boss": 0,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                586.18,
+                143.44
+              ],
+              "rel": [
+                586.18,
+                143.44
+              ],
+              "bbox": [
+                573.86,
+                -28.01,
+                586.18,
+                143.44
+              ],
+              "bbox_w": 12.32,
+              "bbox_h": 171.45,
+              "dist": 603.47,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 2,
+              "boss_end": 0,
+              "enemy_end": 2,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|274|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|274|1"
+              ],
+              "i0": 274,
+              "i_feat": 274,
+              "i1": 276,
+              "i_end": 277,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1049.63,
+                108.79
+              ],
+              "rel": [
+                1049.63,
+                108.79
+              ],
+              "bbox": [
+                350.3,
+                -63.12,
+                1049.63,
+                108.79
+              ],
+              "bbox_w": 699.33,
+              "bbox_h": 171.91,
+              "dist": 1055.25,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 0.083,
+              "kill_ratio_enemy": 0.083,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|488|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|488|1"
+              ],
+              "i0": 488,
+              "i_feat": 488,
+              "i1": 490,
+              "i_end": 491,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                1005.24,
+                120.3
+              ],
+              "rel": [
+                1005.24,
+                120.3
+              ],
+              "bbox": [
+                307.12,
+                -51.52,
+                1005.24,
+                120.3
+              ],
+              "bbox_w": 698.12,
+              "bbox_h": 171.82,
+              "dist": 1012.41,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 0.154,
+              "kill_ratio_enemy": 0.154,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|595|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|595|1"
+              ],
+              "i0": 595,
+              "i_feat": 595,
+              "i1": 597,
+              "i_end": 598,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                1102.58,
+                129.69
+              ],
+              "rel": [
+                1102.58,
+                129.69
+              ],
+              "bbox": [
+                404.08,
+                -42.32,
+                1102.58,
+                129.69
+              ],
+              "bbox_w": 698.5,
+              "bbox_h": 172.01,
+              "dist": 1110.18,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 0.154,
+              "kill_ratio_enemy": 0.154,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|820|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|820|1"
+              ],
+              "i0": 820,
+              "i_feat": 820,
+              "i1": 822,
+              "i_end": 823,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                957.12,
+                148.49
+              ],
+              "rel": [
+                957.12,
+                148.49
+              ],
+              "bbox": [
+                259.11,
+                -23.26,
+                957.12,
+                148.49
+              ],
+              "bbox_w": 698.01,
+              "bbox_h": 171.75,
+              "dist": 968.57,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            1
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 0,
+          "n_fake": 5,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "e": {
+          "slot": 8,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|37|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|37|8"
+              ],
+              "i0": 37,
+              "i_feat": 37,
+              "i1": 39,
+              "i_end": 40,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                985.96,
+                92.74
+              ],
+              "rel": [
+                985.96,
+                92.74
+              ],
+              "bbox": [
+                288.12,
+                -78.64,
+                985.96,
+                92.74
+              ],
+              "bbox_w": 697.84,
+              "bbox_h": 171.38,
+              "dist": 990.31,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 12,
+              "boss_end": 0,
+              "enemy_end": 12,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|919|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|919|8"
+              ],
+              "i0": 919,
+              "i_feat": 919,
+              "i1": 921,
+              "i_end": 922,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                878.64,
+                151.37
+              ],
+              "rel": [
+                878.64,
+                151.37
+              ],
+              "bbox": [
+                180.48,
+                -20.33,
+                878.64,
+                151.37
+              ],
+              "bbox_w": 698.16,
+              "bbox_h": 171.7,
+              "dist": 891.58,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 10,
+              "boss_end": 0,
+              "enemy_end": 10,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 0.091,
+              "kill_ratio_enemy": 0.091,
+              "fake": true,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            8
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 0,
+          "n_fake": 2,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "s": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|155|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|155|6"
+              ],
+              "i0": 155,
+              "i_feat": 155,
+              "i1": 157,
+              "i_end": 158,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1120.39,
+                139.58
+              ],
+              "rel": [
+                1120.39,
+                139.58
+              ],
+              "bbox": [
+                430.33,
+                -32.24,
+                1120.39,
+                139.58
+              ],
+              "bbox_w": 690.06,
+              "bbox_h": 171.82,
+              "dist": 1129.05,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 0.083,
+              "kill_ratio_enemy": 0.083,
+              "fake": true,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 0,
+          "n_fake": 1,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "w": {
+          "slot": 3,
+          "key": "w",
+          "group_key": "w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|389|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|389|3"
+              ],
+              "i0": 389,
+              "i_feat": 389,
+              "i1": 391,
+              "i_end": 392,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                698.81,
+                118.13
+              ],
+              "rel": [
+                698.81,
+                118.13
+              ],
+              "bbox": [
+                8.56,
+                -53.55,
+                698.81,
+                118.13
+              ],
+              "bbox_w": 690.25,
+              "bbox_h": 171.68,
+              "dist": 708.72,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": -1,
+              "killed_enemy": -1,
+              "kill_ratio": -0.1,
+              "kill_ratio_enemy": -0.1,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|695|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|695|3"
+              ],
+              "i0": 695,
+              "i_feat": 695,
+              "i1": 697,
+              "i_end": 698,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                925.79,
+                164.55
+              ],
+              "rel": [
+                925.79,
+                164.55
+              ],
+              "bbox": [
+                227.52,
+                -7.16,
+                925.79,
+                164.55
+              ],
+              "bbox_w": 698.27,
+              "bbox_h": 171.71,
+              "dist": 940.3,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            3
+          ],
+          "group_keys": [
+            "w"
+          ],
+          "n": 0,
+          "n_fake": 2,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "mob",
+      "tags": [
+        "小怪"
+      ],
+      "rel": [
+        985.96,
+        92.74
+      ],
+      "bbox": [
+        288.12,
+        -78.64,
+        985.96,
+        92.74
+      ],
+      "bbox_w": 692.09,
+      "bbox_h": 170.24,
+      "n": 12
+    },
+    "X": {
+      "skills": {
+        "s": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|116|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|116|6"
+              ],
+              "i0": 116,
+              "i_feat": 116,
+              "i1": 118,
+              "i_end": 119,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|996|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|996|6"
+              ],
+              "i0": 996,
+              "i_feat": 996,
+              "i1": 1000,
+              "i_end": 999,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "g": {
+          "slot": 7,
+          "key": "g",
+          "group_key": "g",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|400|g",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 7,
+              "key": "g",
+              "group_key": "g",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "g"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|400|7"
+              ],
+              "i0": 400,
+              "i_feat": 400,
+              "i1": 402,
+              "i_end": 403,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "g"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "abnormal",
+      "tags": [
+        "异常"
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0
+    }
+  },
+  "rooms": {
+    "B0": {
+      "skills": {
+        "q": {
+          "slot": 5,
+          "key": "q",
+          "group_key": "q",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|100|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|100|5"
+              ],
+              "i0": 100,
+              "i_feat": 100,
+              "i1": 105,
+              "i_end": 103,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                386.75,
+                201.22
+              ],
+              "rel": [
+                386.75,
+                201.22
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 435.96,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|206|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|206|5"
+              ],
+              "i0": 206,
+              "i_feat": 206,
+              "i1": 208,
+              "i_end": 209,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                449.45,
+                141.92
+              ],
+              "rel": [
+                449.45,
+                141.92
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 471.32,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|331|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|331|5"
+              ],
+              "i0": 331,
+              "i_feat": 331,
+              "i1": 334,
+              "i_end": 334,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                373.36,
+                194.7
+              ],
+              "rel": [
+                373.36,
+                194.7
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 421.08,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|442|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|442|5"
+              ],
+              "i0": 442,
+              "i_feat": 442,
+              "i1": 449,
+              "i_end": 445,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                541.18,
+                194.34
+              ],
+              "rel": [
+                541.18,
+                194.34
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 575.02,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|539|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|539|5"
+              ],
+              "i0": 539,
+              "i_feat": 539,
+              "i1": 544,
+              "i_end": 542,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                315.12,
+                189.88
+              ],
+              "rel": [
+                315.12,
+                189.88
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 367.91,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|638|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|638|5"
+              ],
+              "i0": 638,
+              "i_feat": 638,
+              "i1": 640,
+              "i_end": 641,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                480.63,
+                237.36
+              ],
+              "rel": [
+                480.63,
+                237.36
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 536.05,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|737|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|737|5"
+              ],
+              "i0": 737,
+              "i_feat": 737,
+              "i1": 739,
+              "i_end": 740,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                512.87,
+                206.25
+              ],
+              "rel": [
+                512.87,
+                206.25
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 552.79,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|860|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|860|5"
+              ],
+              "i0": 860,
+              "i_feat": 860,
+              "i1": 862,
+              "i_end": 863,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                527.49,
+                195.12
+              ],
+              "rel": [
+                527.49,
+                195.12
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 562.42,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|983|q",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 5,
+              "key": "q",
+              "group_key": "q",
+              "group_slots": [
+                5
+              ],
+              "group_keys": [
+                "q"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|983|5"
+              ],
+              "i0": 983,
+              "i_feat": 983,
+              "i1": 985,
+              "i_end": 986,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                410.9,
+                179.83
+              ],
+              "rel": [
+                410.9,
+                179.83
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 448.53,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            5
+          ],
+          "group_keys": [
+            "q"
+          ],
+          "n": 9,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "e": {
+          "slot": 8,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|106|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|106|8"
+              ],
+              "i0": 106,
+              "i_feat": 106,
+              "i1": 111,
+              "i_end": 109,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                357.34,
+                207.92
+              ],
+              "rel": [
+                357.34,
+                207.92
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 413.43,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|214|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|214|8"
+              ],
+              "i0": 214,
+              "i_feat": 214,
+              "i1": 219,
+              "i_end": 217,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                463.58,
+                143.23
+              ],
+              "rel": [
+                463.58,
+                143.23
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 485.2,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|338|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|338|8"
+              ],
+              "i0": 338,
+              "i_feat": 338,
+              "i1": 340,
+              "i_end": 341,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                365.6,
+                214.66
+              ],
+              "rel": [
+                365.6,
+                214.66
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 423.96,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|437|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|437|8"
+              ],
+              "i0": 437,
+              "i_feat": 437,
+              "i1": 441,
+              "i_end": 440,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                556.27,
+                204.09
+              ],
+              "rel": [
+                556.27,
+                204.09
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 592.53,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|531|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|531|8"
+              ],
+              "i0": 531,
+              "i_feat": 531,
+              "i1": 533,
+              "i_end": 534,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                348.4,
+                203.59
+              ],
+              "rel": [
+                348.4,
+                203.59
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 403.52,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|651|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|651|8"
+              ],
+              "i0": 651,
+              "i_feat": 651,
+              "i1": 657,
+              "i_end": 654,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                300.94,
+                211.74
+              ],
+              "rel": [
+                300.94,
+                211.74
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 367.97,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|868|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|868|8"
+              ],
+              "i0": 868,
+              "i_feat": 868,
+              "i1": 874,
+              "i_end": 871,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                484.01,
+                220.07
+              ],
+              "rel": [
+                484.01,
+                220.07
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 531.69,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|986|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|986|8"
+              ],
+              "i0": 986,
+              "i_feat": 986,
+              "i1": 991,
+              "i_end": 989,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                378.14,
+                204.53
+              ],
+              "rel": [
+                378.14,
+                204.53
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 429.91,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            8
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 8,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "w": {
+          "slot": 3,
+          "key": "w",
+          "group_key": "w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|95|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|95|3"
+              ],
+              "i0": 95,
+              "i_feat": 95,
+              "i1": 97,
+              "i_end": 98,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                420.21,
+                197.88
+              ],
+              "rel": [
+                420.21,
+                197.88
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 464.47,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|209|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|209|3"
+              ],
+              "i0": 209,
+              "i_feat": 209,
+              "i1": 213,
+              "i_end": 212,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                470.78,
+                143.75
+              ],
+              "rel": [
+                470.78,
+                143.75
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 492.24,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|534|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|534|3"
+              ],
+              "i0": 534,
+              "i_feat": 534,
+              "i1": 538,
+              "i_end": 537,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                374.84,
+                169.2
+              ],
+              "rel": [
+                374.84,
+                169.2
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 411.26,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|648|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|648|3"
+              ],
+              "i0": 648,
+              "i_feat": 648,
+              "i1": 650,
+              "i_end": 651,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                314.31,
+                167.75
+              ],
+              "rel": [
+                314.31,
+                167.75
+              ],
+              "bbox": [
+                -244.18,
+                145.2,
+                314.31,
+                167.75
+              ],
+              "bbox_w": 558.49,
+              "bbox_h": 22.55,
+              "dist": 356.27,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|863|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|863|3"
+              ],
+              "i0": 863,
+              "i_feat": 863,
+              "i1": 867,
+              "i_end": 866,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                549.88,
+                216.69
+              ],
+              "rel": [
+                549.88,
+                216.69
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 591.04,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|978|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|978|3"
+              ],
+              "i0": 978,
+              "i_feat": 978,
+              "i1": 980,
+              "i_end": 981,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                445.82,
+                133.15
+              ],
+              "rel": [
+                445.82,
+                133.15
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 465.28,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            3
+          ],
+          "group_keys": [
+            "w"
+          ],
+          "n": 6,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.17,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "r": {
+          "slot": 4,
+          "key": "r",
+          "group_key": "r",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|112|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|112|4"
+              ],
+              "i0": 112,
+              "i_feat": 112,
+              "i1": 115,
+              "i_end": 115,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                -209.75,
+                336.41
+              ],
+              "rel": [
+                -209.75,
+                336.41
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 396.44,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|220|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|220|4"
+              ],
+              "i0": 220,
+              "i_feat": 220,
+              "i1": 225,
+              "i_end": 223,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                417.14,
+                177.24
+              ],
+              "rel": [
+                417.14,
+                177.24
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 453.23,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|341|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|341|4"
+              ],
+              "i0": 341,
+              "i_feat": 341,
+              "i1": 347,
+              "i_end": 344,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                -302.32,
+                381.65
+              ],
+              "rel": [
+                -302.32,
+                381.65
+              ],
+              "bbox": [
+                -302.32,
+                192.09,
+                376.16,
+                381.65
+              ],
+              "bbox_w": 678.48,
+              "bbox_h": 189.56,
+              "dist": 486.88,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|992|r",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 4,
+              "key": "r",
+              "group_key": "r",
+              "group_slots": [
+                4
+              ],
+              "group_keys": [
+                "r"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|992|4"
+              ],
+              "i0": 992,
+              "i_feat": 992,
+              "i1": 995,
+              "i_end": 995,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                415.03,
+                162.12
+              ],
+              "rel": [
+                415.03,
+                162.12
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 445.57,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            4
+          ],
+          "group_keys": [
+            "r"
+          ],
+          "n": 4,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.25,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "s": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|430|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|430|6"
+              ],
+              "i0": 430,
+              "i_feat": 430,
+              "i1": 436,
+              "i_end": 433,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                607.39,
+                197.22
+              ],
+              "rel": [
+                607.39,
+                197.22
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 638.61,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|545|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|545|6"
+              ],
+              "i0": 545,
+              "i_feat": 545,
+              "i1": 550,
+              "i_end": 548,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                286.46,
+                190.2
+              ],
+              "rel": [
+                286.46,
+                190.2
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 343.85,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 2,
+              "enemy_end": 2,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|764|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|764|6"
+              ],
+              "i0": 764,
+              "i_feat": 764,
+              "i1": 766,
+              "i_end": 767,
+              "mon": 0,
+              "boss": 2,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                307.49,
+                209.08
+              ],
+              "rel": [
+                307.49,
+                209.08
+              ],
+              "bbox": [
+                307.49,
+                208.75,
+                307.54,
+                209.08
+              ],
+              "bbox_w": 0.05,
+              "bbox_h": 0.33,
+              "dist": 371.84,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 2,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 3,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.33,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "d": {
+          "slot": 1,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|423|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|423|1"
+              ],
+              "i0": 423,
+              "i_feat": 423,
+              "i1": 425,
+              "i_end": 426,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                616.69,
+                158.27
+              ],
+              "rel": [
+                616.69,
+                158.27
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 636.68,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|769|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|769|1"
+              ],
+              "i0": 769,
+              "i_feat": 769,
+              "i1": 773,
+              "i_end": 772,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                305.23,
+                251.27
+              ],
+              "rel": [
+                305.23,
+                251.27
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 395.35,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            1
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "g": {
+          "slot": 7,
+          "key": "g",
+          "group_key": "g",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|232|g",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 7,
+              "key": "g",
+              "group_key": "g",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "g"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|232|7"
+              ],
+              "i0": 232,
+              "i_feat": 232,
+              "i1": 235,
+              "i_end": 235,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                190.21,
+                141.96
+              ],
+              "rel": [
+                190.21,
+                141.96
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 237.34,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "g"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "s>w": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s>w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|322|s>w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s>w",
+              "group_slots": [
+                6,
+                3
+              ],
+              "group_keys": [
+                "s",
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|322|6",
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|324|3"
+              ],
+              "i0": 322,
+              "i_feat": 322,
+              "i1": 330,
+              "i_end": 327,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                403.14,
+                196.19
+              ],
+              "rel": [
+                403.14,
+                196.19
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 448.34,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [
+                205
+              ],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6,
+            3
+          ],
+          "group_keys": [
+            "s",
+            "w"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": [
+            205
+          ]
+        },
+        "v": {
+          "slot": 2,
+          "key": "v",
+          "group_key": "v",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|742|v",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "B0",
+              "dist_kind": "boss",
+              "room": "B0",
+              "slot": 2,
+              "key": "v",
+              "group_key": "v",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "v"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|742|2"
+              ],
+              "i0": 742,
+              "i_feat": 742,
+              "i1": 746,
+              "i_end": 745,
+              "mon": 0,
+              "boss": 1,
+              "enemy": 1,
+              "start_n": 1,
+              "center": [
+                492.89,
+                200.68
+              ],
+              "rel": [
+                492.89,
+                200.68
+              ],
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": 532.18,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": null,
+              "boss_room": true,
+              "mon_end": 0,
+              "boss_end": 1,
+              "enemy_end": 1,
+              "killed_mon": 1,
+              "killed_enemy": null,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "v"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": 1.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "boss",
+      "tags": [
+        "BOSS"
+      ],
+      "rel": [
+        420.21,
+        197.88
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0,
+      "bbox": [
+        -302.32,
+        192.09,
+        376.16,
+        381.65
+      ]
+    },
+    "M0": {
+      "skills": {
+        "g": {
+          "slot": 7,
+          "key": "g",
+          "group_key": "g",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|712|g",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 7,
+              "key": "g",
+              "group_key": "g",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "g"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|712|7"
+              ],
+              "i0": 712,
+              "i_feat": 712,
+              "i1": 714,
+              "i_end": 715,
+              "mon": 2,
+              "boss": 0,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                -11.36,
+                40.13
+              ],
+              "rel": [
+                -11.36,
+                40.13
+              ],
+              "bbox": [
+                -11.36,
+                40.13,
+                -10.14,
+                40.34
+              ],
+              "bbox_w": 1.22,
+              "bbox_h": 0.21,
+              "dist": 41.71,
+              "range_x": 11.36,
+              "range_y": 40.34,
+              "range_px": 41.91,
+              "gaps_ms": [],
+              "dir": "up",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "g"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 41.91,
+          "range_x_max": 11.36,
+          "range_y_max": 40.34,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 2.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "v": {
+          "slot": 2,
+          "key": "v",
+          "group_key": "v",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|931|v",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 2,
+              "key": "v",
+              "group_key": "v",
+              "group_slots": [
+                2
+              ],
+              "group_keys": [
+                "v"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|931|2"
+              ],
+              "i0": 931,
+              "i_feat": 931,
+              "i1": 933,
+              "i_end": 934,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                812.5,
+                152.2
+              ],
+              "rel": [
+                812.5,
+                152.2
+              ],
+              "bbox": [
+                120.41,
+                -18.04,
+                812.5,
+                152.2
+              ],
+              "bbox_w": 692.09,
+              "bbox_h": 170.24,
+              "dist": 826.63,
+              "range_x": 812.5,
+              "range_y": 152.2,
+              "range_px": 826.63,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "群",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 12,
+              "killed_enemy": 12,
+              "kill_ratio": 1.0,
+              "kill_ratio_enemy": 1.0,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            2
+          ],
+          "group_keys": [
+            "v"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": 826.63,
+          "range_x_max": 812.5,
+          "range_y_max": 152.2,
+          "kind_maj": "群",
+          "kind_group": 1,
+          "kill_mean": 12.0,
+          "kill_ratio_mean": 1.0,
+          "gaps_ms": []
+        },
+        "d": {
+          "slot": 1,
+          "key": "d",
+          "group_key": "d",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|165|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|165|1"
+              ],
+              "i0": 165,
+              "i_feat": 165,
+              "i1": 167,
+              "i_end": 168,
+              "mon": 2,
+              "boss": 0,
+              "enemy": 2,
+              "start_n": 2,
+              "center": [
+                586.18,
+                143.44
+              ],
+              "rel": [
+                586.18,
+                143.44
+              ],
+              "bbox": [
+                573.86,
+                -28.01,
+                586.18,
+                143.44
+              ],
+              "bbox_w": 12.32,
+              "bbox_h": 171.45,
+              "dist": 603.47,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 2,
+              "boss_end": 0,
+              "enemy_end": 2,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|274|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|274|1"
+              ],
+              "i0": 274,
+              "i_feat": 274,
+              "i1": 276,
+              "i_end": 277,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1049.63,
+                108.79
+              ],
+              "rel": [
+                1049.63,
+                108.79
+              ],
+              "bbox": [
+                350.3,
+                -63.12,
+                1049.63,
+                108.79
+              ],
+              "bbox_w": 699.33,
+              "bbox_h": 171.91,
+              "dist": 1055.25,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 0.083,
+              "kill_ratio_enemy": 0.083,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|488|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|488|1"
+              ],
+              "i0": 488,
+              "i_feat": 488,
+              "i1": 490,
+              "i_end": 491,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                1005.24,
+                120.3
+              ],
+              "rel": [
+                1005.24,
+                120.3
+              ],
+              "bbox": [
+                307.12,
+                -51.52,
+                1005.24,
+                120.3
+              ],
+              "bbox_w": 698.12,
+              "bbox_h": 171.82,
+              "dist": 1012.41,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 0.154,
+              "kill_ratio_enemy": 0.154,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|595|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|595|1"
+              ],
+              "i0": 595,
+              "i_feat": 595,
+              "i1": 597,
+              "i_end": 598,
+              "mon": 13,
+              "boss": 0,
+              "enemy": 13,
+              "start_n": 13,
+              "center": [
+                1102.58,
+                129.69
+              ],
+              "rel": [
+                1102.58,
+                129.69
+              ],
+              "bbox": [
+                404.08,
+                -42.32,
+                1102.58,
+                129.69
+              ],
+              "bbox_w": 698.5,
+              "bbox_h": 172.01,
+              "dist": 1110.18,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 2,
+              "killed_enemy": 2,
+              "kill_ratio": 0.154,
+              "kill_ratio_enemy": 0.154,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|820|d",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 1,
+              "key": "d",
+              "group_key": "d",
+              "group_slots": [
+                1
+              ],
+              "group_keys": [
+                "d"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|820|1"
+              ],
+              "i0": 820,
+              "i_feat": 820,
+              "i1": 822,
+              "i_end": 823,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                957.12,
+                148.49
+              ],
+              "rel": [
+                957.12,
+                148.49
+              ],
+              "bbox": [
+                259.11,
+                -23.26,
+                957.12,
+                148.49
+              ],
+              "bbox_w": 698.01,
+              "bbox_h": 171.75,
+              "dist": 968.57,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            1
+          ],
+          "group_keys": [
+            "d"
+          ],
+          "n": 0,
+          "n_fake": 5,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "e": {
+          "slot": 8,
+          "key": "e",
+          "group_key": "e",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|37|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|37|8"
+              ],
+              "i0": 37,
+              "i_feat": 37,
+              "i1": 39,
+              "i_end": 40,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                985.96,
+                92.74
+              ],
+              "rel": [
+                985.96,
+                92.74
+              ],
+              "bbox": [
+                288.12,
+                -78.64,
+                985.96,
+                92.74
+              ],
+              "bbox_w": 697.84,
+              "bbox_h": 171.38,
+              "dist": 990.31,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 12,
+              "boss_end": 0,
+              "enemy_end": 12,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|919|e",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 8,
+              "key": "e",
+              "group_key": "e",
+              "group_slots": [
+                8
+              ],
+              "group_keys": [
+                "e"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|919|8"
+              ],
+              "i0": 919,
+              "i_feat": 919,
+              "i1": 921,
+              "i_end": 922,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                878.64,
+                151.37
+              ],
+              "rel": [
+                878.64,
+                151.37
+              ],
+              "bbox": [
+                180.48,
+                -20.33,
+                878.64,
+                151.37
+              ],
+              "bbox_w": 698.16,
+              "bbox_h": 171.7,
+              "dist": 891.58,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 10,
+              "boss_end": 0,
+              "enemy_end": 10,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 0.091,
+              "kill_ratio_enemy": 0.091,
+              "fake": true,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            8
+          ],
+          "group_keys": [
+            "e"
+          ],
+          "n": 0,
+          "n_fake": 2,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": [],
+          "multi": true,
+          "multi_n": 2,
+          "tags": [
+            "多次释放"
+          ]
+        },
+        "s": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|155|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|155|6"
+              ],
+              "i0": 155,
+              "i_feat": 155,
+              "i1": 157,
+              "i_end": 158,
+              "mon": 12,
+              "boss": 0,
+              "enemy": 12,
+              "start_n": 12,
+              "center": [
+                1120.39,
+                139.58
+              ],
+              "rel": [
+                1120.39,
+                139.58
+              ],
+              "bbox": [
+                430.33,
+                -32.24,
+                1120.39,
+                139.58
+              ],
+              "bbox_w": 690.06,
+              "bbox_h": 171.82,
+              "dist": 1129.05,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 1,
+              "killed_enemy": 1,
+              "kill_ratio": 0.083,
+              "kill_ratio_enemy": 0.083,
+              "fake": true,
+              "after_cd_reset": false
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 0,
+          "n_fake": 1,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "w": {
+          "slot": 3,
+          "key": "w",
+          "group_key": "w",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|389|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|389|3"
+              ],
+              "i0": 389,
+              "i_feat": 389,
+              "i1": 391,
+              "i_end": 392,
+              "mon": 10,
+              "boss": 0,
+              "enemy": 10,
+              "start_n": 10,
+              "center": [
+                698.81,
+                118.13
+              ],
+              "rel": [
+                698.81,
+                118.13
+              ],
+              "bbox": [
+                8.56,
+                -53.55,
+                698.81,
+                118.13
+              ],
+              "bbox_w": 690.25,
+              "bbox_h": 171.68,
+              "dist": 708.72,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": -1,
+              "killed_enemy": -1,
+              "kill_ratio": -0.1,
+              "kill_ratio_enemy": -0.1,
+              "fake": true,
+              "after_cd_reset": true
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|695|w",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "M0",
+              "dist_kind": "mob",
+              "room": "M0",
+              "slot": 3,
+              "key": "w",
+              "group_key": "w",
+              "group_slots": [
+                3
+              ],
+              "group_keys": [
+                "w"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|695|3"
+              ],
+              "i0": 695,
+              "i_feat": 695,
+              "i1": 697,
+              "i_end": 698,
+              "mon": 11,
+              "boss": 0,
+              "enemy": 11,
+              "start_n": 11,
+              "center": [
+                925.79,
+                164.55
+              ],
+              "rel": [
+                925.79,
+                164.55
+              ],
+              "bbox": [
+                227.52,
+                -7.16,
+                925.79,
+                164.55
+              ],
+              "bbox_w": 698.27,
+              "bbox_h": 171.71,
+              "dist": 940.3,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": "right",
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 11,
+              "boss_end": 0,
+              "enemy_end": 11,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": 0.0,
+              "kill_ratio_enemy": 0.0,
+              "fake": true,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            3
+          ],
+          "group_keys": [
+            "w"
+          ],
+          "n": 0,
+          "n_fake": 2,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": null,
+          "kind_group": 0,
+          "kill_mean": null,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "mob",
+      "tags": [
+        "小怪"
+      ],
+      "rel": [
+        985.96,
+        92.74
+      ],
+      "bbox": [
+        288.12,
+        -78.64,
+        985.96,
+        92.74
+      ],
+      "bbox_w": 692.09,
+      "bbox_h": 170.24,
+      "n": 12
+    },
+    "X": {
+      "skills": {
+        "s": {
+          "slot": 6,
+          "key": "s",
+          "group_key": "s",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|116|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|116|6"
+              ],
+              "i0": 116,
+              "i_feat": 116,
+              "i1": 118,
+              "i_end": 119,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": false
+            },
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|996|s",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 6,
+              "key": "s",
+              "group_key": "s",
+              "group_slots": [
+                6
+              ],
+              "group_keys": [
+                "s"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|996|6"
+              ],
+              "i0": 996,
+              "i_feat": 996,
+              "i1": 1000,
+              "i_end": 999,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            6
+          ],
+          "group_keys": [
+            "s"
+          ],
+          "n": 2,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        },
+        "g": {
+          "slot": 7,
+          "key": "g",
+          "group_key": "g",
+          "casts": [
+            {
+              "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|400|g",
+              "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+              "dist_key": "X",
+              "dist_kind": "abnormal",
+              "room": "X",
+              "slot": 7,
+              "key": "g",
+              "group_key": "g",
+              "group_slots": [
+                7
+              ],
+              "group_keys": [
+                "g"
+              ],
+              "member_ids": [
+                "recordings/深渊：最终调律者/20260911_112242_SolarSeul|400|7"
+              ],
+              "i0": 400,
+              "i_feat": 400,
+              "i1": 402,
+              "i_end": 403,
+              "mon": 0,
+              "boss": 0,
+              "enemy": 0,
+              "start_n": 0,
+              "center": null,
+              "rel": null,
+              "bbox": null,
+              "bbox_w": 0.0,
+              "bbox_h": 0.0,
+              "dist": null,
+              "range_x": null,
+              "range_y": null,
+              "range_px": null,
+              "gaps_ms": [],
+              "dir": null,
+              "kind": "单",
+              "boss_room": false,
+              "mon_end": 0,
+              "boss_end": 0,
+              "enemy_end": 0,
+              "killed_mon": 0,
+              "killed_enemy": 0,
+              "kill_ratio": null,
+              "kill_ratio_enemy": null,
+              "fake": false,
+              "after_cd_reset": true
+            }
+          ],
+          "group_slots": [
+            7
+          ],
+          "group_keys": [
+            "g"
+          ],
+          "n": 1,
+          "n_fake": 0,
+          "range_med": null,
+          "range_max": null,
+          "range_x_max": null,
+          "range_y_max": null,
+          "kind_maj": "单",
+          "kind_group": 0,
+          "kill_mean": 0.0,
+          "kill_ratio_mean": null,
+          "gaps_ms": []
+        }
+      },
+      "kind": "abnormal",
+      "tags": [
+        "异常"
+      ],
+      "bbox_w": 0.0,
+      "bbox_h": 0.0
+    }
+  },
+  "cd_resets": [
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|206|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 206,
+      "t_ns": 1789096984055274800,
+      "t_s": 21.132,
+      "dist_key": "M0",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 10.87,
+      "cooldown_s": 30.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|209|3",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 209,
+      "t_ns": 1789096984362399000,
+      "t_s": 21.439,
+      "dist_key": "M0",
+      "slot": 3,
+      "key": "w",
+      "dt_s": 11.687,
+      "cooldown_s": 24.0
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|220|4",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 220,
+      "t_ns": 1789096985485323800,
+      "t_s": 22.562,
+      "dist_key": "B0",
+      "slot": 4,
+      "key": "r",
+      "dt_s": 11.069,
+      "cooldown_s": 27.4
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|324|3",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 324,
+      "t_ns": 1789096996151595300,
+      "t_s": 33.228,
+      "dist_key": "M0",
+      "slot": 3,
+      "key": "w",
+      "dt_s": 11.789,
+      "cooldown_s": 24.0
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|331|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 331,
+      "t_ns": 1789096996867345100,
+      "t_s": 33.944,
+      "dist_key": "B0",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 12.812,
+      "cooldown_s": 30.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|341|4",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 341,
+      "t_ns": 1789096997891203000,
+      "t_s": 34.968,
+      "dist_key": "B0",
+      "slot": 4,
+      "key": "r",
+      "dt_s": 12.406,
+      "cooldown_s": 27.4
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|430|6",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 430,
+      "t_ns": 1789097007013470400,
+      "t_s": 44.09,
+      "dist_key": "M0",
+      "slot": 6,
+      "key": "s",
+      "dt_s": 11.067,
+      "cooldown_s": 20.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|442|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 442,
+      "t_ns": 1789097008246239600,
+      "t_s": 45.323,
+      "dist_key": "B0",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 11.379,
+      "cooldown_s": 30.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|534|3",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 534,
+      "t_ns": 1789097017701738300,
+      "t_s": 54.778,
+      "dist_key": "M0",
+      "slot": 3,
+      "key": "w",
+      "dt_s": 21.55,
+      "cooldown_s": 24.0
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|539|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 539,
+      "t_ns": 1789097018213301300,
+      "t_s": 55.29,
+      "dist_key": "B0",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 9.967,
+      "cooldown_s": 30.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|545|6",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 545,
+      "t_ns": 1789097018829699900,
+      "t_s": 55.906,
+      "dist_key": "B0",
+      "slot": 6,
+      "key": "s",
+      "dt_s": 11.816,
+      "cooldown_s": 20.6
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|638|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 638,
+      "t_ns": 1789097028384800200,
+      "t_s": 65.461,
+      "dist_key": "M0",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 10.171,
+      "cooldown_s": 30.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|648|3",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 648,
+      "t_ns": 1789097029407185500,
+      "t_s": 66.484,
+      "dist_key": "B0",
+      "slot": 3,
+      "key": "w",
+      "dt_s": 11.705,
+      "cooldown_s": 24.0
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|737|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 737,
+      "t_ns": 1789097038567549500,
+      "t_s": 75.644,
+      "dist_key": "M0",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 10.183,
+      "cooldown_s": 30.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|860|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 860,
+      "t_ns": 1789097051194833500,
+      "t_s": 88.271,
+      "dist_key": "X",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 12.627,
+      "cooldown_s": 30.9
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|863|3",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 863,
+      "t_ns": 1789097051509933300,
+      "t_s": 88.586,
+      "dist_key": "X",
+      "slot": 3,
+      "key": "w",
+      "dt_s": 22.103,
+      "cooldown_s": 24.0
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|931|2",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 931,
+      "t_ns": 1789097058508735900,
+      "t_s": 95.585,
+      "dist_key": "M0",
+      "slot": 2,
+      "key": "v",
+      "dt_s": 19.433,
+      "cooldown_s": 41.2
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|978|3",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 978,
+      "t_ns": 1789097063334606700,
+      "t_s": 100.411,
+      "dist_key": "B0",
+      "slot": 3,
+      "key": "w",
+      "dt_s": 11.825,
+      "cooldown_s": 24.0
+    },
+    {
+      "id": "recordings/深渊：最终调律者/20260911_112242_SolarSeul|983|5",
+      "session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+      "i": 983,
+      "t_ns": 1789097063848588600,
+      "t_s": 100.925,
+      "dist_key": "B0",
+      "slot": 5,
+      "key": "q",
+      "dt_s": 12.654,
+      "cooldown_s": 30.9
+    }
+  ],
+  "skill_tags": {
+    "8": [
+      "多次释放"
+    ]
+  },
+  "map_tags": [
+    "CD重置"
+  ],
+  "sequences": {
+    "B0": [
+      5,
+      8,
+      3,
+      4,
+      6,
+      1,
+      7,
+      6,
+      2
+    ],
+    "M0": [
+      7,
+      2
+    ],
+    "X": [
+      6,
+      7
+    ]
+  },
+  "f": 50,
+  "skill_multi_n": {
+    "8": 2
+  }
+}

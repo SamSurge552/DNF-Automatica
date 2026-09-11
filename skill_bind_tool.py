@@ -30,6 +30,14 @@ from screen_capture import ScreenCaptureModule
 from window_geom import apply as apply_window_geom
 from window_geom import remember as remember_window_geom
 from fsm_core import parse_hold_ms, HOLD_MS_KEY, HOLD_FRAMES_KEY as HOLD_FRAMES_LEGACY
+from fsm_execute import (
+    DEFAULT_MASH_COUNT,
+    MASH_COUNT_MAX,
+    MASH_COUNT_MIN,
+    MASH_N_KEY,
+    clamp_mash_count,
+    parse_mash_n,
+)
 
 MAX_SKILLS = 9
 BINDS_DIR = Path("skill_binds")
@@ -39,6 +47,7 @@ EXAMPLE_PNG = BINDS_DIR / "example_combat_stats.png"
 COOLDOWN_KEY = "cooldown_s"
 MASH_KEY = "mash"
 COMBO_KEY = "combo"
+FSM_UI_PATH = Path("_fsm_replay_ui.json")
 MULTI_KEY = "multi"
 MULTI_N_KEY = "multi_n"
 DEFAULT_MULTI = 2
@@ -139,7 +148,7 @@ def _skill_slot(item: dict) -> int:
 
 
 def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
-    """保存时合并旧表：不丢 hold_ms / cooldown_s / combo / multi / mash 和未出现在新列表里的技能行。"""
+    """保存时按 slot 合并字段：同槽保留旧 hold_ms/cooldown 等未写出项；payload.skills 未出现的槽删除（以当前 UI 为准）。"""
     old = existing if isinstance(existing, dict) else {}
     out = dict(old)
     out.update(payload)
@@ -155,7 +164,6 @@ def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
         if slot > 0:
             by_slot[slot] = dict(item)
     merged = []
-    seen: set[int] = set()
     for item in payload.get("skills") or []:
         if not isinstance(item, dict):
             continue
@@ -163,6 +171,8 @@ def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
         prev = by_slot.get(slot, {})
         row = dict(prev)
         row.update(item)
+        if "hotbar" not in item:
+            row["hotbar"] = False
         for keep in (HOLD_MS_KEY, COOLDOWN_KEY):
             if keep not in item and keep in prev:
                 row[keep] = prev[keep]
@@ -171,6 +181,10 @@ def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
             row[COMBO_KEY] = bool(item.get(COMBO_KEY))
         if MASH_KEY in item:
             row[MASH_KEY] = bool(item.get(MASH_KEY))
+        if MASH_N_KEY in item or "mash_count" in item:
+            row[MASH_N_KEY] = parse_mash_n(item)
+        elif MASH_N_KEY in prev:
+            row[MASH_N_KEY] = prev[MASH_N_KEY]
         if MULTI_KEY in item:
             row[MULTI_KEY] = bool(item.get(MULTI_KEY))
         if MULTI_N_KEY in item:
@@ -181,11 +195,7 @@ def merge_bind_payload(existing: dict | None, payload: dict) -> dict:
         elif MULTI_N_KEY in prev:
             row[MULTI_N_KEY] = prev[MULTI_N_KEY]
         merged.append(row)
-        if slot > 0:
-            seen.add(slot)
-    for slot, prev in sorted(by_slot.items()):
-        if slot not in seen:
-            merged.append(prev)
+    # 空槽不保留旧技能：UI 未写出的 slot 视为删除（否则无法删技能）
     merged.sort(key=lambda s: _skill_slot(s) or 999)
     for row in merged:
         if isinstance(row, dict):
@@ -203,6 +213,17 @@ def _seq(val) -> list:
         return list(val)
     except TypeError:
         return []
+
+
+def _default_mash_n() -> int:
+    if FSM_UI_PATH.is_file():
+        try:
+            data = json.loads(FSM_UI_PATH.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                return clamp_mash_count(data.get("mash_count", DEFAULT_MASH_COUNT))
+        except Exception:
+            pass
+    return DEFAULT_MASH_COUNT
 
 
 def ocr_texts(ocr, frame) -> list[str]:
@@ -623,17 +644,18 @@ class SkillBindTool(tk.Tk):
         ttk.Label(header, text="冷却秒", width=8).pack(side=tk.LEFT)
         ttk.Label(header, text="快捷栏").pack(side=tk.LEFT)
         ttk.Label(header, text="按键", width=6).pack(side=tk.LEFT, padx=(2, 0))
-        ttk.Label(header, text="连续释放").pack(side=tk.LEFT, padx=(8, 0))
         ttk.Label(header, text="多次释放").pack(side=tk.LEFT, padx=(8, 0))
         ttk.Label(header, text="MULTI", width=6).pack(side=tk.LEFT, padx=(4, 0))
         ttk.Label(header, text="连按").pack(side=tk.LEFT, padx=(8, 0))
+        ttk.Label(header, text="COUNT", width=6).pack(side=tk.LEFT, padx=(4, 0))
+        ttk.Label(header, text="删除", width=4).pack(side=tk.LEFT, padx=(8, 0))
 
         self.rows_host = ttk.Frame(right)
         self.rows_host.pack(fill=tk.BOTH, expand=True)
         self._build_rows()
         ttk.Label(
             right,
-            text="连续释放：CD 按 270 秒。多次释放：勾选后填 MULTI（默认 2），FSM 拆成多份独立 CD。连按：执行层打 COUNT 次点按（COUNT/间隔在主面板 FSM设置）。连续/多次不触发提取 CD 重置检测。勾选后点「保存键位表」。",
+            text="连按：执行层打该槽 COUNT 次点按（默认跟全局 mash_count，间隔仍在主面板/回放）。勾选同时写入连续释放（CD 按 270 秒、提取 CD 重置跳过该槽）。取消连按会清掉该槽连续释放标签。多次释放：勾选后填 MULTI（默认 2），FSM 拆成多份独立 CD，不并进连按。勾选后点「保存键位表」。",
             foreground="#668",
             wraplength=420,
             justify=tk.LEFT,
@@ -718,8 +740,6 @@ class SkillBindTool(tk.Tk):
             key_entry.pack(side=tk.LEFT, padx=(2, 0))
             key_entry.bind("<Return>", lambda _e, idx=i: self._apply_hotbar_key(idx))
             key_entry.bind("<FocusOut>", lambda _e, idx=i: self._apply_hotbar_key(idx))
-            combo_var = tk.BooleanVar(value=False)
-            ttk.Checkbutton(host, variable=combo_var).pack(side=tk.LEFT, padx=(8, 0))
             multi_var = tk.BooleanVar(value=False)
             multi_n_var = tk.StringVar(value=str(DEFAULT_MULTI))
             multi_spin = ttk.Spinbox(
@@ -737,7 +757,27 @@ class SkillBindTool(tk.Tk):
             ).pack(side=tk.LEFT, padx=(8, 0))
             multi_spin.pack(side=tk.LEFT, padx=(4, 0))
             mash_var = tk.BooleanVar(value=False)
-            ttk.Checkbutton(host, variable=mash_var).pack(side=tk.LEFT, padx=(8, 0))
+            mash_n_var = tk.StringVar(value=str(_default_mash_n()))
+            mash_spin = ttk.Spinbox(
+                host,
+                from_=MASH_COUNT_MIN,
+                to=MASH_COUNT_MAX,
+                width=3,
+                textvariable=mash_n_var,
+                state=tk.DISABLED,
+            )
+            ttk.Checkbutton(
+                host,
+                variable=mash_var,
+                command=lambda idx=i: self._on_mash_toggle(idx),
+            ).pack(side=tk.LEFT, padx=(8, 0))
+            mash_spin.pack(side=tk.LEFT, padx=(4, 0))
+            ttk.Button(
+                host,
+                text="删除",
+                width=4,
+                command=lambda idx=i: self._delete_row(idx),
+            ).pack(side=tk.LEFT, padx=(8, 0))
             self._rows.append(
                 {
                     "command": cmd_var,
@@ -745,11 +785,12 @@ class SkillBindTool(tk.Tk):
                     "hotbar": hotbar_var,
                     "hotbar_key": key_var,
                     "key_entry": key_entry,
-                    "combo": combo_var,
                     "multi": multi_var,
                     "multi_n": multi_n_var,
                     "multi_spin": multi_spin,
                     "mash": mash_var,
+                    "mash_n": mash_n_var,
+                    "mash_spin": mash_spin,
                     "_ocr_cmd": "",
                 }
             )
@@ -757,6 +798,18 @@ class SkillBindTool(tk.Tk):
     def _set_hotbar_enabled(self, idx: int, on: bool):
         row = self._rows[idx]
         row["key_entry"].config(state=tk.NORMAL if on else tk.DISABLED)
+
+    def _on_mash_toggle(self, idx: int):
+        row = self._rows[idx]
+        on = bool(row["mash"].get())
+        row["mash_spin"].config(state=tk.NORMAL if on else tk.DISABLED)
+        if on:
+            try:
+                n = int(str(row["mash_n"].get() or _default_mash_n()))
+            except ValueError:
+                n = 0
+            if n < MASH_COUNT_MIN or n > MASH_COUNT_MAX:
+                row["mash_n"].set(str(_default_mash_n()))
 
     def _on_multi_toggle(self, idx: int):
         row = self._rows[idx]
@@ -833,6 +886,41 @@ class SkillBindTool(tk.Tk):
             return
         row["command"].set("")
         row["_ocr_cmd"] = ""
+
+
+    def _delete_row(self, idx: int):
+        """清空该行；保存后该 slot 从绑定文件移除（merge 不再回填空槽）。"""
+        if not (0 <= idx < len(self._rows)):
+            return
+        row = self._rows[idx]
+        slot = idx + 1
+        has = bool(
+            normalize_command(row["command"].get())
+            or str(row["cooldown"].get() or "").strip()
+            or row["hotbar"].get()
+            or row["mash"].get()
+            or row["multi"].get()
+            or slot in self._hold_frames
+        )
+        if has and not messagebox.askyesno("技能绑定", f"删除技能{slot}？清空后点「保存」写入文件。"):
+            return
+        self._hotbar_guard = True
+        row["command"].set("")
+        row["cooldown"].set("")
+        row["hotbar"].set(False)
+        row["hotbar_key"].set("")
+        row["_ocr_cmd"] = ""
+        row["mash"].set(False)
+        row["mash_n"].set(str(_default_mash_n()))
+        row["mash_spin"].config(state=tk.DISABLED)
+        row["multi"].set(False)
+        row["multi_n"].set(str(DEFAULT_MULTI))
+        row["multi_spin"].config(state=tk.DISABLED)
+        row["key_entry"].config(state=tk.DISABLED)
+        self._hotbar_guard = False
+        self._hold_frames.pop(slot, None)
+        self.log(f"已清空技能{slot}（保存后从绑定文件移除）")
+
 
     def _init_ocr_async(self):
         self.log("正在初始化 RapidOCR…")
@@ -1310,15 +1398,22 @@ class SkillBindTool(tk.Tk):
                 rejected.append(f"技能{i + 1}：{cmd}")
                 continue
             item = {"slot": i + 1, "command": cmd}
-            if row["hotbar"].get():
-                item["hotbar"] = True
+            # 必须显式写 false，否则 merge_bind_payload 会保留旧文件里的 hotbar:true
+            item["hotbar"] = bool(row["hotbar"].get())
             hf = self._hold_frames.get(i + 1)
             if hf is not None:
                 item[HOLD_MS_KEY] = max(1, int(hf))
             cd = parse_cooldown_text(row["cooldown"].get())
             if cd is not None:
                 item[COOLDOWN_KEY] = cooldown_json_value(cd)
-            item[COMBO_KEY] = bool(row["combo"].get())
+            mash_on = bool(row["mash"].get())
+            item[MASH_KEY] = mash_on
+            item[COMBO_KEY] = mash_on
+            try:
+                n = int(str(row["mash_n"].get() or _default_mash_n()))
+            except ValueError:
+                n = _default_mash_n()
+            item[MASH_N_KEY] = clamp_mash_count(n)
             on_m = bool(row["multi"].get())
             item[MULTI_KEY] = on_m
             try:
@@ -1326,7 +1421,6 @@ class SkillBindTool(tk.Tk):
             except ValueError:
                 n = DEFAULT_MULTI
             item[MULTI_N_KEY] = max(DEFAULT_MULTI, min(9, n))
-            item[MASH_KEY] = bool(row["mash"].get())
             out.append(item)
         return out, rejected
 
@@ -1382,15 +1476,12 @@ class SkillBindTool(tk.Tk):
         n_cd = sum(1 for it in payload.get("skills") or [] if parse_cooldown_item(it) is not None)
         if n_cd:
             extra += f"，{n_cd} 条 cooldown_s"
-        n_combo = sum(1 for it in payload.get("skills") or [] if it.get(COMBO_KEY))
-        if n_combo:
-            extra += f"，{n_combo} 条连续释放"
+        n_mash = sum(1 for it in payload.get("skills") or [] if it.get(MASH_KEY))
+        if n_mash:
+            extra += f"，{n_mash} 条连按（连续释放同开）"
         n_multi = sum(1 for it in payload.get("skills") or [] if it.get(MULTI_KEY))
         if n_multi:
             extra += f"，{n_multi} 条多次释放"
-        n_mash = sum(1 for it in payload.get("skills") or [] if it.get(MASH_KEY))
-        if n_mash:
-            extra += f"，{n_mash} 条连按"
         self.log(f"已写 {path}{extra}")
 
     def load_binds(self):
@@ -1429,8 +1520,9 @@ class SkillBindTool(tk.Tk):
             row["hotbar_key"].set("")
             row["_ocr_cmd"] = ""
             row["cooldown"].set("")
-            row["combo"].set(False)
             row["mash"].set(False)
+            row["mash_n"].set(str(_default_mash_n()))
+            row["mash_spin"].config(state=tk.DISABLED)
             row["multi"].set(False)
             row["multi_n"].set(str(DEFAULT_MULTI))
             row["multi_spin"].config(state=tk.DISABLED)
@@ -1455,8 +1547,10 @@ class SkillBindTool(tk.Tk):
                     row["hotbar_key"].set(cmd)
                     row["key_entry"].config(state=tk.NORMAL)
                     self._hotbar_guard = False
-                row["combo"].set(bool(item.get(COMBO_KEY)))
-                row["mash"].set(bool(item.get(MASH_KEY)))
+                mash_on = bool(item.get(MASH_KEY) or item.get(COMBO_KEY))
+                row["mash"].set(mash_on)
+                row["mash_n"].set(str(parse_mash_n(item, _default_mash_n())))
+                row["mash_spin"].config(state=tk.NORMAL if mash_on else tk.DISABLED)
                 on_m = bool(item.get(MULTI_KEY))
                 row["multi"].set(on_m)
                 try:
@@ -1473,15 +1567,16 @@ class SkillBindTool(tk.Tk):
         n_cd = sum(1 for it in data.get("skills") or [] if parse_cooldown_item(it) is not None)
         if n_cd:
             extra += f"，{n_cd} 条 cooldown_s"
-        n_combo = sum(1 for it in data.get("skills") or [] if isinstance(it, dict) and it.get(COMBO_KEY))
-        if n_combo:
-            extra += f"，{n_combo} 条连续释放"
+        n_mash = sum(
+            1
+            for it in data.get("skills") or []
+            if isinstance(it, dict) and (it.get(MASH_KEY) or it.get(COMBO_KEY))
+        )
+        if n_mash:
+            extra += f"，{n_mash} 条连按（连续释放同开）"
         n_multi = sum(1 for it in data.get("skills") or [] if isinstance(it, dict) and it.get(MULTI_KEY))
         if n_multi:
             extra += f"，{n_multi} 条多次释放"
-        n_mash = sum(1 for it in data.get("skills") or [] if isinstance(it, dict) and it.get(MASH_KEY))
-        if n_mash:
-            extra += f"，{n_mash} 条连按"
         self.log(f"已载入 {path}{extra}")
         self._save_ui_settings()
         if self.region:

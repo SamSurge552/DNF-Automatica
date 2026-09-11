@@ -1,13 +1,13 @@
 {
   "m": 2,
   "l": 2,
-  "g": 4,
-  "x_s": 20.0,
+  "g": 2,
+  "x_s": 10.0,
   "gx": 100,
   "gy": 100,
-  "ax_ms": 2000,
+  "ax_ms": 1500,
   "ay_ms": 100,
-  "stuck_recover_s": 1.0,
+  "stuck_recover_s": 0.5,
   "stuck_recover": [
     {
       "action": "tap",
@@ -16,22 +16,22 @@
     {
       "action": "hold",
       "key": "right",
-      "s": 2
+      "s": 2.0
     },
     {
       "action": "hold",
       "key": "left",
-      "s": 2
+      "s": 2.0
     },
     {
       "action": "hold",
       "key": "up",
-      "s": 1
+      "s": 1.0
     },
     {
       "action": "hold",
       "key": "down",
-      "s": 1
+      "s": 1.0
     }
   ],
   "xxx_ms": 2000,
@@ -49,7 +49,10 @@
   "pw_ms": 2000,
   "advance_timeout_ms": 3000,
   "approach_timeout_ms": 3000,
-  "town_s": 2.0,
+  "advance_timeout_esc_n": 2,
+  "default_range_x": 250,
+  "default_range_y": 100,
+  "town_s": 3,
   "run_press": 2,
   "loot_hold_ms": 500,
   "e": 3,
@@ -62,33 +65,60 @@
   "skill_hold_ms": {
     "SolarWarden": {
       "1": 7000,
-      "2": 2000,
-      "3": 5000,
-      "4": 99999,
-      "5": 250,
-      "6": 6000,
-      "7": 1000,
-      "8": 2000
+      "2": 2400,
+      "4": 2400,
+      "7": 1200,
+      "8": 5000,
+      "9": 2400
     },
     "Varien": {
+      "1": 1200,
+      "2": 1200,
+      "3": 1900,
+      "4": 1700,
+      "5": 3000,
+      "6": 1200,
+      "7": 2800
+    },
+    "Sam1ra": {
+      "1": 3200,
+      "2": 1900,
+      "3": 2100,
+      "4": 1000,
+      "5": 200,
+      "6": 900,
+      "7": 1500,
+      "8": 250
+    },
+    "N1kle": {
+      "1": 1000,
+      "2": 2000,
+      "3": 2000,
+      "4": 1000,
+      "5": 1000,
+      "6": 500,
+      "7": 500,
+      "8": 2000
+    },
+    "SolarSeul": {
       "1": 1500,
-      "2": 1500,
-      "3": 2500,
-      "6": 2000,
-      "7": 5000,
-      "8": 3000,
-      "4": 3000,
-      "5": 5000
+      "2": 2000,
+      "3": 2000,
+      "4": 1000,
+      "5": 2000,
+      "6": 500,
+      "7": 500,
+      "8": 2000
     }
   },
   "session_source": "全部",
   "extract_include_fsm": false,
-  "last_session": "recordings/深渊：最终调律者/20260907_220951_SolarWarden",
+  "last_session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
   "mon_corr_u": 0,
   "mon_corr_d": 80,
   "mon_corr_l": 0,
   "mon_corr_r": 0,
-  "loot_corr_u": 55,
+  "loot_corr_u": 60,
   "loot_corr_d": 0,
   "loot_corr_l": 0,
   "loot_corr_r": 0,

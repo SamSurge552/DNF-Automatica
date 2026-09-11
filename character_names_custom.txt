@@ -1,4 +1,5 @@
 SolarWarden
+SolarSeul
 Sam1ra
 Varien
 N1kle

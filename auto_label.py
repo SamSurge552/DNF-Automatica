@@ -1,10 +1,10 @@
 """自动标注：写出 X-AnyLabeling 的 json，和 png 放在同一文件夹。
 
-参照 D:/Atrain/Aset/solarwarden/solarwarden_b（同名 .json，rectangle 像素框）。
+参照 D:/Desktop/T/test/images/Atrain/Aset/solarwarden/solarwarden_b（同名 .json，rectangle 像素框）。
 Xout 只给 X-AnyLabeling「导出」YOLO txt 用，自动标不要往那里写。
 
 用法:
-  python auto_label.py --images D:\\Atrain\\Aset\\solarwarden\\深渊 --weights D:\\Atrain\\runs\\solarwarden_b\\weights\\best.pt --conf 0.1
+  python auto_label.py --images images/Atrain/Aset/solarwarden/<图> --weights images/Atrain/runs/solarwarden_b/weights/best.pt --conf 0.1
   python auto_label.py --convert-txt
 
 默认 --save-conf：json 每个框写 score（X-AnyLabeling 置信度）。
@@ -17,7 +17,7 @@ import json
 import struct
 from pathlib import Path
 
-ROOT = Path(r"D:/Atrain")
+ROOT = Path(__file__).resolve().parent / "images" / "Atrain"
 IMG_EXT = {".png", ".jpg", ".jpeg", ".bmp", ".webp"}
 XAL_VERSION = "0.4.43"
 DEFAULT_NAMES = ["boss", "gate", "loot", "mon", "player"]
