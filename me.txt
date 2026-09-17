@@ -683,4 +683,5 @@
 10：06 fsm_core：_dual_axis_dirs 开打/捡物/前进 phase0 共用；删单轴 _axis_dir
 10：18 核实 BOSS 房范围异常走近朝签名 rel（B0 正 rx）会与当前 BOSS 左右相反；骨架：走近改当前 enemy 中心
 10：19 范围异常走近改当前帧 enemy 均值；空才退 _dist_center（不再用签名 rel 瞄准）
+14：08 准备：自动化模式=FSM测试能力（YOLO+FSM+发键）且不落盘；骨架给 Cursor
 -

@@ -131,6 +131,8 @@ class StatusAnalysisModule:
         self.capture_only = False
         self.yolo_test = False
         self.fsm_test = False
+        self.fsm_run = False
+        self.fsm_persist = False
         self.save_images = True
         self.yolo_conf = 0.1
         self.yolo_iou = 0.7
@@ -209,17 +211,22 @@ class StatusAnalysisModule:
         self.capture_only = bool(config.get("capture_only", False))
         self.fsm_test = bool(config.get("fsm_test"))
         self.ocr_only = bool(config.get("ocr_only"))
-        self.yolo_test = bool(config.get("yolo_test") or self.fsm_test)
         mode = config.get("mode", "collect")
         if mode == "record":
             mode = "collect"
+        self.fsm_run = bool(config.get("fsm_run") or self.fsm_test or mode == "automation")
+        if "fsm_persist" in config:
+            self.fsm_persist = bool(config.get("fsm_persist"))
+        else:
+            self.fsm_persist = bool(self.fsm_test)
+        self.yolo_test = bool(config.get("yolo_test") or self.fsm_run)
         if mode == "yolo_test":
             self.yolo_test = True
         if mode == "collect" and not self.yolo_test and not self.ocr_only:
             self.gui.log("状态分析模块: 采集由操作模块负责，这里不截图。")
             return
-        # YOLO测试：不落盘。FSM测试：写 FSM_TEST。
-        self.save_images = bool(self.fsm_test)
+        # YOLO测试：不落盘。FSM测试：写 FSM_TEST。自动化：跑 FSM 但不写盘。
+        self.save_images = bool(self.fsm_persist)
         self.yolo_conf = float(config.get("yolo_conf", 0.1))
         self.yolo_iou = float(config.get("yolo_iou", 0.7))
         self.ocr_region = config.get("ocr_region") if isinstance(config.get("ocr_region"), dict) else None
@@ -254,7 +261,7 @@ class StatusAnalysisModule:
             char = char or (self.gui.character_var.get() or "").strip()
         except Exception:
             pass
-        if self.fsm_test or mode == "automation":
+        if self.fsm_run:
             if skill_table_missing(char):
                 self.gui.log("错误: 没有技能表（文件不存在或没有任何技能）。已中止 FSM测试/自动化。")
                 self.gui.stop()
@@ -280,7 +287,7 @@ class StatusAnalysisModule:
                 self.gui.stop()
                 return
             self.gui.log(f"  - YOLO 推理参数 conf={self.yolo_conf}, iou={self.yolo_iou}")
-        elif not self.ocr_only and not self.yolo_test and not self.fsm_test and not self.ocr:
+        elif not self.ocr_only and not self.yolo_test and not self.fsm_run and not self.ocr:
             self.gui.log("错误: OCR引擎未初始化，无法启动分析模块。")
             self.gui.stop()
             return
@@ -306,9 +313,9 @@ class StatusAnalysisModule:
         self._last_ocr_log_t = 0.0
         self._last_key_fail_t = 0.0
         self._last_png_name = ""
-        self._fsm_record_config = config if self.fsm_test else None
+        self._fsm_record_config = config if self.fsm_persist else None
         self._stop_fsm_record()
-        if self.fsm_test:
+        if self.fsm_run:
             self._executor = FsmExecutor(
                 log=self.gui.log,
                 tap_ms_min=getattr(self, "_tap_ms_min", DEFAULT_TAP_MS_MIN),
@@ -317,20 +324,26 @@ class StatusAnalysisModule:
             self._sync_executor_mash()
             self._want_game_fg = True
             self._want_game_fg_until = time.time() + 2.0
+            tag = "FSM测试" if self.fsm_persist else "自动化"
             if focus_region(self._region_coords):
-                self.gui.log("FSM测试发键：已把游戏窗口拉到前台。点停止会松开我们按下的键。")
+                self.gui.log(f"{tag}发键：已把游戏窗口拉到前台。点停止会松开我们按下的键。")
             else:
-                self.gui.log("FSM测试发键：未能切到游戏窗口，请点一下游戏画面。点停止会松开我们按下的键。")
-            self.gui.log("FSM测试写盘：等 OCR 进入地下城后再写 FSM_TEST（城镇不录）。")
+                self.gui.log(f"{tag}发键：未能切到游戏窗口，请点一下游戏画面。点停止会松开我们按下的键。")
+            if self.fsm_persist:
+                self.gui.log("FSM测试写盘：等 OCR 进入地下城后再写 FSM_TEST（城镇不录）。")
+            else:
+                self.gui.log("自动化：截图仅内存，不建 FSM_TEST 会话、不写 png/jsonl。")
 
-        if self.fsm_test:
+        if self.fsm_persist:
             self.gui.log("状态分析模块: FSM测试模式 — 发键；进图后写盘 FSM_TEST。")
+        elif self.fsm_run:
+            self.gui.log("状态分析模块: 自动化 — YOLO+FSM+发键，不写 FSM_TEST / png / jsonl。")
         elif self.yolo_test:
             self.gui.log("状态分析模块: YOLO测试模式 — 检测 + OCR 进图判定，不跑 FSM，不落盘。")
         elif self.ocr_only:
             self.gui.log("状态分析模块: 采集旁路 OCR — 进图后才写 recordings（城镇不录）。")
         else:
-            self.gui.log("状态分析模块: 自动化 — OCR 用内存帧，截图不落盘。")
+            self.gui.log("状态分析模块: OCR 用内存帧，截图不落盘。")
 
         self.is_running = True
         self.ocr_queue = queue.Queue(maxsize=1)
@@ -352,10 +365,12 @@ class StatusAnalysisModule:
             self.capture_thread = threading.Thread(target=self._capture_loop, args=(config,), daemon=True)
             self.capture_thread.start()
 
-        if self.fsm_test:
+        if self.fsm_run:
             p = self._fsm_params
+            kind = "FSM测试" if self.fsm_persist else "自动化"
+            disk = "进图后写盘 FSM_TEST" if self.fsm_persist else "不写盘"
             self.gui.log(
-                f"状态分析模块: 已启动【FSM测试】（YOLO+FSM+发键；进图后写盘 FSM_TEST）。"
+                f"状态分析模块: 已启动【{kind}】（YOLO+FSM+发键；{disk}）。"
                 f"M={p.m} L={p.l} G={p.g} X={p.x_s:g}s GX={p.gx} GY={p.gy} AX={p.ax_ms}ms AY={p.ay_ms}ms 恢复s={p.stuck_recover_s:g} S={p.s}% "
                 f"点按{getattr(self, '_tap_ms_min', DEFAULT_TAP_MS_MIN)}-{getattr(self, '_tap_ms_max', DEFAULT_TAP_MS_MAX)}ms 连按COUNT={getattr(self, '_mash_count', DEFAULT_MASH_COUNT)} "
                 f"间隔{getattr(self, '_mash_gap_ms', DEFAULT_MASH_GAP_MS)}ms TH={p.th_ms}ms  开打序列{len(p.fight_plan)}分布 发键开"
@@ -491,6 +506,8 @@ class StatusAnalysisModule:
             n += 1
 
     def _start_fsm_record(self, config: dict) -> None:
+        if not self.fsm_persist:
+            return
         from datetime import datetime
 
         from key_snapshot import snapshot_held_keys
@@ -987,7 +1004,7 @@ class StatusAnalysisModule:
             ) or "无目标"
             import cv2
             plotted = result.plot()
-            if self.fsm_test:
+            if self.fsm_run:
                 decision = self._fsm_state_from_features(features, t_ns)
                 if self._executor is not None:
                     try:
@@ -1022,7 +1039,7 @@ class StatusAnalysisModule:
                 plotted = cv2.resize(plotted, (max_w, int(h * scale)))
             self._show_preview(cv2, win_name, plotted)
         except Exception as e:
-            tag = "FSM测试" if self.fsm_test else "YOLO测试"
+            tag = "FSM测试" if self.fsm_persist else ("自动化" if self.fsm_run else "YOLO测试")
             self.gui.log(f"  - 错误: {tag}推理失败 - {e}")
 
     def _log_detect(self, key, line: str) -> None:
@@ -1113,8 +1130,8 @@ class StatusAnalysisModule:
             return None
         result = self.capture_module.capture(
             rect=rect,
-            gui=None if self.fsm_test else self.gui,
-            save=bool(self.fsm_test and self._fsm_session_dir),
+            gui=None if self.fsm_run else self.gui,
+            save=bool(self.fsm_persist and self._fsm_session_dir),
         )
         if not result or result.get("frame") is None:
             self.gui.log("  - 游戏窗口截图失败。")
@@ -1126,7 +1143,7 @@ class StatusAnalysisModule:
         self._last_png_name = Path(path).name if path else ""
         h, w = frame.shape[:2]
         if path:
-            if self.fsm_test:
+            if self.fsm_persist:
                 if self.frame_index == 1 or self.frame_index % 20 == 0:
                     self.gui.log(f"  - FSM_TEST 已保存 #{self.frame_index}: {self._last_png_name}")
             elif self.capture_only:
@@ -1214,7 +1231,7 @@ class StatusAnalysisModule:
                 kw, score, raw = above[0]
                 self.current_dungeon_name = matched_dungeon
                 self._plan_missing_logged = False
-                if self.fsm_test or (not self.yolo_test and not self.ocr_only):
+                if self.fsm_run or (not self.yolo_test and not self.ocr_only):
                     self._fsm_params = self._load_fsm_params()
                     self._fsm_ui_mtime = self._fsm_ui_file_mtime()
                 self.game_state = "DUNGEON"
@@ -1225,7 +1242,7 @@ class StatusAnalysisModule:
                 if self.on_state_change_callback:
                     self.on_state_change_callback(self.current_dungeon_name)
                 self._refresh_runtime_display()
-                if self.fsm_test:
+                if self.fsm_persist:
                     self._stop_fsm_record()
                     self._start_fsm_record(self._fsm_record_config or {})
 
@@ -1248,7 +1265,7 @@ class StatusAnalysisModule:
     def _press_town_f10(self) -> None:
         exe = self._executor
         if exe is None or not getattr(exe, "_on", False):
-            self.gui.log("  - OCR 返回城镇 已满粘滞，未发 F10（仅 FSM测试发键）")
+            self.gui.log("  - OCR 返回城镇 已满粘滞，未发 F10（仅 FSM测试/自动化发键）")
             return
         try:
             exe.tap_key("f10")
@@ -1279,7 +1296,7 @@ class StatusAnalysisModule:
         self.gui.log(f">>> 状态变更: [模式] 从 [{old_dungeon}] 返回 城镇  （连续无地下城关键词）")
         if self.on_state_change_callback:
             self.on_state_change_callback(self.current_dungeon_name)
-        if self.fsm_test:
+        if self.fsm_persist:
             self._stop_fsm_record()
         self._refresh_runtime_display()
 

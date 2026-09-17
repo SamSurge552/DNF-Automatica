@@ -4,10 +4,10 @@
 > 本文件**只写当天增量**，禁止复述另三份。新旧想法：用新的，事后告知。组集 vs TRAIN_ALIGN 已确认步骤打架时先问。
 > 通关以 `FSM_DESIGN.txt` 为准。
 
-生成：2026-09-11 10:19 (UTC+8)
+生成：2026-09-17 16:15 (UTC+8)
 
 ## 本会话已做
-- 范围异常走近改当前帧 boss+mon 均值；缺检才退 `_dist_center`
+- 短 `requirements.txt`；`README.md` 只当 GitHub 介绍（装环境看 requirements，通关看 `FSM_DESIGN.txt`）
 
 ## 下一对话先做
 - **边打边调** F10 回城钮（默认 tn_s=30s）；提取规则已变 → 先「重新提取本图」/重提 `skill_features`

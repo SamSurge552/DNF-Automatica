@@ -5,7 +5,7 @@
   "x_s": 10.0,
   "gx": 100,
   "gy": 100,
-  "ax_ms": 1500,
+  "ax_ms": 2000,
   "ay_ms": 100,
   "stuck_recover_s": 0.5,
   "stuck_recover": [
@@ -113,7 +113,7 @@
   },
   "session_source": "全部",
   "extract_include_fsm": false,
-  "last_session": "recordings/深渊：最终调律者/20260911_112242_SolarSeul",
+  "last_session": "recordings/深渊：最终调律者/20260914_144047_N1kle",
   "mon_corr_u": 0,
   "mon_corr_d": 80,
   "mon_corr_l": 0,

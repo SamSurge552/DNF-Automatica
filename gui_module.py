@@ -310,14 +310,14 @@ class App(tk.Tk):
         )
         self.yolo_mode_rb.pack(anchor=tk.W, side=tk.LEFT, padx=5)
         self.automation_rb = ttk.Radiobutton(
-            mode_row, text="自动化模式", variable=self.mode_var, value="automation", command=self._sync_exclusive_modes
+            mode_row, text="自动化（不落盘）", variable=self.mode_var, value="automation", command=self._sync_exclusive_modes
         )
         self.automation_rb.pack(anchor=tk.W, side=tk.LEFT, padx=5)
 
         self.yolo_test_var = tk.BooleanVar(value=False)
         self.yolo_test_cb = ttk.Checkbutton(
             mode_row,
-            text="FSM测试",
+            text="FSM测试（会写盘）",
             variable=self.yolo_test_var,
             command=self._on_yolo_test_toggle,
         )
@@ -633,6 +633,11 @@ class App(tk.Tk):
     def is_fsm_test_mode(self) -> bool:
         return bool(self.yolo_test_var.get())
 
+    def is_automation_mode(self) -> bool:
+        if self.yolo_test_var.get():
+            return False
+        return self.mode_var.get() == "automation"
+
     def _on_yolo_test_toggle(self):
         if self.yolo_test_var.get():
             self._refresh_yolo_versions()
@@ -662,7 +667,7 @@ class App(tk.Tk):
             elif self.is_collect_mode():
                 self.log("采集模式：截图 + 键盘 + YOLO。开始时必须已是管理员，并选过图权重。")
             else:
-                self.log("自动化模式：等 OCR 进图后占位，不采集。")
+                self.log("自动化模式：与 FSM测试相同（YOLO + FSM + 发键），不写 FSM_TEST / png / jsonl。")
 
     def select_region(self):
         self.log("请点击游戏窗口以自动对齐...(按ESC取消)")
@@ -956,23 +961,25 @@ class App(tk.Tk):
                 )
                 self.log("采集已拦截：未选择 YOLO 权重。")
                 return
-        if self.is_fsm_test_mode() or self.is_yolo_test_mode():
+        fsm_run = self.is_fsm_test_mode() or self.is_automation_mode()
+        if fsm_run or self.is_yolo_test_mode():
             weights = self._selected_yolo_weights()
             if not weights:
                 self.log("错误: 请先在「YOLO 设置」中选择有效权重。")
                 return
-            if self.is_fsm_test_mode():
+            if fsm_run:
                 self._load_fsm_mlg_vars()
                 if not is_admin():
+                    tag = "FSM测试" if self.is_fsm_test_mode() else "自动化"
                     messagebox.showerror(
-                        "FSM测试需要管理员",
-                        "FSM测试会发键，必须以管理员启动，否则游戏收不到键。\n"
+                        f"{tag}需要管理员",
+                        f"{tag}会发键，必须以管理员启动，否则游戏收不到键。\n"
                         "请点左下角「以管理员身份重启」，再开始。",
                         parent=self,
                     )
-                    self.log("FSM测试已拦截：当前不是管理员。")
+                    self.log(f"{tag}已拦截：当前不是管理员。")
                     return
-        if self.is_fsm_test_mode() or self.mode_var.get() == "automation":
+        if fsm_run:
             char = (self.character_var.get() or "").strip()
             if skill_table_missing(char):
                 messagebox.showerror(
@@ -987,12 +994,12 @@ class App(tk.Tk):
         self.stop_button.config(state=tk.NORMAL)
         self._toggle_settings_state("disabled")
         self.controller.start_process()
-        if self.is_fsm_test_mode():
+        if fsm_run:
             self.after(80, self._focus_game_for_keys)
             self.after(500, self._focus_game_for_keys)
 
     def _focus_game_for_keys(self):
-        if not self.is_fsm_test_mode():
+        if not (self.is_fsm_test_mode() or self.is_automation_mode()):
             return
         from window_align import focus_region
 
@@ -1373,17 +1380,22 @@ class App(tk.Tk):
             yolo_iou = float(self.yolo_iou_entry.get())
         except ValueError:
             yolo_iou = 0.7
+        mode = self.mode_var.get() if self.mode_var.get() != "record" else "collect"
+        fsm_run = bool(self.is_fsm_test_mode() or mode == "automation")
+        fsm_persist = bool(self.is_fsm_test_mode())
         return {
-            'mode': self.mode_var.get() if self.mode_var.get() != "record" else "collect",
+            'mode': mode,
             'region_coords': self.region_coords,
             'window_title': self.window_title,
             'interval': self.interval_entry.get(),
             'ocr_interval': self.ocr_interval_entry.get(),
             'ocr_conf': self.ocr_conf_entry.get(),
             'capture_only': False,
-            'fsm_test': bool(self.is_fsm_test_mode()),
-            'yolo_test': bool(self.is_fsm_test_mode() or self.is_yolo_test_mode()),
-            'send_keys': bool(self.is_fsm_test_mode()),
+            'fsm_run': fsm_run,
+            'fsm_persist': fsm_persist,
+            'fsm_test': fsm_persist,
+            'yolo_test': bool(fsm_run or self.is_yolo_test_mode()),
+            'send_keys': fsm_run,
             'yolo_version': self.yolo_version_var.get(),
             'yolo_weights': weights,
             'yolo_conf': yolo_conf,

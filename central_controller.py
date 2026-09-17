@@ -30,11 +30,17 @@ class CentralController:
         self.current_dungeon = new_dungeon_name
         mode = self.gui.mode_var.get()
 
+        fsm_run = bool(getattr(self.status_analyzer, "fsm_run", False))
+        fsm_persist = bool(getattr(self.status_analyzer, "fsm_persist", False))
         if self.current_dungeon:
-            self.operation_analyzer.handle_dungeon_entry(self.current_dungeon, mode)
+            if mode in ("collect", "record") and not fsm_run:
+                self.operation_analyzer.handle_dungeon_entry(self.current_dungeon, mode)
+            elif fsm_run:
+                extra = "写盘 FSM_TEST" if fsm_persist else "不写盘"
+                self.gui.log(f"中央控制器: [回调] 进图，状态模块跑 YOLO+FSM+发键（{extra}）。")
             self.gui.log(f"中央控制器: [回调] 检测到地下城变更为 -> {self.current_dungeon}，模式: {mode}")
         else:
-            if mode in ("collect", "record"):
+            if mode in ("collect", "record") and not fsm_run:
                 self.operation_analyzer.close_segment()
             else:
                 self.operation_analyzer.stop_all_operations()
@@ -109,14 +115,15 @@ class CentralController:
             self.gui.stop()
             return
 
-        fsm_test = bool(config.get("fsm_test"))
-        yolo_test = bool(config.get("yolo_test"))
         mode = config.get("mode", "collect")
         if mode == "record":
             mode = "collect"
+        fsm_run = bool(config.get("fsm_run") or config.get("fsm_test") or mode == "automation")
+        fsm_persist = bool(config.get("fsm_persist")) if "fsm_persist" in config else bool(config.get("fsm_test"))
+        yolo_test = bool(config.get("yolo_test") or fsm_run)
         if mode == "yolo_test":
             yolo_test = True
-        collect = (not fsm_test) and (not yolo_test) and mode == "collect"
+        collect = (not fsm_run) and (not yolo_test) and mode == "collect"
 
         if collect:
             if not is_admin():
@@ -129,6 +136,8 @@ class CentralController:
             ocr_cfg = dict(config)
             ocr_cfg["ocr_only"] = True
             ocr_cfg["fsm_test"] = False
+            ocr_cfg["fsm_run"] = False
+            ocr_cfg["fsm_persist"] = False
             ocr_cfg["yolo_test"] = False
             self.status_analyzer.start(ocr_cfg)
             self.gui.update_runtime_status(state_text="城镇")
@@ -137,12 +146,12 @@ class CentralController:
 
         self.status_analyzer.start(config)
 
-        if fsm_test:
+        if fsm_persist:
             self.gui.log("中央控制器: FSM测试已交给状态模块（发键；进图后写盘 FSM_TEST）。")
+        elif fsm_run:
+            self.gui.log("中央控制器: 自动化已交给状态模块（YOLO+FSM+发键，不写 FSM_TEST / png / jsonl）。")
         elif yolo_test:
             self.gui.log("中央控制器: YOLO测试已交给状态模块（只检测，不跑 FSM、不写盘）。")
-        elif mode == "automation":
-            self.gui.log("中央控制器: 自动化模式 — 等待进入地下城。")
 
     def stop_process(self):
         """由GUI的'停止'按钮调用，负责停止核心模块"""

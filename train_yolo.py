@@ -29,8 +29,11 @@ EPOCHS = 100
 PATIENCE = 20
 SPLIT_SEED = 0
 MIX_A_CHARS = ("solarwarden_d", "varien_a", "Sam1ra_a")
+MIX_B_CHARS = ("solarwarden_d", "varien_a", "Sam1ra_a", "miss_png")
 MIX_A_BLANK_TRAIN = 12
 MIX_A_BLANK_EVAL = 5
+MIX_A_FINAL_EPOCHS = 300
+MIX_A_FINAL_PATIENCE = 0
 
 
 def _pngs(image_dir: Path) -> list[Path]:
@@ -208,7 +211,7 @@ def parse_args():
     p.add_argument(
         "--suite",
         default="",
-        help="solarwarden_c = 同一拆分连训 A/B/C；mix_a = 混合角色分层重训",
+        help="solarwarden_c = 同一拆分连训 A/B/C；mix_a / mix_b = 混合角色分层重训",
     )
     p.add_argument("--epochs", type=int, default=EPOCHS, help="上限轮数")
     p.add_argument(
@@ -348,6 +351,56 @@ def _empty_txt_count(label_dir: Path, stems: list[str], txts: dict[str, Path]) -
     return n
 
 
+def mix_dataset_text(
+    run_name: str,
+    source_root: Path,
+    char_names: tuple[str, ...],
+    counts: dict[str, int],
+    empty_in_char: dict[str, int],
+    split_sizes: dict,
+    epochs: int = EPOCHS,
+    patience: int = PATIENCE,
+) -> str:
+    parts = " + ".join(f"{n} {counts.get(n, 0)}" for n in (*char_names, "blank"))
+    empty_s = " + ".join(f"{n} {empty_in_char.get(n, 0)}" for n in char_names)
+    total = sum(counts.values())
+    extra = ""
+    if run_name == "mix_b":
+        extra = (
+            f"源目录: {source_root.as_posix()}（mix 全部素材，含 miss_png 补充）\n"
+            "方法同 mix_a：各标注子集各自 7/2/1 seed=0 再合并；"
+            f"blank {MIX_A_BLANK_TRAIN} train + {MIX_A_BLANK_EVAL} 评估。\n"
+            f"本 run: 对齐 mix_a 最终版（epochs={MIX_A_FINAL_EPOCHS}, patience={MIX_A_FINAL_PATIENCE}）。\n"
+        )
+    elif run_name == "mix_a":
+        extra = (
+            "预标注:\n"
+            "  solarwarden_d 560: 本批未逐张记录预标模型（集内已有人工校对 txt）\n"
+            "  varien_a 90: solarwarden_d 权重, conf=0.15, iou=0.5, 人工修改\n"
+            "  Sam1ra_a 124: solarwarden_d 权重, conf=0.1, iou=0.7, save_conf/score, 人工修改\n"
+            "  blank 17: 纯负样本，无框\n"
+            "blank 结案（mix_a_e100，5 张独立评估，best=last）:\n"
+            "  conf=0.15: 总误检 1（mon×1）；conf=0.05: 总误检 2（mon×2）\n"
+            "  均在 20260902_185757_472357；其余 4 张全空。\n"
+            "  结论: 空图抑制可用，本轮不作为主矛盾，不扩 blank。\n"
+            "本 run: Sam1ra 已按 json 重导修正 txt；patience=0 跑满 300 为最终版。\n"
+            "切分: 三角色各自 7/2/1 seed=0 再合并；blank 12 train + 5 评估 seed=0\n"
+            "GUI 过图默认权重已切 mix_a。\n"
+        )
+    return (
+        f"数据集: {parts}"
+        f"（blank {MIX_A_BLANK_TRAIN} train / {MIX_A_BLANK_EVAL} 评估，不进 val/test） = {total}\n"
+        f"标注子集内空框 txt: {empty_s}\n"
+        f"{extra}"
+        "起点: yolo26n.pt 全量重训, freeze=0, mosaic=0, mixup=0, imgsz=640\n"
+        f"训练: epochs={epochs}, patience={patience}（0=关早停）, batch=32（train>=120）, "
+        f"conf={TRAIN_CONF}, iou={TRAIN_IOU}, device=0\n"
+        "评估: 训完 best.pt 与 last.pt 各跑子集 val（含每类 P/R/mAP50/mAP50-95）"
+        " + blank 评估集 conf=0.15/0.05 误检。不每 epoch 打分角色 mAP。\n"
+        f"切分张数: {json.dumps(split_sizes, ensure_ascii=False)}\n"
+    )
+
+
 def mix_a_dataset_text(
     counts: dict[str, int],
     empty_in_char: dict[str, int],
@@ -355,37 +408,29 @@ def mix_a_dataset_text(
     epochs: int = EPOCHS,
     patience: int = PATIENCE,
 ) -> str:
-    total = sum(counts.values())
-    return (
-        f"数据集: solarwarden_d {counts['solarwarden_d']} + varien_a {counts['varien_a']} "
-        f"+ Sam1ra_a {counts['Sam1ra_a']} + blank {counts['blank']}"
-        f"（{MIX_A_BLANK_TRAIN} train / {MIX_A_BLANK_EVAL} 评估，不进 val/test） = {total}\n"
-        f"角色集内空框 txt: solarwarden_d {empty_in_char['solarwarden_d']} "
-        f"+ Sam1ra_a {empty_in_char['Sam1ra_a']} + varien_a {empty_in_char['varien_a']}\n"
-        "预标注:\n"
-        "  solarwarden_d 560: 本批未逐张记录预标模型（集内已有人工校对 txt）\n"
-        "  varien_a 90: solarwarden_d 权重, conf=0.15, iou=0.5, 人工修改\n"
-        "  Sam1ra_a 124: solarwarden_d 权重, conf=0.1, iou=0.7, save_conf/score, 人工修改\n"
-        "  blank 17: 纯负样本，无框\n"
-        "blank 结案（mix_a_e100，5 张独立评估，best=last）:\n"
-        "  conf=0.15: 总误检 1（mon×1）；conf=0.05: 总误检 2（mon×2）\n"
-        "  均在 20260902_185757_472357；其余 4 张全空。\n"
-        "  结论: 空图抑制可用，本轮不作为主矛盾，不扩 blank。\n"
-        "本 run: Sam1ra 已按 json 重导修正 txt；patience=0 跑满 300 为最终版。\n"
-        "起点: yolo26n.pt 全量重训, freeze=0, mosaic=0, mixup=0, imgsz=640\n"
-        "切分: 三角色各自 7/2/1 seed=0 再合并；blank 12 train + 5 评估 seed=0\n"
-        f"训练: epochs={epochs}, patience={patience}（0=关早停）, batch=32（train>=120）, "
-        f"conf={TRAIN_CONF}, iou={TRAIN_IOU}, device=0\n"
-        "评估: 训完 best.pt 与 last.pt 各跑三角色 val（含每类 P/R/mAP50/mAP50-95）"
-        " + blank 评估集 conf=0.15/0.05 误检。不每 epoch 打分角色 mAP。\n"
-        f"切分张数: {json.dumps(split_sizes, ensure_ascii=False)}\n"
-        "GUI 过图默认权重已切 mix_a。\n"
+    return mix_dataset_text(
+        "mix_a",
+        ROOT / "Aset" / "mix_a",
+        MIX_A_CHARS,
+        counts,
+        empty_in_char,
+        split_sizes,
+        epochs=epochs,
+        patience=patience,
     )
 
 
 def prepare_mix_a_dataset(stage_dir: Path, class_names: list[str]) -> tuple[Path, dict]:
-    """三角色各自 7/2/1；blank 12 进 train、5 张独立评估。"""
-    root = ROOT / "Aset" / "mix_a"
+    return prepare_mix_dataset(ROOT / "Aset" / "mix_a", stage_dir, class_names, MIX_A_CHARS)
+
+
+def prepare_mix_dataset(
+    root: Path,
+    stage_dir: Path,
+    class_names: list[str],
+    char_names: tuple[str, ...],
+) -> tuple[Path, dict]:
+    """各标注子集各自 7/2/1；blank 12 进 train、5 张独立评估。"""
     if not root.is_dir():
         raise FileNotFoundError(root)
 
@@ -397,7 +442,7 @@ def prepare_mix_a_dataset(stage_dir: Path, class_names: list[str]) -> tuple[Path
     split_sizes: dict[str, dict[str, int]] = {}
     split_stems: dict[str, dict[str, list[str]]] = {}
 
-    for name in MIX_A_CHARS:
+    for name in char_names:
         image_dir = root / name
         label_dir = image_dir / "labels"
         pngs, txts, stems = paired_stems(image_dir, label_dir)
@@ -458,7 +503,7 @@ def prepare_mix_a_dataset(stage_dir: Path, class_names: list[str]) -> tuple[Path
 
     data_yaml = stage_dir / "data.yaml"
     _write_names_yaml(stage_dir, class_names, "images/val", data_yaml)
-    for name in MIX_A_CHARS:
+    for name in char_names:
         _write_names_yaml(
             stage_dir,
             class_names,
@@ -479,10 +524,10 @@ def prepare_mix_a_dataset(stage_dir: Path, class_names: list[str]) -> tuple[Path
     n_val = len(list((stage_dir / "images" / "val").glob("*.png")))
     n_test = len(list((stage_dir / "images" / "test").glob("*.png")))
     print(
-        f"mix_a 已准备: train={n_train} val={n_val} test={n_test} "
+        f"{root.name} 已准备: train={n_train} val={n_val} test={n_test} "
         f"blank_eval={len(blank_eval)} -> {data_yaml}"
     )
-    for name in MIX_A_CHARS:
+    for name in char_names:
         print(f"  {name}: {split_sizes[name]}")
     print(f"  blank: {split_sizes['blank']}")
     return data_yaml, manifest
@@ -686,7 +731,12 @@ def _blank_fp_counts(model, image_dir: Path, class_names: list[str], conf: float
     }
 
 
-def eval_mix_a_weights(save_dir: Path, stage_dir: Path, class_names: list[str]) -> Path:
+def eval_mix_a_weights(
+    save_dir: Path,
+    stage_dir: Path,
+    class_names: list[str],
+    char_names: tuple[str, ...] = MIX_A_CHARS,
+) -> Path:
     out: dict = {}
     blank_dir = stage_dir / "images" / "blank_eval"
     for weight_name in ("best.pt", "last.pt"):
@@ -697,7 +747,7 @@ def eval_mix_a_weights(save_dir: Path, stage_dir: Path, class_names: list[str]) 
         print(f"\n======== eval {weight_name} ========")
         model = YOLO(str(wpath))
         block: dict = {}
-        for name in MIX_A_CHARS:
+        for name in char_names:
             yaml_path = stage_dir / f"val_{name}.yaml"
             print(f"  val {name}")
             metrics = model.val(
@@ -740,30 +790,76 @@ def train_mix_a(
     epochs: int | None = None,
     patience: int | None = None,
 ):
+    train_mix_run(
+        run_name="mix_a",
+        aset_name="mix_a",
+        char_names=MIX_A_CHARS,
+        freeze=freeze,
+        mosaic=mosaic,
+        weights=weights,
+        epochs=epochs,
+        patience=patience,
+    )
+
+
+def train_mix_b(
+    freeze: int = 0,
+    mosaic: float = 0.0,
+    weights: str = "",
+    epochs: int | None = None,
+    patience: int | None = None,
+):
+    n_epochs = MIX_A_FINAL_EPOCHS if epochs is None else int(epochs)
+    n_patience = MIX_A_FINAL_PATIENCE if patience is None else int(patience)
+    train_mix_run(
+        run_name="mix_b",
+        aset_name="mix",
+        char_names=MIX_B_CHARS,
+        freeze=freeze,
+        mosaic=mosaic,
+        weights=weights,
+        epochs=n_epochs,
+        patience=n_patience,
+    )
+
+
+def train_mix_run(
+    run_name: str,
+    aset_name: str,
+    char_names: tuple[str, ...],
+    freeze: int = 0,
+    mosaic: float = 0.0,
+    weights: str = "",
+    epochs: int | None = None,
+    patience: int | None = None,
+):
     n_epochs = int(epochs) if epochs is not None else EPOCHS
     n_patience = PATIENCE if patience is None else int(patience)
-    mix_root = ROOT / "Aset" / "mix_a"
+    mix_root = ROOT / "Aset" / aset_name
     class_names = load_class_names(mix_root / "solarwarden_d", mix_root / "solarwarden_d" / "labels", None)
     if not class_names:
         class_names = list(CLASS_NAMES)
     print(f"图片目录: {mix_root}")
-    print(f"run: mix_a")
+    print(f"run: {run_name}")
     print(f"类别: {class_names}")
     print(
-        f"mix_a: YOLO26n 全量重训 / mosaic={mosaic} / freeze={freeze} → "
+        f"{run_name}: YOLO26n 全量重训 / mosaic={mosaic} / freeze={freeze} → "
         f"epochs={n_epochs} 上限, patience={n_patience} / conf={TRAIN_CONF} iou={TRAIN_IOU}"
     )
 
-    stage_dir = ROOT / "yolo_data" / "mix_a"
-    data_yaml, manifest = prepare_mix_a_dataset(stage_dir, class_names)
-    meta_text = mix_a_dataset_text(
+    stage_dir = ROOT / "yolo_data" / run_name
+    data_yaml, manifest = prepare_mix_dataset(mix_root, stage_dir, class_names, char_names)
+    meta_text = mix_dataset_text(
+        run_name,
+        mix_root,
+        char_names,
         manifest["counts"],
         manifest["empty_in_char"],
         manifest["split_sizes"],
         epochs=n_epochs,
         patience=n_patience,
     )
-    run_dir = PROJECT_DIR / "mix_a"
+    run_dir = PROJECT_DIR / run_name
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "DATASET.txt").write_text(meta_text, encoding="utf-8")
     (stage_dir / "DATASET.txt").write_text(meta_text, encoding="utf-8")
@@ -771,13 +867,13 @@ def train_mix_a(
     print(meta_text)
 
     save_dir = run_ultralytics_train(
-        data_yaml, "mix_a", freeze, mosaic, weights=weights, epochs=n_epochs, patience=n_patience
+        data_yaml, run_name, freeze, mosaic, weights=weights, epochs=n_epochs, patience=n_patience
     )
     if save_dir is None:
         return
     (save_dir / "DATASET.txt").write_text(meta_text, encoding="utf-8")
     shutil.copy2(stage_dir / "splits.json", save_dir / "splits.json")
-    eval_mix_a_weights(save_dir, stage_dir, class_names)
+    eval_mix_a_weights(save_dir, stage_dir, class_names, char_names=char_names)
 
 
 def train_my_yolo(
@@ -837,6 +933,14 @@ if __name__ == "__main__":
             weights=args.weights,
             epochs=args.epochs,
             patience=args.patience,
+        )
+    elif suite == "mix_b" or char == "mix_b":
+        train_mix_b(
+            freeze=args.freeze,
+            mosaic=args.mosaic,
+            weights=args.weights,
+            epochs=args.epochs if args.epochs != EPOCHS else None,
+            patience=args.patience if args.patience != PATIENCE else None,
         )
     else:
         train_my_yolo(

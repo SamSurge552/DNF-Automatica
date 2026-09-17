@@ -47,7 +47,8 @@ class OperationAnalysisModule:
             self.open_segment(dungeon_name)
             return
         if mode == "automation":
-            self.start_automation(dungeon_name)
+            self.gui.log("  -> 自动化进图：FSM/发键由状态模块负责，不建 recordings。")
+            return
 
     def update_session_dungeon(self, dungeon_name: str):
         """禁止只改 meta.dungeon：地下城名变了就停段再新开。"""

@@ -1,0 +1,28 @@
+# 本仓库：Windows + NVIDIA GPU + Python 3.12。
+# 不要 pip freeze。不要裸装 CPU 版 torch。
+#
+# 安装顺序
+#   1) 按 https://pytorch.org 装 GPU 轮：本机已验证 torch 2.11.0+cu128（CUDA 12.8）
+#      pip 示例（以官网当时命令为准）：
+#      pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
+#   2) 再：pip install -r requirements.txt
+#
+# CUDA 12.6 是什么（见 cuda_runtime.py）
+#   主路径：Torch(cu128) + RapidOCR/ORT(CUDA13) 的 pip nvidia 包。启动先试这条。
+#   回退：主路径卷积/ORT preload 失败，才把系统 CUDA 12.6 bin
+#   （默认 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\bin）
+#   和 pip 里带 cu12/12.6 的 nvidia 目录 prepend 进 PATH，再试一次。
+#   这不是「换成 cu126 的 torch 轮」，也不是免装 GPU torch。
+#   换机最低：能跑 cu128 的 NVIDIA 驱动；Toolkit 12.6 仅在回退时需要。
+#
+# 本机旁证（2026-09）：ultralytics 8.4.135 / opencv 5 / numpy 2.3 / Pillow 12 / onnxruntime 1.29
+
+ultralytics
+opencv-python
+numpy
+Pillow
+pynput
+dxcam
+comtypes
+rapidocr
+onnxruntime-gpu
