@@ -99,7 +99,19 @@ def _snapshot_env() -> dict[str, str]:
     return out
 
 
-def restart_as_admin(cwd: str | None = None) -> tuple[bool, str]:
+def _gui_python_exe() -> str:
+    exe = Path(sys.executable)
+    if exe.name.lower() == "python.exe":
+        pyw = exe.with_name("pythonw.exe")
+        if pyw.is_file():
+            return str(pyw)
+    return str(exe)
+
+
+def restart_as_admin(
+    cwd: str | None = None,
+    script: str | Path | None = None,
+) -> tuple[bool, str]:
     """
     弹出 UAC，用同一解释器/exe 重新启动，并带上当前 PATH（含 torch/cuDNN）。
     成功发起后由调用方退出本进程；用户取消 UAC 则返回 False。
@@ -123,11 +135,17 @@ def restart_as_admin(cwd: str | None = None) -> tuple[bool, str]:
         exe = sys.executable
         params = "--elevated"
     else:
-        script = Path(sys.argv[0]).resolve()
-        if not script.is_file():
-            return False, f"找不到启动脚本: {script}"
-        exe = sys.executable
-        params = _quote(str(script))
+        if script is None:
+            target = Path(sys.argv[0]).resolve()
+        else:
+            target = Path(script)
+            if not target.is_file():
+                target = Path(workdir) / script
+            target = target.resolve()
+        if not target.is_file():
+            return False, f"找不到启动脚本: {target}"
+        exe = _gui_python_exe()
+        params = _quote(str(target))
 
     rc = ctypes.windll.shell32.ShellExecuteW(
         None,
@@ -146,3 +164,12 @@ def restart_as_admin(cwd: str | None = None) -> tuple[bool, str]:
             return False, "已取消 UAC，仍以普通权限运行。"
         return False, f"提权启动失败（ShellExecute={rc}）。"
     return True, "已请求管理员进程，本窗口即将关闭。"
+
+
+def ensure_elevated_startup(cwd: str | None = None, script: str | Path | None = None) -> None:
+    """非管理员则 UAC 重开（先快照 PATH）并退出本进程。取消 UAC 则留下普通进程。"""
+    if is_admin():
+        return
+    ok, _msg = restart_as_admin(cwd=cwd, script=script)
+    if ok:
+        raise SystemExit(0)

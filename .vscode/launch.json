@@ -8,6 +8,22 @@
             "program": "${workspaceFolder}/gui_module.py",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": "键位表",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/skill_bind_tool.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "FSM回放",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/fsm_replay.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
         }
     ]
 }

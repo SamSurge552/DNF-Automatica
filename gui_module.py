@@ -10,10 +10,11 @@ FSM_UI_PATH = Path(__file__).resolve().parent / "_fsm_replay_ui.json"
 if not getattr(sys, "frozen", False):
     os.chdir(Path(__file__).resolve().parent)
 
-from admin_runtime import apply_saved_env, is_admin, restart_as_admin, suppress_windows_error_dialogs
+from admin_runtime import apply_saved_env, ensure_elevated_startup, is_admin, restart_as_admin, suppress_windows_error_dialogs
 
 apply_saved_env()
 suppress_windows_error_dialogs()
+ensure_elevated_startup()
 
 from cuda_runtime import ensure_cuda_runtime
 ensure_cuda_runtime()
