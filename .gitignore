@@ -1,5 +1,10 @@
-# 采集整段截图目录不上
-/images/
+# 采集截图、训练素材不上；只跟踪训好的权重
+/images/**
+!/images/Atrain/
+!/images/Atrain/runs/
+!/images/Atrain/runs/*/
+!/images/Atrain/runs/*/weights/
+!/images/Atrain/runs/*/weights/*.pt
 
 # FSM测试：jsonl / 参数可上，图片不上
 FSM_TEST/**/*.png
